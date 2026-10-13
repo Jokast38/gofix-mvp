@@ -39,3 +39,10 @@ yarn-error.*
 # generated native folders
 /ios
 /android
+
+# Local exports (expo export --output-dir dist-*)
+dist-*/
+
+# Generated native projects (Continuous Native Generation: npx expo prebuild)
+/ios
+/android

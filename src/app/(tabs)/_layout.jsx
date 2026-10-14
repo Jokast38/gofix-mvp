@@ -7,6 +7,7 @@ import { socialService } from "@/api/services";
 import { isProvider, useAuth } from "@/hooks/auth";
 import { useI18n } from "@/i18n";
 import { BRAND, useTheme } from "@/theme";
+import { TourTarget } from "@/components/tour";
 
 function CenterButton() {
   const { user } = useAuth();
@@ -39,7 +40,7 @@ export default function TabsLayout() {
     }}>
       <Tabs.Screen name="index" options={{ title: t("tabs.home"), tabBarIcon: ({ color }) => <House size={22} color={color} /> }} />
       <Tabs.Screen name="search" options={{ title: t("tabs.search"), tabBarIcon: ({ color }) => <Search size={22} color={color} /> }} />
-      <Tabs.Screen name="publish" options={{ title: "", tabBarButton: () => <View style={{ flex: 1, alignItems: "center" }}><CenterButton /></View> }} />
+      <Tabs.Screen name="publish" options={{ title: "", tabBarButton: () => <View style={{ flex: 1, alignItems: "center" }}><TourTarget id="tab-center"><CenterButton /></TourTarget></View> }} />
       <Tabs.Screen name="messages" options={{ title: t("tabs.messages"), tabBarBadge: unreadCount || undefined, tabBarBadgeStyle: { backgroundColor: BRAND.pink, color: BRAND.night },
         tabBarIcon: ({ color }) => <MessageCircle size={22} color={color} /> }} />
       <Tabs.Screen name="account" options={{ title: t("tabs.account"), tabBarIcon: ({ color }) => <UserRound size={22} color={color} /> }} />

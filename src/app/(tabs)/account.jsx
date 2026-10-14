@@ -4,7 +4,7 @@ import { router } from "expo-router";
 import Constants from "expo-constants";
 import * as Sharing from "expo-sharing";
 import { File, Paths } from "expo-file-system";
-import { Bell, Bot, CalendarClock, ChevronRight, CircleHelp, ClipboardList, FileText, Heart, LayoutDashboard, LogOut, Mail, MapPin, Pencil, Receipt, Rocket, Shield } from "lucide-react-native";
+import { Bell, Bot, CalendarClock, ChevronRight, CircleHelp, ClipboardList, Compass, FileText, Heart, LayoutDashboard, LogOut, Mail, MapPin, Pencil, Receipt, Rocket, Shield } from "lucide-react-native";
 import { API_ORIGIN, errorCode } from "@/api/client";
 import { userService } from "@/api/services";
 import { isProvider, useAuth, useWilayas } from "@/hooks/auth";
@@ -13,6 +13,7 @@ import { formatPhone, ltr } from "@/lib/format";
 import { BRAND, useTheme } from "@/theme";
 import { LanguageFlags } from "@/ui/Flags";
 import { AccountEditor } from "@/components/AccountEditor";
+import { APP_TOURS, TourTarget, useScreenTour, useTour } from "@/components/tour";
 import { enablePush, openSystemSettings, pushStatus, pushSupported } from "@/lib/push";
 import { Avatar, Btn, Card, Chip, confirm, Empty, Field, Input, Row, Screen, Section, Sheet, Txt, useToast } from "@/ui";
 
@@ -84,7 +85,22 @@ async function shareText(name, content) {
   await Sharing.shareAsync(file.uri, { mimeType: "application/json" });
 }
 
+/** Replay any guided tour (opens the right screen first). */
+function ToursSection({ user }) {
+  const { t } = useI18n();
+  const tour = useTour();
+  const tours = APP_TOURS.filter((x) => !x.when || x.when(user));
+  return (
+    <Section title={t("tour.menuTitle")}>
+      <TourTarget id="account-tours">
+        <Group>{tours.map((x) => <LinkRow key={x.id} icon={Compass} label={t(`tour.${x.id}.name`)} onPress={() => tour.start(x.id)} testID={`tour-start-${x.id}`} />)}</Group>
+      </TourTarget>
+    </Section>
+  );
+}
+
 export default function Account() {
+  useScreenTour("appAccount");
   const { t, te } = useI18n();
   const { name: themeName, setTheme } = useTheme();
   const toast = useToast();
@@ -108,6 +124,7 @@ export default function Account() {
           <LinkRow key="c" icon={Mail} label={t("nav.contact")} to="/contact" />,
           <LinkRow key="l" icon={FileText} label={t("footer.legalTitle")} to="/legal/mentions" />,
         ]}</Group>
+        <ToursSection user={user} />
         <Prefs themeName={themeName} setTheme={setTheme} />
       </Screen>
     );
@@ -133,6 +150,7 @@ export default function Account() {
   return (
     <Screen>
       <Txt variant="h1">{t("account.title")}</Txt>
+      <TourTarget id="account-card">
       <Card style={{ marginTop: 12 }} testID="account-card">
         <Row gap={14} style={{ alignItems: "center" }}>
           <Avatar photoKey={user.photo_key} thumbKey={user.photo_thumb_key} name={user.full_name} size={64} ring large color={BRAND.electric} />
@@ -148,9 +166,11 @@ export default function Account() {
         </Row>
         <Btn small variant="outline" icon={Pencil} title={t("accountEdit.edit")} onPress={() => setEdit(true)} style={{ marginTop: 12 }} testID="account-edit" />
       </Card>
+      </TourTarget>
       <AccountEditor visible={edit} onClose={() => setEdit(false)} />
 
       <Section title={t("nav.account")}>
+        <TourTarget id="account-links">
         <Group>{[
           provider ? <LinkRow key="d" icon={LayoutDashboard} label={t("account.links.dashboard")} to="/dashboard" testID="link-dashboard" />
             : <LinkRow key="b" icon={Rocket} label={t("appHome.talentTitle")} to="/onboarding" testID="link-onboarding" />,
@@ -160,7 +180,9 @@ export default function Account() {
           <LinkRow key="n" icon={Bell} label={t("mobile.notifications")} to="/notifications" />,
           <LinkRow key="bi" icon={Receipt} label={t("account.links.billing")} to="/billing" testID="link-billing" />,
         ]}</Group>
+        </TourTarget>
       </Section>
+      <ToursSection user={user} />
 
       {user.roles.length > 1 && (
         <Section title={t("account.modeTitle")}>

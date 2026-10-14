@@ -12,6 +12,7 @@ import { useI18n, useLocalized } from "@/i18n";
 import { formatDate, formatDateTime } from "@/lib/format";
 import { alpha, BRAND, useTheme } from "@/theme";
 import { Btn, Card, Chip, Empty, Field, Input, Loading, Pill, Row, Screen, Section, TopBar, Txt, useToast } from "@/ui";
+import { TourTarget, useScreenTour } from "@/components/tour";
 
 const STATUS_COLOR = { sent: BRAND.violet, seen: BRAND.blue, accepted: BRAND.electric, refused: "#F87171" };
 const DOC_TYPES = { professional: ["id_card", "trade_register"], teacher: ["id_card", "diploma"] };
@@ -194,6 +195,7 @@ function TrustTab({ trust }) {
 }
 
 export default function Dashboard() {
+  useScreenTour("appDashboard");
   const { t } = useI18n();
   const [tab, setTab] = useState("requests");
   const { data, isLoading, error, refetch, isRefetching } = useQuery({ queryKey: ["provider-me"], queryFn: providerService.me });
@@ -210,10 +212,12 @@ export default function Dashboard() {
           <Card key={k} style={{ flex: 1, alignItems: "center", padding: 10 }}><Txt variant="h2">{v}</Txt><Txt variant="tiny" muted center>{t(`dashboard.stats.${k}`)}</Txt></Card>
         ))}
       </Row>
-      <Row gap={8} wrap style={{ marginTop: 16, marginBottom: 14 }}>
-        {["requests", "jobs", "profile", "trust"].map((k) => <Chip key={k} label={t(`dashboard.tabs.${k}`)} selected={tab === k} onPress={() => setTab(k)} testID={`dash-${k}`} />)}
-      </Row>
-      {tab === "requests" && <Inboxes />}
+      <TourTarget id="dash-tabs" style={{ marginTop: 16, marginBottom: 14 }}>
+        <Row gap={8} wrap>
+          {["requests", "jobs", "profile", "trust"].map((k) => <Chip key={k} label={t(`dashboard.tabs.${k}`)} selected={tab === k} onPress={() => setTab(k)} testID={`dash-${k}`} />)}
+        </Row>
+      </TourTarget>
+      <TourTarget id="dash-content">{tab === "requests" && <Inboxes />}</TourTarget>
       {tab === "jobs" && <JobsList role="provider" />}
       {tab === "profile" && <ProfileEditor kind={kind} profile={profile} />}
       {tab === "trust" && <TrustTab trust={trust} />}

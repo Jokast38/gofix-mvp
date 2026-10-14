@@ -11,6 +11,7 @@ import { useI18n, useLocalized } from "@/i18n";
 import { alpha, BRAND, neonFor, useTheme } from "@/theme";
 import { Card, IconBtn, Row, Screen, Section, Txt, useToast } from "@/ui";
 import { LanguageFlags } from "@/ui/Flags";
+import { TourTarget, useScreenTour } from "@/components/tour";
 
 const logo = require("../../../assets/brand/gofix-logo.png");
 // Explicit imports keep the bundle small (no "import *" of the whole icon set).
@@ -33,6 +34,7 @@ function Tile({ cat, index, onPress }) {
 }
 
 export default function Home() {
+  useScreenTour("appWelcome");
   const { c } = useTheme();
   const { t } = useI18n();
   const toast = useToast();
@@ -49,7 +51,7 @@ export default function Home() {
       <Row style={{ justifyContent: "space-between" }}>
         <Image source={logo} style={{ width: 96, height: 46 }} contentFit="contain" accessibilityLabel="GoFix" />
         <View style={{ flex: 1 }} />
-        <LanguageFlags compact />
+        <TourTarget id="home-flags"><LanguageFlags compact /></TourTarget>
         <View style={{ width: 6 }} />
         {user ? (
           <IconBtn onPress={() => router.push("/notifications")} label={t("notif.title")} badge={notif.data?.unread}><Bell size={22} color={c.text} /></IconBtn>
@@ -61,6 +63,7 @@ export default function Home() {
       </Row>
       <Txt variant="small" muted style={{ marginTop: 6 }}>{user ? t("appHome.hello", { name: user.full_name.split(" ")[0] }) : t("home.subtitle")}</Txt>
 
+      <TourTarget id="home-search">
       <Row style={{ marginTop: 14, borderWidth: 1, borderColor: c.border, backgroundColor: c.card, borderRadius: 999, paddingStart: 14, paddingEnd: 4, minHeight: 52 }}>
         <Search size={18} color={c.muted} />
         <TextInput value={q} onChangeText={setQ} onSubmitEditing={go} returnKeyType="search" placeholder={t("match.placeholder")} placeholderTextColor={c.muted}
@@ -68,11 +71,12 @@ export default function Home() {
         <IconBtn onPress={() => toast(t("upcoming.toast.voice"))} label={t("upcoming.voice.title")}><Mic size={20} color={c.muted} /></IconBtn>
         <IconBtn onPress={() => toast(t("upcoming.toast.vision"))} label={t("upcoming.vision.title")}><Camera size={20} color={c.muted} /></IconBtn>
       </Row>
+      </TourTarget>
 
       <Section title={t("appHome.services")} right={<Pressable onPress={() => router.push("/search")} style={{ minHeight: 44, justifyContent: "center" }}><Txt variant="small" muted>{t("common.seeAll")} ›</Txt></Pressable>}>
-        <View style={{ flexDirection: "row", flexWrap: "wrap", justifyContent: "space-between", rowGap: 10 }}>
+        <TourTarget id="home-tiles" style={{ flexDirection: "row", flexWrap: "wrap", justifyContent: "space-between", rowGap: 10 }}>
           {(services.data || []).slice(0, 8).map((cat, i) => <Tile key={cat.key} cat={cat} index={i} onPress={() => router.push(`/search?category_key=${cat.key}`)} />)}
-        </View>
+        </TourTarget>
       </Section>
       <Section title={t("appHome.academy")} right={<Pressable onPress={() => router.push("/academy")} style={{ minHeight: 44, justifyContent: "center" }}><Txt variant="small" muted>{t("common.seeAll")} ›</Txt></Pressable>}>
         <View style={{ flexDirection: "row", flexWrap: "wrap", justifyContent: "space-between", rowGap: 10 }}>

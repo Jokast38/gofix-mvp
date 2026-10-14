@@ -11,6 +11,7 @@ import { BRAND, useTheme } from "@/theme";
 import { Btn, Card, Chip, Empty, IconBtn, Loading, Row, SelectField, Txt, useToast } from "@/ui";
 import { RequestSheet } from "./actions";
 import { BlurNotice, IntentChips, ProfileCard } from "./catalog";
+import { TourTarget } from "./tour";
 
 const FORMATS = ["home", "online", "center"];
 
@@ -81,6 +82,7 @@ export function CatalogScreen({ kind }) {
   const header = (
     <View style={{ gap: 12, paddingBottom: 12 }}>
       <Txt variant="h1">{teacher ? t("catalog.teachersTitle") : t("catalog.prosTitle")}</Txt>
+      <TourTarget id="catalog-search">
       <Row style={{ borderWidth: 1, borderColor: c.border, backgroundColor: c.card, borderRadius: 999, paddingStart: 14, paddingEnd: 4, minHeight: 50 }}>
         <Search size={18} color={c.muted} />
         <TextInput value={draft} onChangeText={setDraft} onSubmitEditing={submitText} returnKeyType="search" placeholder={t("match.placeholder")}
@@ -89,6 +91,8 @@ export function CatalogScreen({ kind }) {
         <IconBtn onPress={() => toast(t("upcoming.toast.voice"))} label={t("upcoming.voice.title")}><Mic size={19} color={c.muted} /></IconBtn>
         <IconBtn onPress={() => toast(t("upcoming.toast.vision"))} label={t("upcoming.vision.title")}><Camera size={19} color={c.muted} /></IconBtn>
       </Row>
+      </TourTarget>
+      <TourTarget id="catalog-filters">
       <View style={{ flexDirection: "row", gap: 8 }}>
         <View style={{ flex: 1 }}>
           <SelectField label={t("home.wilayaLabel")} value={f.wilaya} onChange={(v) => setF({ ...f, wilaya: v })} placeholder={t("home.wilayaAll")}
@@ -102,9 +106,12 @@ export function CatalogScreen({ kind }) {
                 options={(cats.data || []).map((x) => ({ value: x.key, label: loc(x) }))} testID="filter-category" />}
         </View>
       </View>
+      </TourTarget>
       <Row gap={8} wrap>
+        <TourTarget id="near-me">
         <Chip icon={LocateFixed} label={locating ? t("geoloc.detecting") : t("geoloc.nearMe")} selected={Boolean(f.wilaya) && f.wilaya === nearWilaya}
           onPress={nearMe} testID="near-me" />
+        </TourTarget>
       </Row>
       {teacher && (
         <FlatList horizontal data={[...FORMATS.map((k) => ({ k, type: "f" })), ...(levels.data || []).map((l) => ({ k: l.key, type: "l", l }))]} keyExtractor={(x) => x.type + x.k}

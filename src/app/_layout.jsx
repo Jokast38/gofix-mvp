@@ -7,6 +7,7 @@ import { QueryClient, QueryClientProvider, useQueryClient } from "@tanstack/reac
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { useFonts, Tajawal_400Regular, Tajawal_500Medium, Tajawal_700Bold, Tajawal_800ExtraBold } from "@expo-google-fonts/tajawal";
 import { PushPrompt } from "@/components/PushPrompt";
+import { TourProvider } from "@/components/tour";
 import { AuthProvider } from "@/hooks/auth";
 import { appRoute, Notifications } from "@/lib/push";
 import { I18nProvider, useI18n } from "@/i18n";
@@ -65,7 +66,9 @@ export default function RootLayout() {
           <I18nProvider>
             <AuthProvider>
               <ToastProvider>
-                <Shell />
+                <TourProvider>
+                  <Shell />
+                </TourProvider>
               </ToastProvider>
             </AuthProvider>
           </I18nProvider>

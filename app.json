@@ -13,7 +13,8 @@
       "supportsTablet": true,
       "infoPlist": {
         "NSPhotoLibraryUsageDescription": "GoFix utilise vos photos pour votre photo de profil, votre image de couverture et vos justificatifs.",
-        "NSCameraUsageDescription": "GoFix utilise l'appareil photo pour votre photo de profil et vos justificatifs."
+        "NSCameraUsageDescription": "GoFix utilise l'appareil photo pour votre photo de profil et vos justificatifs.",
+        "NSLocationWhenInUseUsageDescription": "GoFix utilise votre position, uniquement si vous le demandez, pour proposer votre wilaya. Elle n'est pas enregistrée."
       }
     },
     "android": {
@@ -25,7 +26,22 @@
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
       "intentFilters": [
-        { "action": "VIEW", "data": [{ "scheme": "gofix" }], "category": ["BROWSABLE", "DEFAULT"] }
+        {
+          "action": "VIEW",
+          "data": [
+            {
+              "scheme": "gofix"
+            }
+          ],
+          "category": [
+            "BROWSABLE",
+            "DEFAULT"
+          ]
+        }
+      ],
+      "blockedPermissions": [
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.ACCESS_BACKGROUND_LOCATION"
       ]
     },
     "web": {
@@ -42,13 +58,34 @@
       "expo-image",
       [
         "expo-splash-screen",
-        { "image": "./assets/splash-icon.png", "imageWidth": 160, "resizeMode": "contain", "backgroundColor": "#070911" }
+        {
+          "image": "./assets/splash-icon.png",
+          "imageWidth": 160,
+          "resizeMode": "contain",
+          "backgroundColor": "#070911"
+        }
       ],
       [
         "expo-image-picker",
-        { "photosPermission": "GoFix utilise vos photos pour votre photo de profil, votre image de couverture et vos justificatifs." }
+        {
+          "photosPermission": "GoFix utilise vos photos pour votre photo de profil, votre image de couverture et vos justificatifs."
+        }
       ],
-      "expo-status-bar"
+      "expo-status-bar",
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "GoFix utilise votre position, uniquement si vous le demandez, pour proposer votre wilaya. Elle n'est pas enregistrée.",
+          "isAndroidBackgroundLocationEnabled": false,
+          "isIosBackgroundLocationEnabled": false
+        }
+      ],
+      [
+        "expo-notifications",
+        {
+          "color": "#00C8F0"
+        }
+      ]
     ],
     "extra": {
       "apiUrl": "http://localhost"

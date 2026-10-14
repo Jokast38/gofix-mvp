@@ -60,6 +60,9 @@ const lots2 = {
     invalid_transition: "إجراء غير ممكن في هذه المرحلة من الموعد.", review_requires_completed_job: "يمكنك التقييم بعد موعد منجز.",
     token_invalid: "هذا الرابط لم يعد صالحًا (مستعمل أو منتهي الصلاحية). اطلب رابطًا جديدًا.", draft_too_large: "المسودة كبيرة جدًا.",
     insufficient_admin_role: "إجراء مخصص للمدير العام.",
+    phone_taken: "هذا الرقم مستعمل في حساب آخر.", push_token_invalid: "الجهاز غير معروف للإشعارات.",
+    outside_algeria: "يبدو أن موقعك خارج الجزائر: اختر ولايتك من القائمة.",
+    location_denied: "تم رفض الوصول إلى الموقع: اختر ولايتك من القائمة.", location_unavailable: "الموقع غير متاح حاليًا.",
     cannot_message_self: "لا يمكنك مراسلة نفسك.", invalid_key: "مفتاح غير صالح: أحرف لاتينية صغيرة وأرقام و« _ » فقط.",
     not_authenticated: "سجّل الدخول للمتابعة.", role_missing: "هذا الدور غير مفعّل في حسابك.",
     token_expired: "انتهت جلستك. سجّل الدخول من جديد.", token_reused: "جلسة غير صالحة لأسباب أمنية. سجّل الدخول من جديد.",
@@ -96,6 +99,16 @@ const lots2 = {
   appLanding: { appStoreGo: "حمّله من App Store", googlePlayGo: "متوفر على Google Play", eyebrowLive: "متوفر الآن",
     subtitleLive: "حمّل تطبيق GoFix على iOS وAndroid: نفس الحساب، نفس المهنيين، نفس المواعيد كما في الموقع." },
   homeApp: { eyebrowLive: "متوفر الآن" },
+  geoloc: {
+    detect: "تحديد ولايتي", detecting: "جارٍ تحديد الموقع…", found: "الولاية المحددة: {name}", nearMe: "بالقرب مني",
+    why: "اختياري: يُستعمل موقعك فقط لاقتراح ولايتك ولا يتم حفظه.",
+  },
+  accountEdit: {
+    edit: "تعديل ملفي", title: "ملفي الشخصي", photo: "صورة الملف (اختيارية)", addPhoto: "إضافة صورة",
+    changePhoto: "تغيير الصورة", removePhoto: "حذف الصورة", name: "الاسم الكامل", email: "البريد الإلكتروني", phone: "الهاتف",
+    wilaya: "ولايتي", save: "حفظ", saved: "تم تحديث الملف.", photoSaved: "تم تحديث الصورة.", photoRemoved: "تم حذف الصورة.",
+    phoneNote: "يجب التحقق من الرقم الجديد مرة أخرى.",
+  },
   pwreset: {
     forgotLink: "نسيت كلمة المرور؟", forgotTitle: "نسيت كلمة المرور", forgotSubtitle: "أدخل البريد الإلكتروني لحسابك: سنرسل لك رابطًا صالحًا لمدة ساعة.",
     email: "البريد الإلكتروني", send: "إرسال الرابط", sent: "إذا كان هناك حساب بهذا العنوان، فقد أُرسل إليه بريد الآن. تحقق أيضًا من الرسائل غير المرغوب فيها.",

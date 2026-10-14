@@ -38,6 +38,7 @@ export const authService = {
 };
 
 export const publicService = {
+  locate: (lat, lng) => get("/geo/locate", { lat, lng }),
   config: () => get("/config"),
   wilayas: () => get("/geo/wilayas"),
   communes: (code) => get(`/geo/wilayas/${code}/communes`),
@@ -70,6 +71,10 @@ export const userService = {
   setMode: (mode) => api.put("/users/me/mode", { mode }).then((r) => r.data),
   exportData: () => get("/users/me/export"),
   deleteAccount: (password) => api.delete("/users/me", { data: { password } }),
+  uploadPhoto: (asset) => upload("/users/me/photo", asset),
+  deletePhoto: () => api.delete("/users/me/photo").then((r) => r.data),
+  addPushToken: (token, platform) => post("/users/me/push-tokens", { token, platform }),
+  removePushToken: (token) => post("/users/me/push-tokens/remove", { token }),
 };
 
 export const onboardingService = {

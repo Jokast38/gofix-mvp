@@ -2,6 +2,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState } 
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { session } from "@/api/client";
 import { authService, publicService } from "@/api/services";
+import { unregisterPush } from "@/lib/push";
 
 const AuthCtx = createContext(null);
 
@@ -21,7 +22,7 @@ export function AuthProvider({ children }) {
   const login = useCallback(async (id, pw) => { const u = await authService.login(id, pw); setUser(u); qc.clear(); return u; }, [qc]);
   const register = useCallback(async (body) => { const u = await authService.register(body); setUser(u); return u; }, []);
   const loginWithOtp = useCallback(async (phone, code) => { const u = await authService.verifyOtp(phone, code); setUser(u); qc.clear(); return u; }, [qc]);
-  const logout = useCallback(async () => { await authService.logout(); setUser(false); qc.clear(); }, [qc]);
+  const logout = useCallback(async () => { await unregisterPush(); await authService.logout(); setUser(false); qc.clear(); }, [qc]);
   const refresh = useCallback(async () => setUser(await authService.me()), []);
 
   const value = useMemo(() => ({ user, setUser, login, register, loginWithOtp, logout, refresh }), [user, login, register, loginWithOtp, logout, refresh]);

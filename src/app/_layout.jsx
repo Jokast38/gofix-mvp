@@ -1,11 +1,14 @@
 import { useEffect } from "react";
-import { Stack } from "expo-router";
+import { Platform } from "react-native";
+import { router, Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import * as SplashScreen from "expo-splash-screen";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClient, QueryClientProvider, useQueryClient } from "@tanstack/react-query";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { useFonts, Tajawal_400Regular, Tajawal_500Medium, Tajawal_700Bold, Tajawal_800ExtraBold } from "@expo-google-fonts/tajawal";
+import { PushPrompt } from "@/components/PushPrompt";
 import { AuthProvider } from "@/hooks/auth";
+import { appRoute, Notifications } from "@/lib/push";
 import { I18nProvider, useI18n } from "@/i18n";
 import { ThemeProvider, useTheme } from "@/theme";
 import { ToastProvider } from "@/ui";
@@ -16,8 +19,25 @@ const queryClient = new QueryClient({
   defaultOptions: { queries: { retry: 1, staleTime: 30_000, refetchOnWindowFocus: false } },
 });
 
+/** Tapping a push opens the related screen; a push received while the app is open refreshes the notification list. */
+function usePushNavigation() {
+  const qc = useQueryClient();
+  useEffect(() => {
+    if (Platform.OS === "web") return undefined;
+    const open = (response) => {
+      const link = response?.notification?.request?.content?.data?.link;
+      if (response) setTimeout(() => router.push(appRoute(link)), 300);
+    };
+    Notifications.getLastNotificationResponseAsync().then(open).catch(() => {});
+    const tapped = Notifications.addNotificationResponseReceivedListener(open);
+    const received = Notifications.addNotificationReceivedListener(() => qc.invalidateQueries({ queryKey: ["notifications"] }));
+    return () => { tapped.remove(); received.remove(); };
+  }, [qc]);
+}
+
 function Shell() {
   const { c, name } = useTheme();
+  usePushNavigation();
   const { ready } = useI18n();
   // Tajawal is bundled in the app (no font CDN): used for Arabic text.
   const [fontsLoaded] = useFonts({ Tajawal_400Regular, Tajawal_500Medium, Tajawal_700Bold, Tajawal_800ExtraBold });
@@ -29,6 +49,7 @@ function Shell() {
     <>
       <StatusBar style={name === "light" ? "dark" : "light"} />
       <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: c.bg }, animation: "slide_from_right" }} />
+      <PushPrompt />
     </>
   );
 }

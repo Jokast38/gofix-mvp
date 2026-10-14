@@ -72,6 +72,9 @@ const lots2 = {
     invalid_transition: "Action impossible à ce stade du rendez-vous.", review_requires_completed_job: "Vous pourrez noter après un rendez-vous terminé.",
     token_invalid: "Ce lien n'est plus valide (déjà utilisé ou expiré). Demandez-en un nouveau.", draft_too_large: "Brouillon trop volumineux.",
     insufficient_admin_role: "Action réservée au super-administrateur.",
+    phone_taken: "Ce numéro est déjà utilisé par un autre compte.", push_token_invalid: "Appareil non reconnu pour les notifications.",
+    outside_algeria: "Votre position semble hors d'Algérie : choisissez votre wilaya dans la liste.",
+    location_denied: "Accès à la position refusé : choisissez votre wilaya dans la liste.", location_unavailable: "Position indisponible pour le moment.",
     cannot_message_self: "Vous ne pouvez pas vous écrire à vous-même.", invalid_key: "Clé invalide : lettres minuscules, chiffres et « _ » uniquement.",
     not_authenticated: "Connectez-vous pour continuer.", role_missing: "Ce rôle n'est pas activé sur votre compte.",
     token_expired: "Votre session a expiré. Reconnectez-vous.", token_reused: "Session invalide par sécurité. Reconnectez-vous.",
@@ -105,6 +108,16 @@ const lots2 = {
   appLanding: { appStoreGo: "App Store", googlePlayGo: "Google Play", eyebrowLive: "Disponible maintenant",
     subtitleLive: "Téléchargez l'application GoFix sur iOS et Android : mêmes comptes, mêmes professionnels, mêmes rendez-vous que sur le site." },
   homeApp: { eyebrowLive: "Disponible maintenant" },
+  geoloc: {
+    detect: "Détecter ma wilaya", detecting: "Localisation…", found: "Wilaya détectée : {name}", nearMe: "Près de moi",
+    why: "Facultatif : votre position sert uniquement à proposer votre wilaya. Elle n'est pas enregistrée.",
+  },
+  accountEdit: {
+    edit: "Modifier mon profil", title: "Mon profil", photo: "Photo de profil (facultative)", addPhoto: "Ajouter une photo",
+    changePhoto: "Changer la photo", removePhoto: "Retirer la photo", name: "Nom complet", email: "Adresse e-mail", phone: "Téléphone",
+    wilaya: "Ma wilaya", save: "Enregistrer", saved: "Profil mis à jour.", photoSaved: "Photo mise à jour.", photoRemoved: "Photo retirée.",
+    phoneNote: "Un nouveau numéro devra être vérifié à nouveau.",
+  },
   pwreset: {
     forgotLink: "Mot de passe oublié ?", forgotTitle: "Mot de passe oublié", forgotSubtitle: "Saisissez l'e-mail de votre compte : nous vous enverrons un lien valable 1 heure.",
     email: "Adresse e-mail", send: "Envoyer le lien", sent: "Si un compte existe pour cette adresse, un e-mail vient d'être envoyé. Pensez à vérifier les spams.",

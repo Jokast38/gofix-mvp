@@ -12,6 +12,16 @@ export const mobileFr = {
     paymentBrowser: "La page de paiement sécurisée s'ouvre dans votre navigateur.", paymentCancelled: "Paiement interrompu : aucune somme n'a été débitée.",
     version: "Version {v}", apiServer: "Serveur : {url}", notifications: "Notifications", assistant: "Assistant",
   },
+  notifPush: {
+    title: "Activer les notifications ?", enable: "Activer les notifications", later: "Plus tard",
+    text: "Soyez prévenu immédiatement, même quand l'application est fermée :",
+    items: ["Un professionnel ou un professeur répond à votre demande", "Un nouveau message arrive", "Un rendez-vous est proposé, confirmé ou approche"],
+    note: "Vous pourrez les désactiver à tout moment dans les réglages du téléphone.",
+    enabled: "Notifications activées.", deniedHelp: "Les notifications sont bloquées pour GoFix. Ouvrez les réglages du téléphone pour les autoriser.",
+    openSettings: "Ouvrir les réglages", rowTitle: "Notifications sur ce téléphone",
+    status: { granted: "Activées", denied: "Bloquées", undetermined: "Non activées", unsupported: "Indisponibles sur cet appareil" },
+    tokenLater: "Autorisation enregistrée. La réception sera active dans l'application installée depuis le store.",
+  },
 };
 
 export const mobileAr = {
@@ -26,5 +36,15 @@ export const mobileAr = {
     exportShared: "التصدير جاهز للمشاركة.", languageReload: "سيُعاد تشغيل التطبيق لتطبيق العربية (من اليمين إلى اليسار).",
     paymentBrowser: "تُفتح صفحة الدفع الآمنة في متصفحك.", paymentCancelled: "توقّف الدفع: لم يُخصم أي مبلغ.",
     version: "الإصدار {v}", apiServer: "الخادم: {url}", notifications: "الإشعارات", assistant: "المساعد",
+  },
+  notifPush: {
+    title: "تفعيل الإشعارات؟", enable: "تفعيل الإشعارات", later: "لاحقًا",
+    text: "كن على علم فورًا، حتى عندما يكون التطبيق مغلقًا:",
+    items: ["مهني أو أستاذ يرد على طلبك", "وصول رسالة جديدة", "اقتراح موعد أو تأكيده أو اقترابه"],
+    note: "يمكنك إيقافها في أي وقت من إعدادات الهاتف.",
+    enabled: "تم تفعيل الإشعارات.", deniedHelp: "الإشعارات محظورة لتطبيق GoFix. افتح إعدادات الهاتف للسماح بها.",
+    openSettings: "فتح الإعدادات", rowTitle: "الإشعارات على هذا الهاتف",
+    status: { granted: "مفعّلة", denied: "محظورة", undetermined: "غير مفعّلة", unsupported: "غير متاحة على هذا الجهاز" },
+    tokenLater: "تم حفظ الإذن. سيعمل الاستقبال في التطبيق المثبّت من المتجر.",
   },
 };

@@ -2,10 +2,11 @@ import { useEffect, useMemo, useState } from "react";
 import { FlatList, TextInput, View } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
-import { Camera, Mic, Search, SearchX, Send, Sparkles, X } from "lucide-react-native";
+import { Camera, LocateFixed, Mic, Search, SearchX, Send, Sparkles, X } from "lucide-react-native";
 import { catalogService, matchService } from "@/api/services";
 import { useAuth, useConfig, useWilayas } from "@/hooks/auth";
 import { useI18n, useLocalized } from "@/i18n";
+import { detectWilaya } from "@/lib/location";
 import { BRAND, useTheme } from "@/theme";
 import { Btn, Card, Chip, Empty, IconBtn, Loading, Row, SelectField, Txt, useToast } from "@/ui";
 import { RequestSheet } from "./actions";
@@ -16,7 +17,7 @@ const FORMATS = ["home", "online", "center"];
 /** Services (kind=professional) and Academy (kind=teacher) catalogue, with AI MATCH free-text understanding. */
 export function CatalogScreen({ kind }) {
   const { c } = useTheme();
-  const { t, lang } = useI18n();
+  const { t, te, lang } = useI18n();
   const loc = useLocalized();
   const toast = useToast();
   const { user } = useAuth();
@@ -29,6 +30,20 @@ export function CatalogScreen({ kind }) {
   const [selected, setSelected] = useState([]);
   const [sheet, setSheet] = useState(null);
   const { data: wilayas = [] } = useWilayas();
+  const [locating, setLocating] = useState(false);
+  const [nearWilaya, setNearWilaya] = useState(null);
+  // Optional: the position is only turned into a wilaya filter (never stored).
+  const nearMe = async () => {
+    if (locating) return;
+    setLocating(true);
+    const res = await detectWilaya();
+    setLocating(false);
+    if (res.wilaya) {
+      setNearWilaya(res.wilaya.code);
+      setF((x) => ({ ...x, wilaya: res.wilaya.code }));
+      toast(t("geoloc.found", { name: loc(res.wilaya) }));
+    } else toast(te(res.error), "error");
+  };
   const cats = useQuery({ queryKey: ["cats-all"], queryFn: () => catalogService.categories(), staleTime: 300_000, enabled: !teacher });
   const subjects = useQuery({ queryKey: ["subjects"], queryFn: catalogService.subjects, staleTime: 300_000, enabled: teacher });
   const levels = useQuery({ queryKey: ["levels"], queryFn: catalogService.levels, staleTime: 300_000, enabled: teacher });
@@ -87,6 +102,10 @@ export function CatalogScreen({ kind }) {
                 options={(cats.data || []).map((x) => ({ value: x.key, label: loc(x) }))} testID="filter-category" />}
         </View>
       </View>
+      <Row gap={8} wrap>
+        <Chip icon={LocateFixed} label={locating ? t("geoloc.detecting") : t("geoloc.nearMe")} selected={Boolean(f.wilaya) && f.wilaya === nearWilaya}
+          onPress={nearMe} testID="near-me" />
+      </Row>
       {teacher && (
         <FlatList horizontal data={[...FORMATS.map((k) => ({ k, type: "f" })), ...(levels.data || []).map((l) => ({ k: l.key, type: "l", l }))]} keyExtractor={(x) => x.type + x.k}
           showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8 }}

@@ -1,18 +1,56 @@
-import { useState } from "react";
-import { Platform, Pressable, View } from "react-native";
+import { useCallback, useEffect, useState } from "react";
+import { AppState, Platform, Pressable, View } from "react-native";
 import { router } from "expo-router";
 import Constants from "expo-constants";
 import * as Sharing from "expo-sharing";
 import { File, Paths } from "expo-file-system";
-import { Bell, Bot, CalendarClock, ChevronRight, CircleHelp, ClipboardList, FileText, Heart, LayoutDashboard, LogOut, Mail, Receipt, Rocket, Shield } from "lucide-react-native";
+import { Bell, Bot, CalendarClock, ChevronRight, CircleHelp, ClipboardList, FileText, Heart, LayoutDashboard, LogOut, Mail, MapPin, Pencil, Receipt, Rocket, Shield } from "lucide-react-native";
 import { API_ORIGIN, errorCode } from "@/api/client";
 import { userService } from "@/api/services";
-import { isProvider, useAuth } from "@/hooks/auth";
-import { useI18n } from "@/i18n";
+import { isProvider, useAuth, useWilayas } from "@/hooks/auth";
+import { useI18n, useLocalized } from "@/i18n";
 import { formatPhone, ltr } from "@/lib/format";
 import { BRAND, useTheme } from "@/theme";
 import { LanguageFlags } from "@/ui/Flags";
-import { Btn, Card, Chip, confirm, Empty, Field, Input, Row, Screen, Section, Sheet, Txt, useToast } from "@/ui";
+import { AccountEditor } from "@/components/AccountEditor";
+import { enablePush, openSystemSettings, pushStatus } from "@/lib/push";
+import { Avatar, Btn, Card, Chip, confirm, Empty, Field, Input, Row, Screen, Section, Sheet, Txt, useToast } from "@/ui";
+
+/** Push notifications on this phone: status + enable (or open the system settings when blocked). */
+function PushRow() {
+  const { t } = useI18n();
+  const { c } = useTheme();
+  const toast = useToast();
+  const [status, setStatus] = useState(null);
+  const refresh = useCallback(() => { pushStatus().then(setStatus); }, []);
+  useEffect(() => {
+    refresh();
+    const sub = AppState.addEventListener("change", (s) => s === "active" && refresh());
+    return () => sub.remove();
+  }, [refresh]);
+  if (!status || status === "unsupported") return null;
+  const act = async () => {
+    if (status === "denied") return openSystemSettings();
+    const res = await enablePush();
+    setStatus(res.status);
+    if (res.status === "granted") toast(res.error ? t("notifPush.tokenLater") : t("notifPush.enabled"));
+    else if (res.status === "denied") toast(t("notifPush.deniedHelp"), "error");
+    return undefined;
+  };
+  return (
+    <Card style={{ marginBottom: 12 }} testID="push-row">
+      <Row gap={12}>
+        <Bell size={20} color={BRAND.electric} />
+        <View style={{ flex: 1 }}>
+          <Txt weight={700}>{t("notifPush.rowTitle")}</Txt>
+          <Txt variant="small" color={status === "granted" ? BRAND.electric : c.muted}>{t(`notifPush.status.${status}`)}</Txt>
+        </View>
+        {status !== "granted" && <Btn small variant="outline" title={status === "denied" ? t("notifPush.openSettings") : t("notifPush.enable")} onPress={act} testID="push-row-action" />}
+      </Row>
+      {status === "denied" && <Txt variant="tiny" muted style={{ marginTop: 8 }}>{t("notifPush.deniedHelp")}</Txt>}
+    </Card>
+  );
+}
 
 function LinkRow({ icon: Icon, label, to, onPress, testID }) {
   const { c } = useTheme();
@@ -53,6 +91,9 @@ export default function Account() {
   const { user, setUser, logout } = useAuth();
   const [del, setDel] = useState(false);
   const [pw, setPw] = useState("");
+  const [edit, setEdit] = useState(false);
+  const loc = useLocalized();
+  const { data: wilayas = [] } = useWilayas();
 
   if (!user) {
     return (
@@ -92,11 +133,22 @@ export default function Account() {
   return (
     <Screen>
       <Txt variant="h1">{t("account.title")}</Txt>
-      <Card style={{ marginTop: 12 }}>
-        <Txt variant="h3">{user.full_name}</Txt>
-        <Txt variant="small" muted>{ltr(user.email)}</Txt>
-        {user.phone ? <Txt variant="small" muted>{formatPhone(user.phone)}</Txt> : null}
+      <Card style={{ marginTop: 12 }} testID="account-card">
+        <Row gap={14} style={{ alignItems: "center" }}>
+          <Avatar photoKey={user.photo_key} thumbKey={user.photo_thumb_key} name={user.full_name} size={64} ring large color={BRAND.electric} />
+          <View style={{ flex: 1, minWidth: 0 }}>
+            <Txt variant="h3" numberOfLines={1}>{user.full_name}</Txt>
+            <Txt variant="small" muted numberOfLines={1}>{ltr(user.email)}</Txt>
+            {user.phone ? <Txt variant="small" muted>{formatPhone(user.phone)}</Txt> : null}
+            {user.wilaya_code ? (
+              <Row gap={4}><MapPin size={12} color={BRAND.electric} />
+                <Txt variant="tiny" muted>{loc(wilayas.find((w) => w.code === user.wilaya_code)) || user.wilaya_code}</Txt></Row>
+            ) : null}
+          </View>
+        </Row>
+        <Btn small variant="outline" icon={Pencil} title={t("accountEdit.edit")} onPress={() => setEdit(true)} style={{ marginTop: 12 }} testID="account-edit" />
       </Card>
+      <AccountEditor visible={edit} onClose={() => setEdit(false)} />
 
       <Section title={t("nav.account")}>
         <Group>{[
@@ -117,6 +169,7 @@ export default function Account() {
         </Section>
       )}
 
+      <Section title={t("mobile.notifications")}><PushRow /></Section>
       <Prefs themeName={themeName} setTheme={setTheme} weekStart={user.week_start} onWeekStart={(v) => update({ week_start: v })} />
 
       <Section title={t("mobile.more")}>

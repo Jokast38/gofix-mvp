@@ -5,7 +5,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { CalendarCheck, CheckCircle2, Scale, Send, Star, XCircle } from "lucide-react-native";
 import { errorCode } from "@/api/client";
 import { catalogService, jobService, requestService } from "@/api/services";
-import { useWilayas } from "@/hooks/auth";
+import { useAuth, useWilayas } from "@/hooks/auth";
 import { useI18n, useLocalized } from "@/i18n";
 import { algiersDays, algiersISO, formatDA, formatDate, formatTime } from "@/lib/format";
 import { BRAND, useTheme } from "@/theme";
@@ -19,7 +19,9 @@ export function RequestSheet({ visible, onClose, kind = "professional", profileI
   const qc = useQueryClient();
   const { data: wilayas = [] } = useWilayas();
   const targeted = profileIds.length > 0;
-  const [f, setF] = useState({ message: "", ...defaults });
+  const { user } = useAuth();
+  // The user's wilaya (profile or "detect my wilaya") pre-fills the request; it can be changed in the form.
+  const [f, setF] = useState({ message: "", ...defaults, wilaya_code: defaults.wilaya_code || user?.wilaya_code || "" });
   const [busy, setBusy] = useState(false);
   const set = (p) => setF((x) => ({ ...x, ...p }));
   const cats = useQuery({ queryKey: ["cats-all"], queryFn: () => catalogService.categories(), staleTime: 300_000, enabled: visible && kind === "professional" && !targeted });
@@ -189,7 +191,10 @@ export function JobCard({ job, compact }) {
   const A = job.actions || [];
   const d = new Date(job.scheduled_at);
   return (
-    <Card style={{ padding: compact ? 12 : 14 }} onPress={compact ? undefined : () => router.push(`/jobs/${job.id}`)} testID={`job-${job.id}`}>
+    // Plain container: the summary opens the appointment and the action buttons are its siblings (no button inside a button on the web).
+    <Card style={{ padding: compact ? 12 : 14 }} testID={`job-${job.id}`}>
+      <Pressable disabled={compact} onPress={() => router.push(`/jobs/${job.id}`)} accessibilityRole={compact ? undefined : "button"}
+        style={({ pressed }) => pressed && { opacity: 0.85 }}>
       <Row gap={12} style={{ alignItems: "flex-start" }}>
         <View style={{ width: 52, height: 52, borderRadius: 12, backgroundColor: c.cardAlt, alignItems: "center", justifyContent: "center" }}>
           <Txt variant="h3">{formatDate(d).slice(0, 2)}</Txt><Txt variant="tiny" muted>{formatDate(d).slice(3, 5)}</Txt>
@@ -203,6 +208,7 @@ export function JobCard({ job, compact }) {
           {job.dispute && <Txt variant="tiny" color={BRAND.pink}>{t(`jobs.dispute.${job.dispute.status}`)}{job.dispute.note ? ` — ${job.dispute.note}` : ""}</Txt>}
         </View>
       </Row>
+      </Pressable>
       {A.length > 0 && (
         <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8, marginTop: 12 }}>
           {A.includes("confirm") && <Btn small variant="gradient" icon={CalendarCheck} title={t("jobs.confirm")} loading={busy === "confirm"} style={{ flexGrow: 1 }}

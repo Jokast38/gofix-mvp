@@ -80,12 +80,12 @@ function WhySheet({ match, profileId, visible, onClose }) {
   );
 }
 
-function MatchInfo({ item }) {
+function MatchInfo({ item, style }) {
   const { t } = useI18n();
   const [open, setOpen] = useState(false);
   if (!item.match?.top || !item.match.explanation) return null;
   return (
-    <View style={{ marginTop: 8 }}>
+    <View style={style}>
       <Txt variant="tiny" color={BRAND.electric}>« {item.match.explanation} »</Txt>
       {item.match.match_result_id && (
         <Pressable onPress={() => setOpen(true)} accessibilityRole="button" style={{ minHeight: 32, justifyContent: "center", alignSelf: "flex-start" }}>
@@ -109,21 +109,18 @@ export function ProfileCard({ item, index = 0, selectable, selected, onSelect })
     router.push(`/${teacher ? "teacher" : "pro"}/${item.id}`);
   };
   const price = teacher ? item.price_hint_da_hour : item.price_hint_da;
+  // The card is a plain container: the main area opens the profile, and the "select" / "why?" buttons are its siblings
+  // (on the web a button inside a button is invalid HTML).
   return (
-    <Card onPress={open} style={{ padding: 0, overflow: "hidden", borderColor: selected ? BRAND.pink : c.border }} testID={`card-${item.id}`}>
+    <Card style={{ padding: 0, overflow: "hidden", borderColor: selected ? BRAND.pink : c.border }} testID={`card-${item.id}`}>
+      <Pressable onPress={open} accessibilityRole="button" accessibilityLabel={item.display_name || t("catalog.hiddenName")}
+        style={({ pressed }) => pressed && { opacity: 0.85 }}>
       <View>
         <Cover coverKey={item.cover_key} thumbKey={item.cover_thumb_key} blurred={item.blurred} color={color} />
         {item.match?.top && (
           <View style={{ position: "absolute", top: 8, end: 8, backgroundColor: BRAND.pink, borderRadius: 999, paddingHorizontal: 9, paddingVertical: 3, flexDirection: "row", gap: 4, alignItems: "center" }}>
             <Sparkles size={12} color={BRAND.night} /><Txt variant="tiny" weight={800} color={BRAND.night}>{t("catalog.topMatch")}</Txt>
           </View>
-        )}
-        {selectable && (
-          <Pressable onPress={onSelect} accessibilityRole="checkbox" accessibilityState={{ checked: Boolean(selected) }} hitSlop={8}
-            style={{ position: "absolute", top: 8, start: 8, minHeight: 36, paddingHorizontal: 12, borderRadius: 999, justifyContent: "center",
-              backgroundColor: selected ? BRAND.pink : alpha(c.card, 0.9), borderWidth: 1, borderColor: selected ? BRAND.pink : c.border }}>
-            <Txt variant="tiny" weight={800} color={selected ? BRAND.night : c.text}>{selected ? t("catalog.selected") : t("catalog.select")}</Txt>
-          </Pressable>
         )}
       </View>
       <View style={{ paddingHorizontal: 14, paddingBottom: 14, marginTop: -28 }}>
@@ -151,8 +148,16 @@ export function ProfileCard({ item, index = 0, selectable, selected, onSelect })
           <Row gap={8}><Rating avg={item.rating_avg} count={item.rating_count} bucket={item.rating_bucket} /><TrustBadge status={item.trust_status} score={item.trust_score} compact /></Row>
           {price != null && <Txt variant="tiny" weight={800}>{teacher ? `${formatDA(price)} / ${t("catalog.hour")}` : `${t("catalog.from")} ${formatDA(price)}`}</Txt>}
         </Row>
-        <MatchInfo item={item} />
       </View>
+      </Pressable>
+      <MatchInfo item={item} style={{ paddingHorizontal: 14, paddingBottom: 14, marginTop: -6 }} />
+      {selectable && (
+        <Pressable onPress={onSelect} accessibilityRole="checkbox" accessibilityState={{ checked: Boolean(selected) }} hitSlop={8}
+          style={{ position: "absolute", top: 8, start: 8, minHeight: 36, paddingHorizontal: 12, borderRadius: 999, justifyContent: "center",
+            backgroundColor: selected ? BRAND.pink : alpha(c.card, 0.9), borderWidth: 1, borderColor: selected ? BRAND.pink : c.border }}>
+          <Txt variant="tiny" weight={800} color={selected ? BRAND.night : c.text}>{selected ? t("catalog.selected") : t("catalog.select")}</Txt>
+        </Pressable>
+      )}
     </Card>
   );
 }

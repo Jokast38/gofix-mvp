@@ -3,8 +3,15 @@ import Constants from "expo-constants";
 import { secure } from "./storage";
 
 // Same REST API as the web (/api/v1). Configure per environment:
-//   EXPO_PUBLIC_API_URL=https://gofix.dz   (or http://<LAN IP of the server> in development)
-export const API_ORIGIN = (process.env.EXPO_PUBLIC_API_URL || Constants.expoConfig?.extra?.apiUrl || "http://localhost").replace(/\/$/, "");
+//   EXPO_PUBLIC_API_URL=https://gofix-digital.dz   (production builds: set in eas.json)
+// In development on a real phone (Expo Go), "localhost" would be the phone itself: without EXPO_PUBLIC_API_URL the app
+// uses the computer that serves it (Metro's LAN address, e.g. 192.168.1.20:8081 -> http://192.168.1.20).
+function devApiOrigin() {
+  if (!__DEV__) return null;
+  const host = (Constants.expoConfig?.hostUri || "").split(":")[0];
+  return /^\d{1,3}(\.\d{1,3}){3}$/.test(host) ? `http://${host}` : null;
+}
+export const API_ORIGIN = (process.env.EXPO_PUBLIC_API_URL || devApiOrigin() || Constants.expoConfig?.extra?.apiUrl || "http://localhost").replace(/\/$/, "");
 export const BASE = `${API_ORIGIN}/api/v1`;
 const AT = "gofix_at";
 const RT = "gofix_rt";

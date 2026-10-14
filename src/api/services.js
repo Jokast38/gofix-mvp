@@ -2,7 +2,9 @@
 import { Platform } from "react-native";
 import { api, BASE, session } from "./client";
 
-const get = async (url, params) => (await api.get(url, { params })).data;
+// Empty filters are not sent: the API expects them absent (e.g. "wilaya=" is not a number).
+const clean = (params) => params && Object.fromEntries(Object.entries(params).filter(([, v]) => v !== "" && v != null));
+const get = async (url, params) => (await api.get(url, { params: clean(params) })).data;
 const post = async (url, body) => (await api.post(url, body)).data;
 const patch = async (url, body) => (await api.patch(url, body)).data;
 

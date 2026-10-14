@@ -58,7 +58,7 @@ const lots2 = {
     passport: { title: "GOFIX PASSPORT™", text: "Un passeport professionnel vérifié, partageable avec un QR code." },
     toast: { voice: "La demande vocale (GOFIX VOICE™) arrive bientôt.", vision: "L'analyse photo (GOFIX VISION™) arrive bientôt." },
   },
-  admin: { tabs: { disputes: "Litiges", gateway: "Moyen de paiement" } },
+  admin: { tabs: { disputes: "Litiges", gateway: "Moyen de paiement", company: "Société & mentions légales" } },
   adminx: {
     disputesHint: "Litiges sur des prestations : la décision est notifiée aux deux parties et recalcule l'indice de confiance.",
     favourClient: "Donner raison au client", favourProvider: "Donner raison au pro",
@@ -117,6 +117,12 @@ const lots2 = {
     changePhoto: "Changer la photo", removePhoto: "Retirer la photo", name: "Nom complet", email: "Adresse e-mail", phone: "Téléphone",
     wilaya: "Ma wilaya", wilayaPh: "Choisir ma wilaya", save: "Enregistrer", saved: "Profil mis à jour.", photoSaved: "Photo mise à jour.", photoRemoved: "Photo retirée.",
     phoneNote: "Un nouveau numéro devra être vérifié à nouveau.",
+  },
+  adminCompany: {
+    hint: "Ces informations apparaissent dans les mentions légales, les CGU, les CGV, la politique de confidentialité (site et application) et sur les factures. Un champ vide s'affiche « [à compléter] ».",
+    missing: "{n} information(s) à compléter avant l'ouverture au public.", complete: "Toutes les informations légales sont renseignées.",
+    groups: { identity: "Identité de la société", contact: "Contacts publics", legal: "Hébergement et textes légaux" },
+    reviewed: "Textes validés par un juriste", reviewedHint: "Cochez après relecture juridique : le bandeau « textes en cours de validation » disparaît des pages légales.",
   },
   pwreset: {
     forgotLink: "Mot de passe oublié ?", forgotTitle: "Mot de passe oublié", forgotSubtitle: "Saisissez l'e-mail de votre compte : nous vous enverrons un lien valable 1 heure.",

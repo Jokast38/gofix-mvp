@@ -10,6 +10,8 @@ import frLots from "./shared/fr.lots";
 import arLots from "./shared/ar.lots";
 import frLots2 from "./shared/fr.lots2";
 import arLots2 from "./shared/ar.lots2";
+import frLegal from "./shared/fr.legal";
+import arLegal from "./shared/ar.legal";
 import { mobileAr, mobileFr } from "./mobile";
 
 function deepMerge(base, extra) {
@@ -21,8 +23,8 @@ function deepMerge(base, extra) {
 }
 
 const DICTS = {
-  fr: [frBase, frLots, frLots2, mobileFr].reduce(deepMerge),
-  ar: [arBase, arLots, arLots2, mobileAr].reduce(deepMerge),
+  fr: [frBase, frLots, frLots2, frLegal, mobileFr].reduce(deepMerge),
+  ar: [arBase, arLots, arLots2, arLegal, mobileAr].reduce(deepMerge),
 };
 const KEY = "gofix_lang";
 const I18nCtx = createContext(null);

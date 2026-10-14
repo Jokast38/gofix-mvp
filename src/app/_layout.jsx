@@ -30,7 +30,10 @@ function usePushNavigation() {
     };
     Notifications.getLastNotificationResponseAsync().then(open).catch(() => {});
     const tapped = Notifications.addNotificationResponseReceivedListener(open);
-    const received = Notifications.addNotificationReceivedListener(() => qc.invalidateQueries({ queryKey: ["notifications"] }));
+    // A push while the app is open: refresh at once instead of waiting for the periodic refresh.
+    const received = Notifications.addNotificationReceivedListener(() => {
+      for (const key of ["notifications", "conversations", "conversation", "inbox", "my-requests", "jobs"]) qc.invalidateQueries({ queryKey: [key] });
+    });
     return () => { tapped.remove(); received.remove(); };
   }, [qc]);
 }

@@ -106,7 +106,7 @@ const lots2 = {
   accountEdit: {
     edit: "تعديل ملفي", title: "ملفي الشخصي", photo: "صورة الملف (اختيارية)", addPhoto: "إضافة صورة",
     changePhoto: "تغيير الصورة", removePhoto: "حذف الصورة", name: "الاسم الكامل", email: "البريد الإلكتروني", phone: "الهاتف",
-    wilaya: "ولايتي", save: "حفظ", saved: "تم تحديث الملف.", photoSaved: "تم تحديث الصورة.", photoRemoved: "تم حذف الصورة.",
+    wilaya: "ولايتي", wilayaPh: "اختر ولايتي", save: "حفظ", saved: "تم تحديث الملف.", photoSaved: "تم تحديث الصورة.", photoRemoved: "تم حذف الصورة.",
     phoneNote: "يجب التحقق من الرقم الجديد مرة أخرى.",
   },
   pwreset: {

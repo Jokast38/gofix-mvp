@@ -13,7 +13,7 @@ import { formatPhone, ltr } from "@/lib/format";
 import { BRAND, useTheme } from "@/theme";
 import { LanguageFlags } from "@/ui/Flags";
 import { AccountEditor } from "@/components/AccountEditor";
-import { enablePush, openSystemSettings, pushStatus } from "@/lib/push";
+import { enablePush, openSystemSettings, pushStatus, pushSupported } from "@/lib/push";
 import { Avatar, Btn, Card, Chip, confirm, Empty, Field, Input, Row, Screen, Section, Sheet, Txt, useToast } from "@/ui";
 
 /** Push notifications on this phone: status + enable (or open the system settings when blocked). */
@@ -169,7 +169,7 @@ export default function Account() {
         </Section>
       )}
 
-      <Section title={t("mobile.notifications")}><PushRow /></Section>
+      {pushSupported() && <Section title={t("mobile.notifications")}><PushRow /></Section>}
       <Prefs themeName={themeName} setTheme={setTheme} weekStart={user.week_start} onWeekStart={(v) => update({ week_start: v })} />
 
       <Section title={t("mobile.more")}>

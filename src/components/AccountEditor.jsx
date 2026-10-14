@@ -15,7 +15,7 @@ const fromUser = (u) => ({ full_name: u.full_name || "", email: u.email || "", p
   wilaya_code: u.wilaya_code || "" });
 
 /** Wilaya picker with an optional "detect my wilaya" button (position used once, never stored). */
-export function WilayaPicker({ value, onChange, label, testID }) {
+export function WilayaPicker({ value, onChange, label, testID, placeholder }) {
   const { t, te } = useI18n();
   const loc = useLocalized();
   const toast = useToast();
@@ -32,7 +32,7 @@ export function WilayaPicker({ value, onChange, label, testID }) {
   };
   return (
     <Field label={label} hint={t("geoloc.why")}>
-      <SelectField label={label} value={value} onChange={onChange} placeholder={t("home.wilayaAll")} testID={testID}
+      <SelectField label={label} value={value} onChange={onChange} placeholder={placeholder || t("home.wilayaAll")} testID={testID}
         options={wilayas.map((w) => ({ value: w.code, label: `${String(w.code).padStart(2, "0")} – ${loc(w)}` }))} />
       <Btn small variant="outline" icon={LocateFixed} loading={busy} title={busy ? t("geoloc.detecting") : t("geoloc.detect")} onPress={detect}
         style={{ marginTop: 8, alignSelf: "flex-start" }} testID="detect-wilaya" />
@@ -88,7 +88,7 @@ export function AccountEditor({ visible, onClose }) {
       <Field label={t("accountEdit.phone")} hint={t("accountEdit.phoneNote")}>
         <Input value={f.phone} onChangeText={set("phone")} keyboardType="phone-pad" autoComplete="tel" ltr testID="account-phone" />
       </Field>
-      <WilayaPicker label={t("accountEdit.wilaya")} value={f.wilaya_code} onChange={set("wilaya_code")} testID="account-wilaya" />
+      <WilayaPicker label={t("accountEdit.wilaya")} placeholder={t("accountEdit.wilayaPh")} value={f.wilaya_code} onChange={set("wilaya_code")} testID="account-wilaya" />
       <Btn variant="gradient" title={t("accountEdit.save")} loading={busy === "save"} onPress={save} style={{ marginTop: 8 }} testID="account-save" />
     </Sheet>
   );

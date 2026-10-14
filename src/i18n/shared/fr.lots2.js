@@ -115,7 +115,7 @@ const lots2 = {
   accountEdit: {
     edit: "Modifier mon profil", title: "Mon profil", photo: "Photo de profil (facultative)", addPhoto: "Ajouter une photo",
     changePhoto: "Changer la photo", removePhoto: "Retirer la photo", name: "Nom complet", email: "Adresse e-mail", phone: "Téléphone",
-    wilaya: "Ma wilaya", save: "Enregistrer", saved: "Profil mis à jour.", photoSaved: "Photo mise à jour.", photoRemoved: "Photo retirée.",
+    wilaya: "Ma wilaya", wilayaPh: "Choisir ma wilaya", save: "Enregistrer", saved: "Profil mis à jour.", photoSaved: "Photo mise à jour.", photoRemoved: "Photo retirée.",
     phoneNote: "Un nouveau numéro devra être vérifié à nouveau.",
   },
   pwreset: {

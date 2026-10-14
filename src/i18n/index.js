@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
-import { DevSettings, I18nManager, Platform } from "react-native";
+import { Alert, DevSettings, I18nManager, Platform } from "react-native";
+import Constants from "expo-constants";
 import * as Updates from "expo-updates";
 import { prefs } from "@/api/storage";
 import { session } from "@/api/client";
@@ -43,6 +44,29 @@ async function applyDirection(lang) {
   return true; // native layout direction changes after a reload
 }
 
+// Expo Go (the test app) cannot restart the JS app from code on iOS: the restarted runtime misses Expo's native
+// modules ("Cannot find native module 'ExpoAsset'", "runtime not ready"). There, the user reloads by hand.
+export const needsManualRestart = Constants.executionEnvironment === "storeClient";
+
+// Native layout direction (RTL) only changes after a restart of the JS app.
+// Store builds: expo-updates' reload (the supported way in release). Development builds: React Native's reload.
+async function restartApp(lang) {
+  if (needsManualRestart) {
+    Alert.alert("GoFix", DICTS[lang].mobile.reloadExpoGo);
+    return undefined;
+  }
+  await new Promise((resolve) => setTimeout(resolve, 400)); // let the saved language and the toast settle
+  if (__DEV__) return DevSettings.reload();
+  try {
+    await Updates.reloadAsync();
+  } catch {
+    // Last resort: the texts are already translated, only the right-to-left layout waits for the next launch.
+    const msg = DICTS[lang].mobile.restartManual;
+    Alert.alert("GoFix", msg);
+  }
+  return undefined;
+}
+
 export function I18nProvider({ children }) {
   const [lang, setLangState] = useState("fr");
   const [ready, setReady] = useState(false);
@@ -62,9 +86,7 @@ export function I18nProvider({ children }) {
     await prefs.set(KEY, l);
     setLangState(l);
     session.setLang(l);
-    if (await applyDirection(l)) {
-      try { await Updates.reloadAsync(); } catch { DevSettings.reload?.(); }
-    }
+    if (await applyDirection(l)) await restartApp(l);
   }, []);
 
   const t = useCallback((path, vars) => {

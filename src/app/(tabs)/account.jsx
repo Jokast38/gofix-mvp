@@ -8,7 +8,7 @@ import { Bell, Bot, CalendarClock, ChevronRight, CircleHelp, ClipboardList, File
 import { API_ORIGIN, errorCode } from "@/api/client";
 import { userService } from "@/api/services";
 import { isProvider, useAuth, useWilayas } from "@/hooks/auth";
-import { useI18n, useLocalized } from "@/i18n";
+import { needsManualRestart, useI18n, useLocalized } from "@/i18n";
 import { formatPhone, ltr } from "@/lib/format";
 import { BRAND, useTheme } from "@/theme";
 import { LanguageFlags } from "@/ui/Flags";
@@ -209,7 +209,7 @@ function Prefs({ themeName, setTheme, weekStart, onWeekStart }) {
     <Section title={t("account.prefsTitle")}>
       <Txt variant="label" style={{ marginBottom: 6 }}>{t("prefs.language")}</Txt>
       <View style={{ marginBottom: 12 }}>
-        <LanguageFlags labels onBeforeChange={(code) => code === "ar" && toast(t("mobile.languageReload"))} />
+        <LanguageFlags labels onBeforeChange={(code) => code === "ar" && !needsManualRestart && toast(t("mobile.languageReload"))} />
       </View>
       <Txt variant="label" style={{ marginBottom: 6 }}>{t("prefs.toggleTheme")}</Txt>
       <Row gap={8} style={{ marginBottom: 12 }}>

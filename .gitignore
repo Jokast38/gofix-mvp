@@ -96,5 +96,3 @@ android-sdk/
 # overlay black-box crash/user-report dumps — session data, never history
 **/.emergent/recordings/
 
-# Mobile app: separate repository (github.com/Jokast38/gofix-v1)
-mobile/

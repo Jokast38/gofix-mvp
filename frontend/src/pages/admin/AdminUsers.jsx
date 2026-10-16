@@ -7,6 +7,8 @@ import { adminService } from "@/services/publicService";
 import { useI18n } from "@/i18n";
 import { errorCode, formatDate, formatPhone } from "@/lib/format";
 import { ui } from "@/lib/ui";
+import { UserPlus } from "lucide-react";
+import { CreateUserDialog } from "./CreateUserDialog";
 
 const ROLES = ["client", "professional", "teacher", "student"];
 
@@ -42,8 +44,9 @@ function StatusDialog({ target, onClose }) {
   );
 }
 
-export function AdminUsers() {
+export function AdminUsers({ canEdit }) {
   const { t } = useI18n();
+  const [creating, setCreating] = useState(false);
   const [q, setQ] = useState("");
   const [role, setRole] = useState("");
   const [page, setPage] = useState(1);
@@ -53,6 +56,11 @@ export function AdminUsers() {
 
   return (
     <div className="space-y-4">
+      {canEdit && (
+        <button type="button" onClick={() => setCreating(true)} className={`${ui.btnPrimary} w-full sm:w-auto`} data-testid="admin-users-create">
+          <UserPlus size={18} aria-hidden="true" />{t("usercreate.open")}
+        </button>
+      )}
       <div className="flex flex-col sm:flex-row gap-2">
         <input value={q} onChange={(e) => { setQ(e.target.value); setPage(1); }} placeholder={t("admin.users.search")} className={ui.input} data-testid="admin-users-search" />
         <select value={role} onChange={(e) => { setRole(e.target.value); setPage(1); }} className={`${ui.input} sm:w-56`} data-testid="admin-users-role-filter">
@@ -70,7 +78,7 @@ export function AdminUsers() {
               <div className="min-w-0">
                 <p className="font-bold truncate">{u.full_name}</p>
                 <p className="text-xs text-muted-foreground truncate" dir="ltr">{u.email} {u.phone && `· ${formatPhone(u.phone)}`}</p>
-                <p className="mt-1 text-xs">{u.roles.map((r) => t(`account.modes.${r}`)).join(", ")}{u.admin_role && ` · ${u.admin_role}`}</p>
+                <p className="mt-1 text-xs">{u.roles.map((r) => t(`account.modes.${r}`)).join(", ")}{u.admin_role && ` · ${t(`usercreate.roles.${u.admin_role}`)}`}</p>
                 <p className="text-xs text-muted-foreground">{t("admin.users.created")} {formatDate(u.created_at)}</p>
               </div>
               <div className="flex flex-col items-end gap-2 shrink-0">
@@ -91,6 +99,7 @@ export function AdminUsers() {
         <button type="button" disabled={page >= pages} onClick={() => setPage((p) => p + 1)} className={ui.btnOutline} data-testid="admin-users-next">{t("admin.users.next")}</button>
       </div>
       <StatusDialog target={target} onClose={() => setTarget(null)} />
+      {canEdit && <CreateUserDialog open={creating} onClose={() => setCreating(false)} />}
     </div>
   );
 }

@@ -1,4 +1,5 @@
 import re
+import secrets
 from datetime import datetime, timedelta, timezone
 from typing import Any, Literal, Optional
 
@@ -7,11 +8,16 @@ from bson.errors import InvalidId
 from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel, Field
 
+from app.adapters.email import get_email_adapter
+from app.core.config import settings
 from app.core.db import db
 from app.core.deps import client_ip, require_admin
+from app.core.phone import normalize_dz_phone
+from app.core.security import hash_password, sha256
 from app.data.processing_register import PROCESSING_REGISTER
 from app.models.user import AuditLog, User
 from app.services.audit import audit
+from app.services.config_store import get_setting
 from app.services.visibility import set_profiles_suspended
 
 router = APIRouter(prefix="/admin", tags=["admin"])
@@ -24,6 +30,40 @@ class StatusIn(BaseModel):
 
 class AdminRoleIn(BaseModel):
     admin_role: Optional[Literal["super_admin", "moderator", "support"]] = None
+
+
+class CreateUserIn(BaseModel):
+    kind: Literal["staff", "client"]
+    full_name: str = Field(min_length=2, max_length=80)
+    email: str = Field(max_length=200)
+    phone: Optional[str] = Field(default=None, max_length=20)
+    admin_role: Optional[Literal["super_admin", "moderator", "support"]] = None  # staff only
+    account_type: Literal["client", "student", "professional", "teacher"] = "client"  # client only
+    preferred_language: Literal["fr", "ar"] = "fr"
+    send_invite: bool = True
+
+
+INVITE_HOURS = 72
+INVITE_TEXT = {
+    "fr": ("GoFix – Votre compte a été créé",
+           "Bonjour {name},\n\nUn compte GoFix a été créé pour vous ({email}){what}.\n"
+           "Choisissez votre mot de passe avec ce lien (valable {hours} heures) :\n{link}\n\n"
+           "Si le lien a expiré, utilisez « Mot de passe oublié » sur la page de connexion.\n\nL'équipe GoFix"),
+    "ar": ("GoFix – تم إنشاء حسابك",
+           "مرحبًا {name}،\n\nتم إنشاء حساب GoFix لك ({email}){what}.\n"
+           "اختر كلمة المرور عبر هذا الرابط (صالح {hours} ساعة):\n{link}\n\n"
+           "إذا انتهت صلاحية الرابط، استعمل «نسيت كلمة المرور» في صفحة الدخول.\n\nفريق GoFix"),
+}
+STAFF_LABEL = {"fr": {"super_admin": " en tant que super-administrateur", "moderator": " en tant que modérateur",
+                      "support": " en tant qu'agent support"},
+               "ar": {"super_admin": " بصفة مشرف عام", "moderator": " بصفة مشرف محتوى", "support": " بصفة عون دعم"}}
+
+
+def _temp_password() -> str:
+    # Readable, strong, always letters + digits (passes the password policy); shown once to the super-admin.
+    alphabet = "abcdefghjkmnpqrstuvwxyzABCDEFGHJKMNPQRSTUVWXYZ"
+    core = "".join(secrets.choice(alphabet) for _ in range(10))
+    return f"Gf-{core[:5]}-{core[5:]}-{secrets.randbelow(90) + 10}"
 
 
 class FlagIn(BaseModel):
@@ -103,6 +143,56 @@ async def set_admin_role(user_id: str, body: AdminRoleIn, request: Request, admi
         raise HTTPException(404, "not_found")
     await audit("admin.role_change", admin, "user", user_id, {"admin_role": body.admin_role}, client_ip(request))
     return {"ok": True}
+
+
+@router.post("/users", status_code=201)
+async def create_user(body: CreateUserIn, request: Request, admin: User = Depends(require_admin("super_admin"))):
+    """Super-admin: creates a staff account (back-office collaborator) or a client account.
+    A temporary password is returned ONCE; with send_invite the person also gets a link to choose their own password."""
+    email = body.email.strip().lower()
+    if not re.fullmatch(r"[^@\s]+@[^@\s]+\.[^@\s]+", email):
+        raise HTTPException(422, "email_invalid")
+    phone = None
+    if body.phone and body.phone.strip():
+        try:
+            phone = normalize_dz_phone(body.phone)
+        except ValueError:
+            raise HTTPException(422, "phone_invalid")
+    if body.kind == "staff" and not body.admin_role:
+        raise HTTPException(422, "admin_role_required")
+    if await db.users.find_one({"email": email}):
+        raise HTTPException(409, "email_taken")
+    if phone and await db.users.find_one({"phone": phone}):
+        raise HTTPException(409, "phone_taken")
+    staff = body.kind == "staff"
+    account_type = "client" if staff else body.account_type
+    temp = _temp_password()
+    user = User(email=email, phone=phone, password_hash=hash_password(temp), full_name=body.full_name.strip(),
+                roles=["client"] if account_type == "client" else ["client", account_type], active_mode=account_type,
+                admin_role=body.admin_role if staff else None, preferred_language=body.preferred_language,
+                email_verified=True, week_start=await get_setting("default_week_start"))
+    doc = user.to_mongo() | {"created_by": admin.email}
+    res = await db.users.insert_one(doc)
+    user.id = str(res.inserted_id)
+
+    invite_sent = False
+    if body.send_invite:
+        token = secrets.token_urlsafe(32)
+        now = datetime.now(timezone.utc)
+        await db.password_reset_tokens.insert_one({"token_hash": sha256(token), "user_id": res.inserted_id, "used": False,
+                                                   "created_at": now, "expires_at": now + timedelta(hours=INVITE_HOURS), "kind": "invite"})
+        lang = body.preferred_language
+        subject, text = INVITE_TEXT[lang]
+        what = STAFF_LABEL[lang][body.admin_role] if staff else ""
+        try:
+            invite_sent = await get_email_adapter().send(email, subject, text.format(
+                name=user.full_name, email=email, what=what, hours=INVITE_HOURS, link=f"{settings.frontend_url}/reset-password?token={token}"))
+        except Exception:
+            invite_sent = False
+    await audit("admin.user_create", admin, "user", user.id,
+                {"kind": body.kind, "admin_role": user.admin_role, "account_type": account_type, "invite": body.send_invite,
+                 "invite_sent": bool(invite_sent)}, client_ip(request))
+    return {"user": user.to_public(), "temporary_password": temp, "invite_sent": bool(invite_sent)}
 
 
 @router.get("/feature-flags")

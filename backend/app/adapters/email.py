@@ -17,7 +17,7 @@ class EmailAdapter(ABC):
 class ConsoleEmailAdapter(EmailAdapter):
     async def send(self, to, subject, body):
         log.info("email_console", extra={"ctx": {"to": to, "subject": subject, "body": body}})
-        return True
+        return False  # logged only, not delivered
 
 
 class SmtpEmailAdapter(EmailAdapter):

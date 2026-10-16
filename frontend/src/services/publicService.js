@@ -16,6 +16,7 @@ export const publicService = {
 export const adminService = {
   stats: () => get("/admin/stats"),
   users: (params) => get("/admin/users", params),
+  createUser: async (payload) => (await api.post("/admin/users", payload)).data,
   setUserStatus: (id, status, reason) => api.patch(`/admin/users/${id}/status`, { status, reason }),
   flags: () => get("/admin/feature-flags"),
   setFlag: (key, enabled) => api.put(`/admin/feature-flags/${key}`, { enabled }),

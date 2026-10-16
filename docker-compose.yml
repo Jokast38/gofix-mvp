@@ -1,0 +1,74 @@
+services:
+  mongo:
+    image: mongo:7
+    restart: unless-stopped
+    environment:
+      # Set MONGO_ROOT_USER/MONGO_ROOT_PASSWORD in .env (production) to enable authentication on a NEW volume,
+      # and put the same credentials in MONGO_URL. Empty = no auth (local development).
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USER:-}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD:-}
+    volumes:
+      - mongo_data:/data/db
+      - ./backups:/backups
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping')"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+      target: runtime
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      MONGO_URL: ${MONGO_URL:-mongodb://mongo:27017}
+      STORAGE_LOCAL_ROOT: /data/storage
+    volumes:
+      - storage_data:/data/storage
+    depends_on:
+      mongo:
+        condition: service_healthy
+
+  tests:
+    profiles: ["test"]
+    build:
+      context: ./backend
+      target: test
+    env_file: .env
+    environment:
+      MONGO_URL: ${MONGO_URL:-mongodb://mongo:27017}
+      TEST_DB_NAME: gofix_test
+      STORAGE_LOCAL_ROOT: /tmp/storage
+    depends_on:
+      mongo:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        REACT_APP_BACKEND_URL: ""
+    restart: unless-stopped
+    depends_on:
+      - backend
+
+  nginx:
+    image: nginx:1.27-alpine
+    restart: unless-stopped
+    ports:
+      # Behind aaPanel (its own Nginx owns 80/443): HTTP_BIND=127.0.0.1:8080 and HTTPS_BIND=127.0.0.1:8443 in .env
+      - "${HTTP_BIND:-80}:80"
+      - "${HTTPS_BIND:-443}:443"
+    volumes:
+      - ./deploy/nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./deploy/nginx/certs:/etc/nginx/certs:ro
+      - storage_data:/data/storage:ro
+    depends_on:
+      - frontend
+      - backend
+
+volumes:
+  mongo_data:
+  storage_data:

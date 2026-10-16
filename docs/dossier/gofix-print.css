@@ -1,0 +1,100 @@
+  @page {
+    size: A4; margin: 20mm 15mm 18mm 15mm;
+    @top-right { content: "GOFIX  |  Dossier technique & prise en main"; font: 700 7.5pt Arial, sans-serif; color: #8a93a6; vertical-align: bottom; padding-bottom: 4mm; }
+    @bottom-left { content: "CONFIDENTIEL - Équipe produit & développement"; font: 7.5pt Arial, sans-serif; color: #8a93a6; vertical-align: top; padding-top: 4mm; }
+    @bottom-center { content: counter(page) " / " counter(pages); font: 7.5pt Arial, sans-serif; color: #8a93a6; vertical-align: top; padding-top: 4mm; }
+    @bottom-right { content: "GOFIX DIGITAL"; font: 700 7.5pt Arial, sans-serif; color: #8a93a6; vertical-align: top; padding-top: 4mm; }
+  }
+  :root {
+    --dark: #0b1020; --ink: #1d2433; --muted: #5b6577; --line: #e2e7ef; --zebra: #f6f8fb;
+    --cyan: #00bfe8; --pink: #ff3e8a; --orange: #ff9900; --purple: #8b2ef0; --green: #12a150;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: #fff; }
+  body { font-family: Arial, "Helvetica Neue", Helvetica, sans-serif; color: var(--ink); font-size: 10pt; line-height: 1.45;
+         -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+
+
+  /* Cover */
+  .cover { page-break-after: always; }
+  .cover-box { background: var(--dark); border-radius: 4px; padding: 14mm 12mm 12mm; text-align: center; color: #fff; }
+  .logo-card { display: inline-block; border: 1px solid #263150; border-radius: 10px; padding: 4mm 10mm; background: #0e1530; }
+  .logo-card .lbl { text-align: left; font-size: 7pt; font-weight: 700; color: #cfd6e6; margin-bottom: 1mm; }
+  .logo-card img { width: 62mm; display: block; }
+  .cover h1 { font-size: 25pt; margin: 9mm 0 3mm; letter-spacing: .3px; }
+  .cover .tag { font-size: 17pt; font-weight: 700; color: var(--cyan); margin: 0 0 4mm; }
+  .cover .chips { font-size: 9pt; font-weight: 700; color: var(--orange); margin: 0 0 4mm; }
+  .cover .subt { font-size: 10.5pt; color: #dfe5f1; margin: 0 0 3mm; }
+  .cover .ver { font-size: 8.5pt; color: #8a93a6; }
+  .grad { height: 3.2mm; margin: 0 6mm; background: linear-gradient(90deg, var(--cyan), var(--purple), var(--pink), var(--orange)); }
+  .cover .obj { text-align: center; margin: 7mm 10mm 0; font-size: 10pt; }
+  .cover .meta { margin: 10mm auto 0; width: 80%; }
+
+  /* Section header (lettered block, as in the CDC) */
+  .sec { page-break-before: always; }
+  .sec-head { display: flex; align-items: stretch; border-bottom: 2px solid var(--c); margin: 0 0 6mm; }
+  .sec-letter { background: var(--c); min-width: 20mm; min-height: 27mm; color: #10131c; font-size: 20pt; font-weight: 800;
+                display: flex; justify-content: center; padding-top: 5mm; }
+  .sec-titles { padding: 4mm 0 4mm 6mm; }
+  .sec-titles h1 { margin: 0; font-size: 21pt; color: var(--dark); letter-spacing: .2px; }
+  .sec-titles p { margin: 2.5mm 0 0; color: var(--muted); font-size: 9pt; }
+  .sub-head { display: flex; align-items: stretch; border-bottom: 2px solid var(--c); margin: 8mm 0 5mm; page-break-after: avoid; }
+  .sub-head .sec-letter { min-width: 16mm; min-height: 15mm; font-size: 13pt; padding-top: 3.5mm; }
+  .sub-head .sec-titles { padding: 2mm 0 2mm 5mm; }
+  .sub-head h1 { font-size: 16pt; }
+
+  h2 { font-size: 13.5pt; margin: 6mm 0 2.5mm; color: var(--dark); page-break-after: avoid; }
+  h3 { font-size: 11pt; margin: 4mm 0 1.5mm; color: var(--dark); page-break-after: avoid; }
+  p { margin: 0 0 2.5mm; }
+  ul, ol { margin: 0 0 3mm; padding-left: 6mm; }
+  li { margin: 0 0 1mm; }
+  ul li::marker { color: var(--cyan); }
+  ol li::marker { color: var(--c, var(--cyan)); font-weight: 700; }
+  .sec { --c: var(--cyan); }
+  b, strong { color: #111827; }
+  a { color: #0077a8; text-decoration: none; }
+  code { font-family: Consolas, "Courier New", monospace; font-size: 8.6pt; background: #eef2f7; padding: 0 1mm; border-radius: 2px; }
+  pre { font-family: Consolas, "Courier New", monospace; font-size: 8.2pt; line-height: 1.4; background: var(--dark); color: #e6edf3;
+        border-radius: 4px; padding: 3mm 4mm; margin: 1.5mm 0 3.5mm; white-space: pre-wrap; word-break: break-word; page-break-inside: avoid; }
+  pre .c { color: #7f8aa3; }
+
+  /* Tables (dark header + coloured rule, like the CDC) */
+  table { width: 100%; border-collapse: collapse; margin: 2mm 0 4mm; font-size: 8.6pt; page-break-inside: auto; }
+  thead { display: table-header-group; }
+  tr { page-break-inside: avoid; }
+  th { background: var(--dark); color: #fff; font-weight: 700; text-align: left; padding: 3mm 2.5mm; border-bottom: 2px solid var(--cyan); }
+  td { padding: 2.2mm 2.5mm; border-bottom: 1px solid var(--line); vertical-align: top; }
+  tbody tr:nth-child(odd) td { background: var(--zebra); }
+  td.k, td code { white-space: nowrap; }
+  .center td, .center th { text-align: center; }
+
+  /* Callouts */
+  .note { background: #f5f8fb; border-left: 4px solid var(--c); padding: 3.5mm 4.5mm; margin: 3mm 0 4mm; page-break-inside: avoid; }
+  .note h4 { margin: 0 0 1.5mm; font-size: 10.5pt; color: var(--c); }
+  .note p:last-child, .note ul:last-child, .note ol:last-child { margin-bottom: 0; }
+  .note.warn { --c: var(--orange); }
+  .note.ok { --c: var(--green); }
+  .note.danger { --c: var(--pink); }
+
+  .pill { display: inline-block; font-size: 7.5pt; font-weight: 700; padding: .4mm 2mm; border-radius: 10px; color: #fff; white-space: nowrap; }
+  .p-ok { background: var(--green); } .p-todo { background: var(--orange); } .p-soon { background: var(--purple); } .p-no { background: #8a93a6; }
+
+  /* Architecture diagram */
+  .diagram { border: 1px solid var(--line); border-radius: 4px; padding: 4mm; margin: 2mm 0 4mm; page-break-inside: avoid; background: #fbfcfe; }
+  .row { display: flex; gap: 3mm; justify-content: center; align-items: stretch; }
+  .box { flex: 1; border-radius: 4px; padding: 2.5mm; text-align: center; font-size: 8.4pt; border: 1.5px solid var(--c); background: #fff; }
+  .box b { display: block; font-size: 9pt; margin-bottom: .8mm; }
+  .arrow { text-align: center; color: #8a93a6; font-size: 11pt; line-height: 1; margin: 1.2mm 0; }
+  .zone { border: 1.5px dashed #b7c0d1; border-radius: 6px; padding: 3mm; margin-top: 1mm; }
+  .zone-lbl { font-size: 7.5pt; font-weight: 700; color: var(--muted); margin-bottom: 2mm; text-transform: uppercase; letter-spacing: .4px; }
+
+  .toc { margin-top: 2mm; }
+  .toc-row { display: flex; align-items: stretch; border-bottom: 1px solid var(--line); padding: 2.3mm 0; page-break-inside: avoid; }
+  .toc-l { min-width: 11mm; height: 11mm; display: flex; align-items: center; justify-content: center; font-weight: 800; color: #10131c; margin-right: 4mm; }
+  .toc-t b { display: block; font-size: 10.5pt; }
+  .toc-t span { color: var(--muted); font-size: 8.8pt; }
+  .two { display: flex; gap: 6mm; }
+  .two > div { flex: 1; }
+  .small { font-size: 8.5pt; color: var(--muted); }
+  .end { text-align: center; color: #8a93a6; margin-top: 8mm; font-size: 9pt; }
+  .keep { page-break-inside: avoid; }

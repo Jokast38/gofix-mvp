@@ -1,0 +1,507 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>GoFix – Guide d'installation et de mise en ligne</title>
+<link rel="stylesheet" href="gofix-print.css">
+<style>
+  @page { @top-right { content: "GOFIX  |  Guide d'installation & mise en ligne"; } }
+  .step { display: flex; gap: 4mm; align-items: flex-start; margin: 4mm 0 2mm; page-break-after: avoid; break-inside: avoid; }
+  .cover-box { padding: 10mm 12mm 9mm; }
+  .cover h1 { margin-top: 6mm; }
+  .cover .obj { margin-top: 5mm; }
+  .cover .meta { margin-top: 6mm; }
+  .cover .meta td, .cover .meta th { padding: 1.8mm 2.5mm; }
+  .step-n { min-width: 9mm; height: 9mm; border-radius: 50%; background: var(--c); color: #10131c; font-weight: 800; display: flex; align-items: center; justify-content: center; }
+  .step h3 { margin: 1.5mm 0 0; }
+  .step .dur { font-size: 8pt; color: var(--muted); font-weight: 700; margin-left: 2mm; }
+  .expect { border-left: 3px solid var(--green); background: #f3fbf6; padding: 2mm 3.5mm; margin: 1mm 0 3mm; font-size: 9pt; page-break-inside: avoid; }
+  .expect b { color: var(--green); }
+  .check td:first-child { width: 7mm; text-align: center; font-size: 11pt; color: #8a93a6; }
+</style>
+</head>
+<body>
+
+<!-- ============================== COUVERTURE ============================== -->
+<div class="cover">
+  <div class="cover-box">
+    <div class="logo-card"><div class="lbl">1. LOGO PRINCIPAL</div><img src="../../frontend/src/assets/brand/gofix-logo-original.png" alt="GoFix"></div>
+    <h1>GUIDE D'INSTALLATION</h1>
+    <p class="tag">Mise en ligne de GoFix V1 — procédure terrain</p>
+    <p class="chips">SERVEUR &nbsp;•&nbsp; SITE WEB &nbsp;•&nbsp; PAIEMENT &nbsp;•&nbsp; GOOGLE PLAY &nbsp;•&nbsp; APP STORE &nbsp;•&nbsp; RECETTE</p>
+    <p class="subt">Toutes les commandes, dans l'ordre, avec le résultat attendu à chaque étape</p>
+    <p class="ver">Version 1.0 &nbsp;•&nbsp; Octobre 2026 &nbsp;•&nbsp; Alger</p>
+  </div>
+  <div class="grad"></div>
+  <p class="obj">Ce guide s'adresse à l'équipe chargée de mettre GoFix en ligne sur <b>gofix-digital.dz</b> et de publier l'application sur
+    <b>Google Play</b> et l'<b>App Store</b>. Il suffit de le suivre dans l'ordre : chaque étape indique sa durée, les commandes à copier et ce que vous
+    devez obtenir. Le détail technique (architecture, sécurité, exploitation) se trouve dans le <i>Dossier technique</i>.</p>
+  <table class="meta">
+    <thead><tr><th>Phase</th><th>Durée</th><th>Qui</th></tr></thead>
+    <tbody>
+      <tr><td>A. Préparer les accès</td><td>½ journée (dépend des tiers)</td><td>Chef de projet</td></tr>
+      <tr><td>B. Prise en main locale (facultatif, recommandé)</td><td>30 min</td><td>Développeur</td></tr>
+      <tr><td>C. Mise en ligne du serveur</td><td>1 h 30</td><td>Développeur / admin système</td></tr>
+      <tr><td>D. Services : e-mail, paiement SATIM</td><td>1 h + délais banque</td><td>Développeur + GoFix Digital</td></tr>
+      <tr><td>E. Publication Google Play / App Store</td><td>½ journée + délais de revue</td><td>Développeur mobile</td></tr>
+      <tr><td>F. Recette complète</td><td>2 h</td><td>Toute l'équipe</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ============================== SOMMAIRE ============================== -->
+<div class="sec" style="--c: var(--purple)">
+  <div class="sec-head"><div class="sec-letter">≡</div><div class="sec-titles"><h1>SOMMAIRE</h1><p>Suivre les phases dans l'ordre</p></div></div>
+  <div class="toc">
+    <div class="toc-row"><div class="toc-l" style="background:var(--cyan)">A</div><div class="toc-t"><b>Avant de commencer</b><span>Accès à réunir, poste de travail, règles d'or, déblocage SSH</span></div></div>
+    <div class="toc-row"><div class="toc-l" style="background:var(--pink)">B</div><div class="toc-t"><b>Prise en main locale</b><span>Lancer GoFix sur son PC en 4 commandes et vérifier les tests</span></div></div>
+    <div class="toc-row"><div class="toc-l" style="background:var(--orange)">C</div><div class="toc-t"><b>Mise en ligne du serveur</b><span>9 étapes : connexion, préparation, sauvegarde, envoi, configuration, déploiement, HTTPS, réglages</span></div></div>
+    <div class="toc-row"><div class="toc-l" style="background:var(--purple)">D</div><div class="toc-t"><b>Services à brancher</b><span>E-mails Admail, paiement SATIM (test puis production), SMS</span></div></div>
+    <div class="toc-row"><div class="toc-l" style="background:var(--cyan)">E</div><div class="toc-t"><b>Publication de l'application mobile</b><span>Comptes, build Android et iOS, fiches stores, revue, liens dans le back-office</span></div></div>
+    <div class="toc-row"><div class="toc-l" style="background:var(--pink)">F</div><div class="toc-t"><b>Recette</b><span>Tests automatiques, parcours à vérifier à la main, résultats de la recette d'octobre 2026</span></div></div>
+    <div class="toc-row"><div class="toc-l" style="background:var(--orange)">G</div><div class="toc-t"><b>Mises à jour, retour arrière, dépannage</b><span>Commandes du quotidien et solutions aux problèmes fréquents</span></div></div>
+  </div>
+</div>
+
+<!-- ============================== A ============================== -->
+<div class="sec" style="--c: var(--cyan)">
+  <div class="sec-head"><div class="sec-letter">A</div><div class="sec-titles"><h1>AVANT DE COMMENCER</h1><p>Tout réunir avant d'aller sur place</p></div></div>
+
+  <h2>1. Accès à demander à GoFix Digital</h2>
+  <p>Ils sont transmis hors de ce document (gestionnaire de mots de passe partagé). Cochez chaque ligne avant le jour J.</p>
+  <table class="check">
+    <thead><tr><th></th><th style="width:34%">Accès</th><th>Usage</th></tr></thead>
+    <tbody>
+      <tr><td>☐</td><td>IP du VPS + mot de passe <code>root</code></td><td>Connexion SSH au serveur (étape C.1)</td></tr>
+      <tr><td>☐</td><td>Panneau aaPanel (URL port 8888, identifiant, mot de passe)</td><td>Site, certificat HTTPS, reverse proxy (C.7)</td></tr>
+      <tr><td>☐</td><td>Admail (admail.djaweb.dz) + paramètres SMTP d'Algérie Télécom</td><td>Boîte <code>no-reply@gofix-digital.dz</code> pour les e-mails (D.1)</td></tr>
+      <tr><td>☐</td><td>Accès SATIM de <b>test</b> fournis par la banque (URL, identifiant, mot de passe, Terminal ID)</td><td>Paiement CIB / Edahabia (D.2)</td></tr>
+      <tr><td>☐</td><td>Compte Google Play Console de la société</td><td>Publication Android (E)</td></tr>
+      <tr><td>☐</td><td>Compte Apple Developer de la société (organisation)</td><td>Publication iOS (E)</td></tr>
+      <tr><td>☐</td><td>Compte Expo (gratuit) rattaché à la société</td><td>Construction des applications dans le cloud (E.3)</td></tr>
+      <tr><td>☐</td><td>Code source à jour (dépôt Git privé ou dossier <code>gofix-mvp</code>)</td><td>Tout</td></tr>
+    </tbody>
+  </table>
+
+  <h2>2. Poste de travail</h2>
+  <table>
+    <thead><tr><th style="width:30%">Outil</th><th>Pourquoi</th><th style="width:22%">Obligatoire ?</th></tr></thead>
+    <tbody>
+      <tr><td>Windows 10/11, macOS ou Linux</td><td>Préparer l'archive et piloter le serveur (<code>ssh</code> et <code>scp</code> sont intégrés)</td><td>Oui</td></tr>
+      <tr><td>Node.js 20</td><td>Application mobile (build, traductions)</td><td>Oui pour E</td></tr>
+      <tr><td>Docker Desktop</td><td>Prise en main locale et tests automatiques</td><td>Recommandé</td></tr>
+      <tr><td>Un téléphone Android et un iPhone</td><td>Recette de l'application (F)</td><td>Oui pour F</td></tr>
+      <tr><td>Mac avec Xcode</td><td>Uniquement si vous construisez iOS sans le cloud Expo</td><td>Non</td></tr>
+    </tbody>
+  </table>
+
+  <h2>3. Règles d'or</h2>
+  <ul>
+    <li><b>Jamais de mot de passe dans le code, le dépôt Git, un e-mail ou une messagerie.</b> Le fichier <code>.env</code> du serveur reste sur le serveur.</li>
+    <li><b>Toujours sauvegarder avant de modifier</b> (le script de déploiement le fait automatiquement pour la base).</li>
+    <li><b>Ne jamais charger les données de démonstration en production</b> : seule la commande <code>--reference-only</code> est autorisée (le script refuse l'autre).</li>
+    <li><b>L'ancienne version n'est pas supprimée</b> avant 30 jours : elle est sauvegardée puis simplement plus servie.</li>
+    <li><b>Aucune mise en ligne si un test automatique échoue.</b></li>
+  </ul>
+
+  <h2>4. Point bloquant connu : accès SSH</h2>
+  <div class="note warn"><h4>Le port SSH (22) et le port aaPanel (8888) ne répondaient pas en octobre 2026</h4>
+    <p>Test du 13/10/2026 : le serveur répond au ping et sur les ports 80/443, mais pas sur 22 ni 8888 (filtrés côté Algérie Télécom, pas côté client).
+      Avant le jour J, demander au support VPS d'Algérie Télécom : <b>(1)</b> le port SSH réel, <b>(2)</b> l'ouverture de SSH et du port 8888 depuis l'IP publique de l'équipe
+      (ou à tous pour SSH si l'IP change souvent ; on sécurise ensuite par clé), <b>(3)</b> l'existence d'une console web de secours.
+      Vérification depuis un PC Windows (PowerShell) :</p>
+<pre>Test-NetConnection 197.112.108.20 -Port 22      <span class="c"># TcpTestSucceeded : True attendu</span>
+Test-NetConnection 197.112.108.20 -Port 8888</pre>
+    <p>Si un autre port est attribué (ex. 2200) : <code>ssh -p 2200 …</code> et <code>scp -P 2200 …</code> (P majuscule pour scp).</p></div>
+</div>
+
+<!-- ============================== B ============================== -->
+<div class="sec" style="--c: var(--pink)">
+  <div class="sec-head"><div class="sec-letter">B</div><div class="sec-titles"><h1>PRISE EN MAIN LOCALE</h1><p>Facultatif mais recommandé : voir GoFix tourner avant d'intervenir sur le serveur</p></div></div>
+
+  <div class="step" style="--c: var(--pink)"><div class="step-n">1</div><h3>Démarrer GoFix sur son PC <span class="dur">≈ 15 min</span></h3></div>
+<pre><span class="c"># dans le dossier gofix-mvp</span>
+cp .env.example .env                 <span class="c"># puis renseigner JWT_SECRET (openssl rand -hex 32), ADMIN_EMAIL, ADMIN_PASSWORD</span>
+docker compose up -d --build
+docker compose exec backend python -m app.seed        <span class="c"># référentiels + comptes de démonstration (local uniquement)</span></pre>
+  <div class="expect"><b>Résultat attendu :</b> <code>http://localhost</code> affiche l'accueil GoFix ; <code>http://localhost/admin</code> accepte <code>ADMIN_EMAIL</code>.
+    Comptes de démonstration (mot de passe <code>GoFix@Demo2026</code>) : <code>client@gofix.dz</code>, <code>pro@gofix.dz</code>, <code>prof@gofix.dz</code>,
+    <code>eleve@gofix.dz</code>, <code>premium.client@gofix.dz</code>, <code>moderateur@gofix.dz</code>, <code>support@gofix.dz</code>.</div>
+
+  <div class="step" style="--c: var(--pink)"><div class="step-n">2</div><h3>Lancer les tests automatiques <span class="dur">≈ 5 min</span></h3></div>
+<pre>docker compose --profile test run --rm tests</pre>
+  <div class="expect"><b>Résultat attendu :</b> <code>67 passed</code> (base de test séparée, supprimée à la fin). Un seul échec = ne pas déployer.</div>
+
+  <div class="step" style="--c: var(--pink)"><div class="step-n">3</div><h3>Voir l'application mobile sur son téléphone <span class="dur">≈ 10 min</span></h3></div>
+<pre>cd mobile
+npm install
+EXPO_PUBLIC_API_URL=http://&lt;IP du PC sur le Wi-Fi&gt; npx expo start      <span class="c"># Windows : ipconfig → « Adresse IPv4 »</span></pre>
+  <div class="expect"><b>Résultat attendu :</b> en scannant le QR code avec l'application <b>Expo Go</b> (téléphone sur le même Wi-Fi), GoFix s'ouvre et la connexion
+    avec <code>client@gofix.dz</code> fonctionne.</div>
+</div>
+
+<!-- ============================== C ============================== -->
+<div class="sec" style="--c: var(--orange)">
+  <div class="sec-head"><div class="sec-letter">C</div><div class="sec-titles"><h1>MISE EN LIGNE DU SERVEUR</h1><p>9 étapes, ≈ 1 h 30 — le site gofix-digital.dz passe sur GoFix V1</p></div></div>
+
+  <div class="note"><h4>Principe</h4>
+    <p>Sur le VPS, aaPanel garde les ports 80/443 et le certificat HTTPS ; GoFix tourne dans Docker sur <code>127.0.0.1:8080</code> et aaPanel lui transmet le trafic.
+      Deux scripts font le travail : <code>scripts/package_release.ps1</code> (sur le PC : prépare l'archive) et <code>scripts/deploy.sh</code> (sur le serveur : sauvegarde,
+      installe, démarre, vérifie). Ils ont été répétés à l'identique en conditions de production le 14/10/2026 (installation, mise à jour, sauvegarde, restauration).</p></div>
+
+  <div class="step" style="--c: var(--orange)"><div class="step-n">1</div><h3>Se connecter au serveur <span class="dur">5 min</span></h3></div>
+<pre>ssh root@&lt;IP&gt;</pre>
+  <p>Répondre <code>yes</code> à la première question, saisir le mot de passe (rien ne s'affiche, c'est normal). Le serveur impose un nouveau mot de passe root à la première
+    connexion : saisir l'ancien puis deux fois le nouveau, le ranger dans le gestionnaire de mots de passe, se reconnecter.</p>
+  <div class="expect"><b>Résultat attendu :</b> une invite du type <code>root@…:~#</code>. Erreur « Connection timed out » : voir A.4.</div>
+
+  <div class="step" style="--c: var(--orange)"><div class="step-n">2</div><h3>Préparer le serveur (une seule fois) <span class="dur">15 min</span></h3></div>
+<pre>apt update &amp;&amp; apt -y upgrade
+free -h ; df -h /                    <span class="c"># conseillé : 4 Go de RAM, 20 Go libres</span>
+grep -c avx /proc/cpuinfo            <span class="c"># doit être &gt; 0 (sinon : Dossier technique, F.3)</span>
+fallocate -l 2G /swapfile &amp;&amp; chmod 600 /swapfile &amp;&amp; mkswap /swapfile &amp;&amp; swapon /swapfile
+echo '/swapfile none swap sw 0 0' &gt;&gt; /etc/fstab
+curl -fsSL https://get.docker.com | sh
+docker compose version</pre>
+  <div class="expect"><b>Résultat attendu :</b> <code>Docker Compose version v2.x</code>.</div>
+
+  <div class="step" style="--c: var(--orange)"><div class="step-n">3</div><h3>Sauvegarder l'ancienne version (une seule fois) <span class="dur">10 min</span></h3></div>
+<pre>mkdir -p /root/ancienne-version
+tar czf /root/ancienne-version/site-$(date +%F).tar.gz /www/wwwroot/gofix-digital.dz
+cp -r /www/server/panel/vhost/nginx /root/ancienne-version/vhost-nginx-$(date +%F)
+ls -lh /root/ancienne-version</pre>
+  <p>Dans aaPanel → <b>Databases</b> : sauvegarder la ou les bases de l'ancien site. Télécharger ensuite <code>/root/ancienne-version</code> et ces sauvegardes sur un PC.</p>
+  <div class="expect"><b>Résultat attendu :</b> une archive <code>site-AAAA-MM-JJ.tar.gz</code> non vide et une copie sur un autre support.</div>
+
+  <div class="step" style="--c: var(--orange)"><div class="step-n">4</div><h3>Préparer et envoyer le code (depuis le PC) <span class="dur">5 min</span></h3></div>
+<pre><span class="c"># PowerShell, dans le dossier gofix-mvp</span>
+powershell -ExecutionPolicy Bypass -File scripts\package_release.ps1
+scp ..\gofix-release.tar.gz root@&lt;IP&gt;:/opt/</pre>
+  <div class="expect"><b>Résultat attendu :</b> « Archive ready … (≈ 2 Mo) » puis transfert à 100 %. L'archive ne contient ni <code>.env</code>, ni secrets, ni application mobile.</div>
+
+  <div class="step" style="--c: var(--orange)"><div class="step-n">5</div><h3>Créer la configuration de production (sur le serveur) <span class="dur">10 min</span></h3></div>
+<pre>mkdir -p /opt/gofix &amp;&amp; tar xzf /opt/gofix-release.tar.gz -C /opt/gofix
+cd /opt/gofix
+cp .env.example .env &amp;&amp; chmod 600 .env
+openssl rand -hex 32        <span class="c"># 3 fois : JWT_SECRET, CONFIG_ENCRYPTION_KEY, mot de passe MongoDB</span>
+nano .env                   <span class="c"># Ctrl+O pour enregistrer, Ctrl+X pour quitter</span></pre>
+  <p>Valeurs à renseigner (les autres lignes peuvent rester telles quelles) :</p>
+<pre>APP_ENV=production
+FRONTEND_URL=https://gofix-digital.dz
+CORS_ORIGINS=https://gofix-digital.dz,https://www.gofix-digital.dz
+JWT_SECRET=&lt;valeur 1&gt;
+CONFIG_ENCRYPTION_KEY=&lt;valeur 2&gt;
+ADMIN_EMAIL=&lt;adresse de l'administrateur principal&gt;
+ADMIN_PASSWORD=&lt;12 caractères minimum, lettres et chiffres&gt;
+MONGO_ROOT_USER=gofix_root
+MONGO_ROOT_PASSWORD=&lt;valeur 3&gt;
+MONGO_URL=mongodb://gofix_root:&lt;valeur 3&gt;@mongo:27017/?authSource=admin
+HTTP_BIND=127.0.0.1:8080
+HTTPS_BIND=127.0.0.1:8443</pre>
+  <div class="note warn"><h4>Important</h4>
+    <p>Les lignes <code>MONGO_ROOT_*</code> doivent être renseignées <b>avant</b> le premier démarrage (elles ne s'appliquent qu'à une base neuve).
+      Le paiement et les e-mails peuvent être réglés plus tard (D).</p></div>
+
+  <div class="step" style="--c: var(--orange)"><div class="step-n">6</div><h3>Installer et démarrer GoFix <span class="dur">5 à 15 min</span></h3></div>
+<pre>bash scripts/deploy.sh</pre>
+  <div class="expect"><b>Résultat attendu :</b> le script se termine par <b>« Déploiement terminé »</b>, affiche <code>{"status":"ok","db":true,…}</code>, les référentiels
+    (<code>'wilayas': 58 …</code>) et 4 services « Up ». En cas d'« ERREUR », le script affiche la cause (souvent une valeur du <code>.env</code> refusée par les
+    garde-fous de production : corriger puis relancer la même commande).</div>
+
+  <div class="step" style="--c: var(--orange)"><div class="step-n">7</div><h3>Brancher le domaine et le HTTPS dans aaPanel <span class="dur">10 min</span></h3></div>
+  <ol style="--c: var(--orange)">
+    <li><b>Website</b> → site <code>gofix-digital.dz</code> (ajouter <code>www.gofix-digital.dz</code> dans les domaines s'il manque).</li>
+    <li>Onglet <b>SSL</b> → <i>Let's Encrypt</i> → cocher les deux domaines → <i>Apply</i> → activer <b>Force HTTPS</b>.</li>
+    <li>Onglet <b>Reverse proxy</b> → <i>Add</i> : nom <code>gofix</code>, URL cible <code>http://127.0.0.1:8080</code>, domaine envoyé <code>$host</code>.</li>
+    <li>Onglet <b>Config</b> : vérifier/compléter puis enregistrer :</li>
+  </ol>
+<pre>client_max_body_size 10m;
+location / {
+    proxy_pass http://127.0.0.1:8080;
+    proxy_set_header Host $host;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_read_timeout 60s;
+}</pre>
+  <div class="expect"><b>Résultat attendu :</b> <code>https://gofix-digital.dz</code> affiche l'accueil GoFix avec le cadenas ; <code>http://</code> redirige vers <code>https://</code>.</div>
+
+  <div class="step" style="--c: var(--orange)"><div class="step-n">8</div><h3>Réglages dans le back-office <span class="dur">10 min</span></h3></div>
+  <p>Se connecter sur <code>https://gofix-digital.dz/admin</code> avec <code>ADMIN_EMAIL</code>, puis :</p>
+  <ul>
+    <li><b>Société &amp; mentions légales</b> : renseigner raison sociale, RC, NIF, NIS, article d'imposition, adresse du siège, directeur de la publication,
+      e-mails de contact et de signalement, déclaration ANPDP. Ces informations s'affichent dans les CGU, CGV, mentions légales, politique de confidentialité
+      (site et application) et sur les factures ; un champ vide apparaît « [à compléter] ». Cocher « Textes validés par un juriste » après relecture juridique.</li>
+    <li><b>Moyen de paiement</b> : choisir SATIM, saisir les accès de test, <i>Enregistrer</i>, <i>Tester la connexion</i> (détail en D.2).</li>
+    <li><b>Utilisateurs</b> : créer les comptes nominatifs de l'équipe (inscription normale), puis leur attribuer le rôle <i>moderator</i> ou <i>support</i>.</li>
+    <li><b>Paramètres</b> : vérifier les prix des offres ; plus tard, coller les liens <code>app_store_url</code> et <code>play_store_url</code> (E.6).</li>
+    <li><b>Feature flags</b> : laisser les valeurs par défaut (modules « à venir » désactivés).</li>
+  </ul>
+
+  <div class="step" style="--c: var(--orange)"><div class="step-n">9</div><h3>Sauvegarde automatique quotidienne <span class="dur">2 min</span></h3></div>
+<pre>crontab -e
+<span class="c"># ajouter la ligne suivante (base de données chaque nuit à 2 h 30, 14 jours conservés) :</span>
+30 2 * * * cd /opt/gofix &amp;&amp; bash scripts/backup_mongo.sh &gt;&gt; backups/backup.log 2&gt;&amp;1</pre>
+  <div class="expect"><b>Résultat attendu :</b> <code>bash scripts/backup_mongo.sh</code> lancé à la main affiche « Backup OK » et crée un fichier dans <code>/opt/gofix/backups</code>.
+    Copier ce dossier chaque semaine hors du serveur.</div>
+</div>
+
+<!-- ============================== D ============================== -->
+<div class="sec" style="--c: var(--purple)">
+  <div class="sec-head"><div class="sec-letter">D</div><div class="sec-titles"><h1>SERVICES À BRANCHER</h1><p>E-mails, paiement en ligne, SMS</p></div></div>
+
+  <h2>D.1 E-mails (Admail d'Algérie Télécom)</h2>
+  <ol style="--c: var(--purple)">
+    <li>Admail → <i>Gérer mes comptes</i> → <i>Ajouter un nouveau compte</i> : login <code>no-reply</code>, mot de passe généré, type <i>Basic</i>.</li>
+    <li>Obtenir du support d'Algérie Télécom le <b>serveur SMTP sortant</b> et son <b>port</b> (465 SSL ou 587 STARTTLS).</li>
+    <li>Back-office (super-admin) → onglet <b>E-mails</b> → « Serveur SMTP (envoi réel) ». Adresses : expédition <code>no-reply@gofix-digital.dz</code>,
+      nom affiché <code>GoFix</code>, réponse <code>contact@gofix-digital.dz</code>. Serveur : nom SMTP, sécurité/port, identifiant (adresse complète), mot de passe → <i>Enregistrer</i>.
+      Effet immédiat, sans redémarrage ; le mot de passe est chiffré et jamais réaffiché.</li>
+    <li><i>Envoyer le test</i> vers votre adresse → « E-mail de test envoyé » attendu. Sinon le message indique la cause (identifiants refusés, serveur injoignable, adresse d'expédition refusée).</li>
+    <li>Contrôle final : « Mot de passe oublié » sur un compte de test → l'e-mail arrive (vérifier aussi les indésirables).</li>
+    <li>Secours : les variables <code>EMAIL_PROVIDER</code>/<code>SMTP_*</code> du <code>.env</code> ne servent que tant que rien n'a été enregistré dans le back-office.</li>
+  </ol>
+
+  <h2>D.2 Paiement CIB / Edahabia (SATIM)</h2>
+  <ol style="--c: var(--purple)">
+    <li>Back-office → <b>Moyen de paiement</b> → « SATIM – CIB / Edahabia », environnement <b>test</b>, URL de l'API, identifiant, mot de passe, Terminal ID →
+      <i>Enregistrer</i> → <i>Tester la connexion</i> (« Connexion réussie » attendu).</li>
+    <li>Communiquer à la SATIM/banque l'<b>URL de retour</b> affichée sur le même écran.</li>
+    <li>Vérifier que les pages <code>/legal/cgv</code>, <code>/legal/mentions</code>, <code>/legal/privacy</code> n'affichent plus aucun « [à compléter] »
+      (informations saisies dans l'onglet <b>Société &amp; mentions légales</b>).</li>
+    <li>Espace <b>cibweb.dz</b> → « Certification sites web marchands » : dérouler les scénarios demandés (paiement accepté, refusé, annulé…) depuis
+      <code>https://gofix-digital.dz/pricing</code> ; les numéros de commande sont visibles dans le back-office → <i>Paiements</i>.</li>
+    <li>Après validation : saisir les accès de <b>production</b> dans le même écran (environnement « Production »), tester, puis faire un premier paiement réel de faible montant.</li>
+  </ol>
+  <div class="note"><h4>Tant que SATIM n'est pas réglé</h4>
+    <p>Le site fonctionne normalement ; seul l'achat d'abonnement affiche « paiement momentanément indisponible ». Le paiement simulé est interdit en production.</p></div>
+
+  <h2>D.3 SMS (facultatif)</h2>
+  <p>La connexion par code SMS est désactivée par défaut. Pour l'activer : passerelle SMS algérienne avec API HTTP, variables <code>SMS_PROVIDER=http</code>,
+    <code>SMS_HTTP_URL</code>, <code>SMS_HTTP_TOKEN</code>, <code>SMS_SENDER_ID</code> dans le <code>.env</code>, puis flag <code>auth_phone_otp</code> dans le back-office.</p>
+</div>
+
+<!-- ============================== E ============================== -->
+<div class="sec" style="--c: var(--cyan)">
+  <div class="sec-head"><div class="sec-letter">E</div><div class="sec-titles"><h1>PUBLICATION DE L'APPLICATION</h1><p>Google Play et App Store — identifiant d'application <code>dz.gofix.app</code></p></div></div>
+
+  <div class="note danger"><h4>Décision à prendre AVANT de soumettre : achat d'abonnement dans l'application</h4>
+    <p>L'application permet aujourd'hui d'acheter les abonnements GoFix par la page SATIM. Or Apple (règle 3.1.1 de l'App Store) et Google (règles de paiement de Google Play)
+      exigent en général leur propre système de paiement intégré pour les abonnements qui débloquent des contenus ou fonctions numériques dans l'application.
+      Risque : <b>refus lors de la revue</b>. Options : <b>(1)</b> dans les applications, masquer l'achat et inviter à s'abonner sur le site (les abonnements achetés
+      sur le site restent reconnus dans l'app, mêmes comptes) ; <b>(2)</b> intégrer les achats intégrés Apple / Google (développement supplémentaire, commission des stores) ;
+      <b>(3)</b> soumettre tel quel en argumentant la mise en relation avec des services physiques (issue incertaine). À trancher par GoFix Digital ; l'option 1 est la plus rapide.</p></div>
+
+  <div class="step" style="--c: var(--cyan)"><div class="step-n">1</div><h3>Comptes développeur <span class="dur">1 à 7 jours (validation)</span></h3></div>
+  <table>
+    <thead><tr><th style="width:20%">Store</th><th>Démarche</th><th style="width:26%">Délai / coût</th></tr></thead>
+    <tbody>
+      <tr><td>Google Play</td><td>play.google.com/console → compte <b>organisation</b> (vérification d'identité et de la société), au nom de GoFix Digital</td><td>Frais uniques ; vérification de quelques jours</td></tr>
+      <tr><td>App Store</td><td>developer.apple.com → Apple Developer Program en tant qu'<b>organisation</b> (numéro D-U-N-S requis)</td><td>Abonnement annuel ; D-U-N-S jusqu'à quelques semaines</td></tr>
+      <tr><td>Expo</td><td>expo.dev → créer un compte, puis une organisation « gofix-digital »</td><td>Gratuit (offre de base)</td></tr>
+    </tbody>
+  </table>
+
+  <div class="step" style="--c: var(--cyan)"><div class="step-n">2</div><h3>Vérifier la configuration de l'application <span class="dur">5 min</span></h3></div>
+  <ul>
+    <li><code>mobile/app.json</code> : nom « GoFix », <code>version</code> (ex. 1.0.0, à augmenter à chaque publication), identifiants <code>dz.gofix.app</code>, icônes dans <code>mobile/assets</code>.</li>
+    <li><code>mobile/eas.json</code> : l'adresse du serveur <code>EXPO_PUBLIC_API_URL=https://gofix-digital.dz</code> est déjà réglée pour les builds <i>preview</i> et <i>production</i>.</li>
+    <li>Le site doit être en ligne en HTTPS (C.7) <b>avant</b> de construire l'application : elle appelle directement <code>https://gofix-digital.dz/api/v1</code>.</li>
+  </ul>
+
+  <div class="step" style="--c: var(--cyan)"><div class="step-n">3</div><h3>Construire les applications (cloud Expo) <span class="dur">30 à 60 min</span></h3></div>
+<pre>cd mobile
+npm install
+npx eas-cli@latest login
+npx eas-cli@latest init                                   <span class="c"># relie le projet au compte Expo (une seule fois)</span>
+npx eas-cli@latest build --platform android --profile preview      <span class="c"># APK à installer sur les téléphones de test</span>
+npx eas-cli@latest build --platform all --profile production       <span class="c"># AAB (Google Play) + IPA (App Store)</span></pre>
+  <div class="expect"><b>Résultat attendu :</b> des liens de téléchargement des builds sur expo.dev. EAS gère les clés de signature : <b>ne jamais les supprimer</b>
+    (sans elles, impossible de publier une mise à jour sur Google Play). Pour iOS, EAS demande la connexion au compte Apple Developer et crée les certificats.</div>
+  <p class="small">Sans cloud : <code>npx expo prebuild</code> puis Android Studio (AAB signé) et Xcode sur Mac (Archive) — voir Dossier technique, J.3.</p>
+
+  <div class="step" style="--c: var(--cyan)"><div class="step-n">3b</div><h3>Activer les notifications push <span class="dur">30 min (une seule fois)</span></h3></div>
+  <p>L'application demande l'autorisation après la connexion, en expliquant d'abord à quoi servent les notifications (réponse d'un pro, nouveau message,
+    rendez-vous). Le serveur envoie ensuite les alertes via le service push d'Expo, qui les relaie à Apple et Google. À configurer pour les builds des stores :</p>
+  <ol style="--c: var(--cyan)">
+    <li><code>npx eas-cli@latest init</code> (étape 3) ajoute l'identifiant du projet Expo dans <code>app.json</code> : il est nécessaire pour obtenir le jeton de l'appareil.</li>
+    <li><b>Android</b> : créer un projet <b>Firebase</b> (console.firebase.google.com) → ajouter une application Android <code>dz.gofix.app</code> → télécharger
+      <code>google-services.json</code> dans <code>mobile/</code> et ajouter <code>"googleServicesFile": "./google-services.json"</code> dans la section <code>android</code>
+      de <code>app.json</code> ; puis Firebase → Paramètres → Comptes de service → générer une clé privée et l'envoyer à Expo avec
+      <code>npx eas-cli@latest credentials</code> (Android → « FCM V1 service account key »).</li>
+    <li><b>iOS</b> : rien à faire à la main — lors du build, EAS propose de créer la clé de notifications Apple (APNs) : répondre <b>Oui</b>.</li>
+    <li>Reconstruire l'application (étape 3), l'installer, accepter les notifications, puis vérifier : un message envoyé depuis un autre compte doit faire
+      apparaître une notification, et la toucher doit ouvrir la conversation.</li>
+  </ol>
+  <div class="note"><h4>Bon à savoir</h4>
+    <ul>
+      <li>Dans <b>Expo Go</b>, les notifications distantes ne fonctionnent pas sur Android : les tester avec le build <i>preview</i>.</li>
+      <li>Coupure générale possible depuis le back-office : flag <code>push_notifications</code>. L'utilisateur peut aussi les couper dans les réglages du téléphone ;
+        à la déconnexion, le téléphone cesse de recevoir les notifications du compte.</li>
+      <li>La <b>localisation</b> est facultative et approximative : elle ne sert qu'à proposer la wilaya (bouton « Détecter ma wilaya » et « Près de moi »).
+        La position n'est ni enregistrée ni journalisée par GoFix.</li>
+    </ul></div>
+
+  <div class="step" style="--c: var(--cyan)"><div class="step-n">4</div><h3>Préparer les fiches des stores <span class="dur">2 h</span></h3></div>
+  <table>
+    <thead><tr><th style="width:30%">Élément</th><th>Contenu</th></tr></thead>
+    <tbody>
+      <tr><td>Nom / sous-titre</td><td>GoFix — Pros et profs de confiance en Algérie</td></tr>
+      <tr><td>Descriptions</td><td>En français et en arabe : services à domicile, soutien scolaire, profils vérifiés, indice de confiance, recherche intelligente</td></tr>
+      <tr><td>Captures d'écran</td><td>Téléphone (FR et AR) : accueil, recherche, fiche pro, messagerie, rendez-vous — prises sur le build <i>preview</i></td></tr>
+      <tr><td>Politique de confidentialité</td><td><code>https://gofix-digital.dz/legal/privacy</code></td></tr>
+      <tr><td>Contact / assistance</td><td><code>https://gofix-digital.dz/contact</code> et une adresse e-mail de la société</td></tr>
+      <tr><td>Google : « Sécurité des données »</td><td>Données collectées : nom, e-mail, téléphone, photos (fiches pro), messages, historique d'achat ; chiffrées en transit ; suppression possible depuis l'application</td></tr>
+      <tr><td>Apple : « Confidentialité de l'app »</td><td>Mêmes informations ; aucune donnée utilisée pour le pistage publicitaire</td></tr>
+      <tr><td>Localisation</td><td>Déclarer « localisation approximative », facultative, utilisée uniquement pour proposer la wilaya, non conservée. Le texte affiché par le téléphone est déjà configuré dans <code>app.json</code></td></tr>
+      <tr><td>Notifications</td><td>Déclarer les notifications de service (messages, demandes, rendez-vous) ; aucune notification publicitaire</td></tr>
+      <tr><td>Suppression de compte</td><td>Disponible dans l'application : Compte → Confidentialité → Supprimer mon compte (exigé par Apple et Google)</td></tr>
+      <tr><td>Compte de revue</td><td>Créer un compte client <b>dédié</b> en production (pas un compte de démonstration) et le fournir aux équipes de revue ; le désactiver après validation</td></tr>
+      <tr><td>Classification du contenu</td><td>Questionnaire des stores : application de services, sans contenu sensible ; messagerie entre utilisateurs (modérée, signalement disponible)</td></tr>
+    </tbody>
+  </table>
+
+  <div class="step" style="--c: var(--cyan)"><div class="step-n">5</div><h3>Soumettre <span class="dur">1 h + revue (1 à 7 jours)</span></h3></div>
+<pre>npx eas-cli@latest submit --platform android --profile production      <span class="c"># envoie le dernier AAB à Google Play</span>
+npx eas-cli@latest submit --platform ios --profile production          <span class="c"># envoie le dernier IPA à App Store Connect</span></pre>
+  <ul>
+    <li><b>Google Play</b> : commencer par le canal <i>Test interne</i> (équipe), puis <i>Production</i>. Compléter toutes les sections du tableau de bord avant l'envoi en revue.</li>
+    <li><b>App Store</b> : le build apparaît dans App Store Connect → TestFlight (test par l'équipe), puis l'associer à la version 1.0 et <i>Soumettre pour vérification</i>.</li>
+  </ul>
+
+  <div class="step" style="--c: var(--cyan)"><div class="step-n">6</div><h3>Après la publication <span class="dur">2 min</span></h3></div>
+  <p>Back-office → <b>Paramètres</b> → coller les liens publics dans <code>app_store_url</code> et <code>play_store_url</code> (https uniquement).
+    L'accueil du site et la page <code>/app</code> affichent alors « Disponible maintenant » avec les boutons App Store et Google Play, sans redéploiement.</p>
+  <div class="note"><h4>Mises à jour de l'application</h4>
+    <p>Augmenter <code>version</code> dans <code>mobile/app.json</code>, relancer <code>build … --profile production</code> puis <code>submit</code>. Les numéros de build
+      internes sont incrémentés automatiquement. Garder le serveur compatible : l'API ne casse pas les anciennes versions (exemple corrigé lors de la recette : filtres vides tolérés).</p></div>
+</div>
+
+<!-- ============================== F ============================== -->
+<div class="sec" style="--c: var(--pink)">
+  <div class="sec-head"><div class="sec-letter">F</div><div class="sec-titles"><h1>RECETTE</h1><p>Vérifier que tout fonctionne avant d'annoncer l'ouverture</p></div></div>
+
+  <h2>F.1 Tests automatiques (sur un poste de développement)</h2>
+<pre>docker compose --profile test run --rm tests       <span class="c"># 67 tests : sécurité, paiements, AI MATCH, Trust Score, rendez-vous, Academy…</span></pre>
+
+  <h2>F.2 Parcours à vérifier à la main sur le site en ligne</h2>
+  <p>Sur un téléphone (navigateur), en français <b>puis</b> en arabe (drapeau algérien). Utiliser des comptes de test créés en production, jamais les comptes de démonstration.</p>
+  <table class="check">
+    <thead><tr><th></th><th style="width:38%">Parcours</th><th>Résultat attendu</th></tr></thead>
+    <tbody>
+      <tr><td>☐</td><td>Ouvrir <code>https://gofix-digital.dz</code></td><td>Cadenas, accueil, aucun élément qui dépasse de l'écran</td></tr>
+      <tr><td>☐</td><td>Visite guidée (première visite, puis « Visite guidée » en bas de page)</td><td>La bulle se déplace d'élément en élément ; « Terminer » ou « Passer » la ferme et elle ne revient plus d'elle-même ; rejouable depuis Mon compte → Visites guidées</td></tr>
+      <tr><td>☐</td><td>Inscription d'un client</td><td>Compte créé, session ouverte, consentements demandés</td></tr>
+      <tr><td>☐</td><td>Déconnexion puis connexion ; mot de passe erroné</td><td>Connexion OK ; message d'erreur clair ; blocage après 5 essais</td></tr>
+      <tr><td>☐</td><td>« Mot de passe oublié »</td><td>E-mail reçu, lien valable 1 h, nouveau mot de passe accepté</td></tr>
+      <tr><td>☐</td><td>Recherche « fuite à Kouba aujourd'hui »</td><td>« Nous avons compris » + profils proposés + « Pourquoi ? »</td></tr>
+      <tr><td>☐</td><td>Fiche pro sans abonnement</td><td>Nom, photo et téléphone floutés ; invitation à s'abonner</td></tr>
+      <tr><td>☐</td><td>Inscription pro (tunnel 7 étapes) avec photo et pièce</td><td>Envoi accepté ; fiche « en attente de validation » ; visible en Validation dans le back-office</td></tr>
+      <tr><td>☐</td><td>Validation de la pièce dans le back-office</td><td>Fiche publiée ; badge vérifié</td></tr>
+      <tr><td>☐</td><td>Demande client → réponse du pro → message</td><td>Notification, conversation des deux côtés</td></tr>
+      <tr><td>☐</td><td>Rendez-vous : proposer, confirmer, terminer, noter</td><td>Avis vérifié publié ; Trust Score mis à jour</td></tr>
+      <tr><td>☐</td><td>Achat d'un abonnement (SATIM de test)</td><td>Page SATIM, retour sur le site, abonnement actif une seule fois, facture PDF</td></tr>
+      <tr><td>☐</td><td>Compte → Mon profil : photo, téléphone, « Détecter ma wilaya »</td><td>Enregistré ; le navigateur demande l'accord de localisation</td></tr>
+      <tr><td>☐</td><td>Compte → Exporter mes données / Supprimer mon compte</td><td>Fichier JSON ; compte supprimé, connexion impossible ensuite</td></tr>
+      <tr><td>☐</td><td>Back-office avec un modérateur et un support</td><td>Onglets limités à leur rôle ; aucune erreur</td></tr>
+    </tbody>
+  </table>
+
+  <h2>F.3 Application (build <i>preview</i> sur Android et TestFlight sur iPhone)</h2>
+  <table class="check">
+    <thead><tr><th></th><th style="width:38%">Parcours</th><th>Résultat attendu</th></tr></thead>
+    <tbody>
+      <tr><td>☐</td><td>Installation, ouverture, choix de la langue</td><td>Écran d'accueil ; l'arabe redémarre l'app en RTL</td></tr>
+      <tr><td>☐</td><td>Visites guidées (accueil, Chercher, Compte, espace pro)</td><td>Lancées une seule fois à la première ouverture de l'écran ; rejouables depuis Compte → Visites guidées</td></tr>
+      <tr><td>☐</td><td>Inscription / connexion / déconnexion</td><td>Comme sur le site, mêmes comptes</td></tr>
+      <tr><td>☐</td><td>Onglet Recherche sans filtre puis avec texte libre</td><td>Liste de profils, puis « Nous avons compris »</td></tr>
+      <tr><td>☐</td><td>Academy, fiche prof, favori</td><td>Favori retrouvé dans Compte → Favoris et sur le site</td></tr>
+      <tr><td>☐</td><td>Bouton central « Publier » : nouvelle demande</td><td>Demande visible dans « Mes demandes » et chez les pros</td></tr>
+      <tr><td>☐</td><td>Messagerie et rendez-vous</td><td>Envoi, réception, actions du rendez-vous</td></tr>
+      <tr><td>☐</td><td>Espace pro : photo, couverture, disponibilités</td><td>Photo prise ou choisie dans la galerie, enregistrée</td></tr>
+      <tr><td>☐</td><td>Compte → « Modifier mon profil » : photo, nom, e-mail, téléphone, « Détecter ma wilaya »</td><td>Photo visible (aussi par le pro dans la messagerie) ; wilaya proposée après accord de localisation ; refus = choix manuel</td></tr>
+      <tr><td>☐</td><td>Notifications : accepter l'écran d'explication puis l'autorisation du téléphone</td><td>« Activées » dans Compte ; une réponse / un message fait arriver une notification ; la toucher ouvre le bon écran</td></tr>
+      <tr><td>☐</td><td>Recherche → « Près de moi »</td><td>Le filtre wilaya prend la wilaya du téléphone</td></tr>
+      <tr><td>☐</td><td>Paiement (si conservé, voir encadré E)</td><td>Page SATIM, retour automatique dans l'app</td></tr>
+    </tbody>
+  </table>
+
+  <h2>F.4 Recette réalisée en octobre 2026 (avant remise du projet)</h2>
+  <p>Campagne complète réalisée le 14/10/2026 sur la version remise (site web et application mobile, en français et en arabe, écran de 360 px),
+    avec un navigateur piloté automatiquement qui clique et saisit comme un utilisateur, puis vérifie le résultat côté serveur.</p>
+  <table>
+    <thead><tr><th style="width:38%">Contrôle</th><th style="width:17%">Résultat</th><th>Couverture</th></tr></thead>
+    <tbody>
+      <tr><td>Tests automatiques de l'API</td><td><span class="pill p-ok">67 / 67</span></td><td>Sécurité, paiements, AI MATCH, Trust Score, rendez-vous, Academy, moyen de paiement, profil et photo, notifications push, détection de wilaya, non-régressions</td></tr>
+      <tr><td>Site web : toutes les pages, 11 profils, FR + AR</td><td><span class="pill p-ok">108 / 108</span></td><td>Visiteur, client, client Premium, pro, prof, élève, pro en attente, nouveaux inscrits, modérateur, support, super-admin (tous les onglets du back-office). Aucune erreur JavaScript, aucun appel API en échec, aucune violation CSP, aucun débordement à 360 px</td></tr>
+      <tr><td>Application : tous les écrans, 9 profils, FR + AR</td><td><span class="pill p-ok">94 / 94</span></td><td>Mêmes contrôles sur la version web de l'application (2 alertes « page vide » vérifiées : état normal « Aucun favori pour le moment »)</td></tr>
+      <tr><td>Scénarios d'actions — site web</td><td><span class="pill p-ok">11 / 11</span></td><td>Inscription, connexion refusée / réussie, mot de passe oublié, recherche intelligente, favori, message, achat d'abonnement + facture, arabe RTL, droits du modérateur, profil (wilaya détectée + photo)</td></tr>
+      <tr><td>Scénarios d'actions — application</td><td><span class="pill p-ok">11 / 11</span></td><td>Inscription, connexion refusée / réussie, catalogue + recherche intelligente, Academy, favori, message, achat d'abonnement, publication d'une demande, profil (wilaya détectée), « Près de moi »</td></tr>
+      <tr><td>Compilation de l'application</td><td><span class="pill p-ok">OK</span></td><td>Paquets Android, iOS et web compilés sans erreur ; <code>expo-doctor</code> 21 / 21</td></tr>
+      <tr><td>Déploiement répété en conditions de production</td><td><span class="pill p-ok">OK</span></td><td>Installation, mise à jour, sauvegarde et restauration avec MongoDB protégée par mot de passe ; API docs masquées, CSP active</td></tr>
+    </tbody>
+  </table>
+  <h3>Défauts trouvés pendant la recette et corrigés</h3>
+  <table>
+    <thead><tr><th style="width:9%">Gravité</th><th style="width:40%">Défaut</th><th>Correction</th></tr></thead>
+    <tbody>
+      <tr><td><span class="pill p-todo">Haute</span></td><td>Application : le catalogue des services et l'Academy restaient vides sans filtre (l'application envoyait une wilaya vide, refusée par l'API)</td><td>L'application n'envoie plus les filtres vides ; l'API tolère aussi une wilaya vide (protection des versions déjà installées) ; 2 tests ajoutés</td></tr>
+      <tr><td><span class="pill p-no">Moyenne</span></td><td>Back-office, rôle support : l'onglet Taxonomie affichait une erreur (lecture des demandes de catégories refusée)</td><td>Lecture autorisée au support, décision réservée au modérateur ; test ajouté</td></tr>
+      <tr><td><span class="pill p-no">Basse</span></td><td>Application en mode développement : boutons imbriqués (carte de profil avec « Pourquoi ? » / « Sélectionner », carte de rendez-vous) — HTML invalide sur la version web</td><td>Cartes restructurées (zone cliquable + boutons voisins) ; contrôle en mode développement sans avertissement</td></tr>
+      <tr><td><span class="pill p-no">Basse</span></td><td>8 messages d'erreur sans traduction française et 12 sans traduction arabe (ex. session expirée, compte introuvable)</td><td>Toutes les traductions ajoutées ; contrôle systématique : 65 codes d'erreur de l'API traduits en FR et en AR</td></tr>
+    </tbody>
+  </table>
+  <div class="note warn"><h4>Ce que la recette automatique ne remplace pas</h4>
+    <p>Les tests ont été faits sur un PC et sur la version web de l'application. Il reste à dérouler F.2 et F.3 sur le <b>serveur réel</b> et sur de <b>vrais téléphones</b>
+      (appareil photo, galerie, retour de paiement dans l'app, notifications, réseau mobile), ainsi qu'un vrai paiement SATIM de test et la réception réelle des e-mails.</p></div>
+</div>
+
+<!-- ============================== G ============================== -->
+<div class="sec" style="--c: var(--orange)">
+  <div class="sec-head"><div class="sec-letter">G</div><div class="sec-titles"><h1>MISES À JOUR, RETOUR ARRIÈRE, DÉPANNAGE</h1><p>Le quotidien après la mise en ligne</p></div></div>
+
+  <h2>G.1 Mettre à jour le site</h2>
+<pre><span class="c"># PC</span>
+powershell -ExecutionPolicy Bypass -File scripts\package_release.ps1 ; scp ..\gofix-release.tar.gz root@&lt;IP&gt;:/opt/
+<span class="c"># Serveur : sauvegarde automatique + installation + redémarrage + vérification (.env jamais écrasé)</span>
+bash /opt/gofix/scripts/deploy.sh /opt/gofix-release.tar.gz</pre>
+
+  <h2>G.2 Revenir en arrière</h2>
+  <ul>
+    <li><b>Version précédente de GoFix</b> : renvoyer l'archive précédente et relancer <code>deploy.sh</code> avec elle ; si la base doit revenir aussi :
+      <code>bash scripts/restore_mongo.sh backups/&lt;fichier&gt;</code> (la dernière sauvegarde est faite automatiquement avant chaque déploiement).</li>
+    <li><b>Ancien site</b> : dans aaPanel, supprimer le reverse proxy et restaurer la configuration sauvegardée en C.3.</li>
+  </ul>
+
+  <h2>G.3 Commandes utiles</h2>
+<pre>cd /opt/gofix
+docker compose ps                       <span class="c"># état des 4 services</span>
+docker compose logs -f backend          <span class="c"># journaux de l'API (Ctrl+C pour quitter)</span>
+curl -s http://127.0.0.1:8080/api/health
+bash scripts/backup_mongo.sh            <span class="c"># sauvegarde immédiate</span></pre>
+
+  <h2>G.4 Dépannage express</h2>
+  <table>
+    <thead><tr><th style="width:30%">Symptôme</th><th>Solution</th></tr></thead>
+    <tbody>
+      <tr><td>« Connection timed out » en SSH</td><td>Port filtré par l'hébergeur : voir A.4</td></tr>
+      <tr><td><code>deploy.sh</code> s'arrête sur « ERREUR »</td><td>Lire le message ; « Unsafe production configuration » = corriger la valeur citée dans <code>.env</code>, relancer</td></tr>
+      <tr><td>502 Bad Gateway sur le site</td><td><code>docker compose ps</code> ; relancer <code>bash scripts/deploy.sh</code> ; vérifier la cible du reverse proxy (<code>127.0.0.1:8080</code>)</td></tr>
+      <tr><td>Tout le monde bloqué « Trop de tentatives »</td><td>Ligne <code>X-Forwarded-For</code> manquante dans la configuration aaPanel (C.7)</td></tr>
+      <tr><td>Envoi de photo refusé (413)</td><td><code>client_max_body_size 10m;</code> dans la configuration aaPanel</td></tr>
+      <tr><td>Aucun e-mail reçu</td><td>Admin → E-mails → <i>Envoyer le test</i> (cause affichée), dossier indésirables, abonnement Admail actif</td></tr>
+      <tr><td>« Paiement momentanément indisponible »</td><td>Back-office → Moyen de paiement : choisir SATIM, compléter, tester</td></tr>
+      <tr><td>L'application n'affiche rien / « réseau »</td><td>Le site doit répondre en HTTPS ; build construit avec <code>EXPO_PUBLIC_API_URL=https://gofix-digital.dz</code></td></tr>
+      <tr><td>Mot de passe admin perdu</td><td>Changer <code>ADMIN_PASSWORD</code> dans <code>.env</code> puis <code>bash scripts/deploy.sh</code></td></tr>
+    </tbody>
+  </table>
+
+  <div class="note ok"><h4>Documents de référence</h4>
+    <ul>
+      <li><b>Dossier technique</b> (<code>docs/dossier/GoFix_Dossier_Technique.pdf</code>) : architecture, configuration complète, exploitation, sécurité, API.</li>
+      <li><b>Audit de sécurité</b> (<code>docs/SECURITY_AUDIT.md</code>) et <b>architecture des données</b> (<code>docs/ARCHITECTURE.md</code>).</li>
+    </ul></div>
+  <p class="end">Fin du document — GOFIX DIGITAL</p>
+</div>
+
+</body>
+</html>

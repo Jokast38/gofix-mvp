@@ -1,0 +1,93 @@
+# Render Blueprint – TEST environment (demo data, simulated payments, e-mails in the logs).
+# Not for production: the production server is the Algérie Télécom VPS (see docs/dossier/GoFix_Guide_Installation).
+# Render → New → Blueprint → this repository. Database: MongoDB Atlas (free M0), URI asked at creation (MONGO_URL).
+services:
+  # API (FastAPI). Demo data is loaded at the first start only (seed --if-empty).
+  - type: web
+    name: gofix-api
+    runtime: docker
+    region: frankfurt
+    plan: free
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    dockerCommand: sh -c "python -m app.seed --if-empty; exec uvicorn server:app --host 0.0.0.0 --port 8001 --proxy-headers --forwarded-allow-ips '*'"
+    healthCheckPath: /api/health
+    envVars:
+      - key: PORT
+        value: "8001"
+      - key: APP_ENV
+        value: staging
+      - key: DB_NAME
+        value: gofix
+      - key: MONGO_URL
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: CONFIG_ENCRYPTION_KEY
+        generateValue: true
+      - key: ADMIN_EMAIL
+        value: admin@gofix.dz
+      - key: ADMIN_PASSWORD
+        sync: false
+      # Public URL of the web app (payment return pages, links in e-mails). Adjust if Render gives another name.
+      - key: FRONTEND_URL
+        value: https://gofix-web.onrender.com
+      - key: CORS_ORIGINS
+        value: https://gofix-web.onrender.com
+      - key: STORAGE_LOCAL_ROOT
+        value: /data/storage
+      - key: PAYMENT_PROVIDER
+        value: mock
+      - key: EMAIL_PROVIDER
+        value: console
+      - key: SMS_PROVIDER
+        value: console
+      - key: LLM_PROVIDER
+        value: none
+      - key: MOBILE_APP_SCHEME
+        value: gofix
+
+  # Web app (static React build). /api/* is forwarded to the API: same origin, as behind Nginx in production.
+  - type: web
+    name: gofix-web
+    runtime: static
+    rootDir: frontend
+    buildCommand: yarn install --frozen-lockfile --network-timeout 600000 && yarn build
+    staticPublishPath: ./build
+    envVars:
+      - key: NODE_VERSION
+        value: "20"
+      - key: INLINE_RUNTIME_CHUNK
+        value: "false"
+      - key: GENERATE_SOURCEMAP
+        value: "false"
+    routes:
+      # Adjust the host if Render named the API differently (Dashboard → gofix-api → URL).
+      - type: rewrite
+        source: /api/*
+        destination: https://gofix-api.onrender.com/api/*
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    headers:
+      - path: /*
+        name: Content-Security-Policy
+        value: "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self'; manifest-src 'self'; worker-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'"
+      - path: /*
+        name: X-Content-Type-Options
+        value: nosniff
+      - path: /*
+        name: X-Frame-Options
+        value: DENY
+      - path: /*
+        name: Referrer-Policy
+        value: strict-origin-when-cross-origin
+      - path: /*
+        name: Permissions-Policy
+        value: "camera=(), microphone=(), geolocation=(self)"
+      - path: /static/*
+        name: Cache-Control
+        value: public, max-age=31536000, immutable
+      - path: /sw.js
+        name: Cache-Control
+        value: no-cache

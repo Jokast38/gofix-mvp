@@ -1,0 +1,238 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    :root {
+        /* Brand tokens (charte gofix-digital.dz) */
+        --brand-electric: #00d1ff;
+        --brand-blue: #18a8e0;
+        --brand-pink: #ff3dbe;
+        --brand-orange: #ff9a00;
+        --brand-orange-ui: #f47c20;
+        --brand-violet: #8a2bff;
+        --gradient-signature: linear-gradient(90deg, #00d1ff 0%, #ff3dbe 40%, #ff9a00 100%);
+        --on-brand: #070911;
+        --glow: rgba(0, 209, 255, 0.08);
+        --halo-opacity: 0.22;
+
+        /* Dark theme (default) */
+        --background: 228 42% 5%;
+        --foreground: 210 40% 98%;
+        --card: 223 41% 10%;
+        --card-foreground: 210 40% 98%;
+        --popover: 223 41% 10%;
+        --popover-foreground: 210 40% 98%;
+        --primary: 197 81% 49%;
+        --primary-foreground: 228 42% 5%;
+        --secondary: 222 32% 15%;
+        --secondary-foreground: 210 40% 98%;
+        --muted: 222 32% 15%;
+        --muted-foreground: 215 20% 70%;
+        --accent: 26 91% 54%;
+        --accent-foreground: 228 42% 5%;
+        --destructive: 0 72% 56%;
+        --destructive-foreground: 0 0% 100%;
+        --border: 222 28% 18%;
+        --input: 222 28% 20%;
+        --ring: 191 100% 50%;
+        --radius: 0.75rem;
+        --font-latin: Arial, "Helvetica Neue", Helvetica, sans-serif;
+        --font-arabic: "Tajawal", Arial, sans-serif;
+    }
+    .light {
+        --background: 223 45% 97%;
+        --foreground: 222 47% 11%;
+        --card: 0 0% 100%;
+        --card-foreground: 222 47% 11%;
+        --popover: 0 0% 100%;
+        --popover-foreground: 222 47% 11%;
+        --primary: 197 85% 34%;
+        --primary-foreground: 0 0% 100%;
+        --secondary: 220 30% 92%;
+        --secondary-foreground: 222 47% 11%;
+        --muted: 220 30% 93%;
+        --muted-foreground: 215 19% 35%;
+        --accent: 24 90% 40%;
+        --accent-foreground: 0 0% 100%;
+        --border: 220 20% 86%;
+        --input: 220 20% 82%;
+        --ring: 197 85% 34%;
+        --glow: rgba(24, 168, 224, 0.1);
+        --halo-opacity: 0.14;
+    }
+    * {
+        @apply border-border;
+    }
+    html {
+        -webkit-text-size-adjust: 100%;
+    }
+    body {
+        @apply bg-background text-foreground antialiased;
+        font-family: var(--font-latin);
+        margin: 0;
+    }
+    html[lang="ar"] body {
+        font-family: var(--font-arabic);
+    }
+    h1, h2, h3 {
+        font-weight: 800;
+        letter-spacing: -0.01em;
+    }
+    html[lang="ar"] h1, html[lang="ar"] h2, html[lang="ar"] h3 {
+        letter-spacing: 0;
+    }
+    ::selection {
+        background: var(--brand-pink);
+        color: #fff;
+    }
+    :focus-visible {
+        outline: 2px solid hsl(var(--ring));
+        outline-offset: 2px;
+    }
+}
+
+@layer components {
+    .gf-card {
+        background: hsl(var(--card));
+        border: 1px solid hsl(var(--border));
+        border-radius: var(--radius);
+        box-shadow: 0 8px 30px var(--glow);
+        transition: border-color 0.25s ease, transform 0.25s ease, background-color 0.25s ease;
+    }
+    .gf-card-hover:hover {
+        border-color: color-mix(in srgb, var(--brand-electric) 45%, transparent);
+        transform: translateY(-2px);
+    }
+    .gf-gradient-text {
+        background: var(--gradient-signature);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+    }
+    .gf-gradient-bg {
+        background: var(--gradient-signature);
+        color: var(--on-brand);
+    }
+    .gf-gradient-border {
+        border: 1px solid transparent;
+        background:
+            linear-gradient(hsl(var(--card)), hsl(var(--card))) padding-box,
+            var(--gradient-signature) border-box;
+    }
+    .gf-glass {
+        background: hsl(var(--background) / 0.8);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+    }
+    .gf-halo {
+        position: absolute;
+        border-radius: 9999px;
+        filter: blur(80px);
+        opacity: var(--halo-opacity);
+        pointer-events: none;
+    }
+    .gf-eyebrow {
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--brand-electric);
+    }
+    .light .gf-eyebrow {
+        color: hsl(var(--primary));
+    }
+    .gf-tap {
+        min-height: 44px;
+        min-width: 44px;
+    }
+    .gf-fade-up {
+        animation: gf-fade-up 0.5s ease-out both;
+    }
+    /* Neon tile (charte §9 : cartes & tuiles) */
+    .gf-tile {
+        --neon: var(--brand-electric);
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        min-height: 92px;
+        padding: 0.75rem 0.5rem;
+        border-radius: 1rem;
+        background: hsl(var(--card));
+        border: 1px solid color-mix(in srgb, var(--neon) 45%, transparent);
+        box-shadow: 0 0 0 1px color-mix(in srgb, var(--neon) 10%, transparent), 0 0 18px color-mix(in srgb, var(--neon) 18%, transparent), inset 0 0 20px color-mix(in srgb, var(--neon) 6%, transparent);
+        color: hsl(var(--foreground));
+        transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+    }
+    .gf-tile:hover, .gf-tile:focus-visible {
+        transform: translateY(-3px);
+        border-color: var(--neon);
+        box-shadow: 0 0 0 1px color-mix(in srgb, var(--neon) 30%, transparent), 0 0 28px color-mix(in srgb, var(--neon) 35%, transparent);
+    }
+    .gf-tile svg {
+        color: var(--neon);
+        filter: drop-shadow(0 0 6px color-mix(in srgb, var(--neon) 70%, transparent));
+    }
+    .gf-tile-label {
+        font-size: 0.72rem;
+        font-weight: 700;
+        text-align: center;
+        line-height: 1.15;
+    }
+    /* Rocket-trail glow around the hero title (echoes the GoFix logo swoosh) */
+    .gf-rocket-stage {
+        position: relative;
+        isolation: isolate;
+    }
+    .gf-rocket-trail {
+        position: absolute;
+        inset: -18% -6%;
+        z-index: -1;
+        pointer-events: none;
+        border-radius: 999px;
+        background: conic-gradient(from 200deg, transparent 0 55%, color-mix(in srgb, var(--brand-electric) 55%, transparent) 70%, color-mix(in srgb, var(--brand-pink) 65%, transparent) 84%, color-mix(in srgb, var(--brand-orange) 70%, transparent) 94%, transparent 100%);
+        filter: blur(22px);
+        opacity: 0.55;
+        animation: gf-orbit 9s linear infinite;
+        -webkit-mask: radial-gradient(ellipse at center, transparent 54%, #000 66%, #000 78%, transparent 92%);
+        mask: radial-gradient(ellipse at center, transparent 54%, #000 66%, #000 78%, transparent 92%);
+    }
+    .gf-rocket-spark {
+        position: absolute;
+        z-index: -1;
+        width: 10px;
+        height: 10px;
+        border-radius: 999px;
+        background: #fff;
+        box-shadow: 0 0 10px 4px var(--brand-electric), 0 0 26px 10px color-mix(in srgb, var(--brand-pink) 60%, transparent);
+        offset-path: ellipse(52% 62% at 50% 50%);
+        offset-rotate: auto;
+        animation: gf-spark 9s linear infinite;
+        pointer-events: none;
+    }
+    .light .gf-rocket-trail { opacity: 0.35; }
+}
+
+@keyframes gf-orbit {
+    to { transform: rotate(360deg); }
+}
+@keyframes gf-spark {
+    to { offset-distance: 100%; }
+}
+@keyframes gf-pulse-glow {
+    0%, 100% { box-shadow: 0 0 18px color-mix(in srgb, var(--brand-pink) 35%, transparent); }
+    50% { box-shadow: 0 0 34px color-mix(in srgb, var(--brand-electric) 55%, transparent); }
+}
+.gf-pulse-glow { animation: gf-pulse-glow 3s ease-in-out infinite; }
+
+@keyframes gf-fade-up {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .gf-fade-up, .gf-rocket-trail, .gf-rocket-spark, .gf-pulse-glow { animation: none; }
+}

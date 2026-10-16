@@ -1,0 +1,1017 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>GoFix – Dossier technique et guide de prise en main</title>
+<link rel="stylesheet" href="gofix-print.css">
+</head>
+<body>
+
+<!-- ============================== COUVERTURE ============================== -->
+<div class="cover">
+  <div class="cover-box">
+    <div class="logo-card"><div class="lbl">1. LOGO PRINCIPAL</div><img src="../../frontend/src/assets/brand/gofix-logo-original.png" alt="GoFix"></div>
+    <h1>DOSSIER TECHNIQUE</h1>
+    <p class="tag">Guide de prise en main de la plateforme GoFix V1</p>
+    <p class="chips">WEB (PWA) &nbsp;•&nbsp; API REST &nbsp;•&nbsp; iOS / ANDROID &nbsp;•&nbsp; BACK-OFFICE &nbsp;•&nbsp; MISE EN LIGNE</p>
+    <p class="subt">Architecture, installation, configuration, déploiement sur le VPS Algérie Télécom, exploitation, sécurité et dépannage</p>
+    <p class="ver">Version 1.0 &nbsp;•&nbsp; Octobre 2026 &nbsp;•&nbsp; Alger</p>
+  </div>
+  <div class="grad"></div>
+  <p class="obj">Objectif : permettre à toute personne qui reprend GoFix — développeur, administrateur système, exploitant ou modérateur —
+    de comprendre la plateforme, de l'installer, de la mettre en ligne sur <b>gofix-digital.dz</b> et de l'exploiter en toute autonomie.</p>
+  <table class="meta">
+    <thead><tr><th>Élément</th><th>Valeur</th></tr></thead>
+    <tbody>
+      <tr><td>Produit</td><td>GoFix — mise en relation particuliers ↔ professionnels et élèves ↔ professeurs (Algérie)</td></tr>
+      <tr><td>Version décrite</td><td>V1 (MVP complet + AI MATCH™ et TRUST SCORE™)</td></tr>
+      <tr><td>Domaine de production</td><td>gofix-digital.dz</td></tr>
+      <tr><td>Document de référence</td><td>Cahier des charges technique « 7 innovations propriétaires GOFIX » (septembre 2026)</td></tr>
+      <tr><td>Contient des mots de passe ?</td><td><b>Non.</b> Les identifiants restent hors de ce document (voir A.5).</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ============================== SOMMAIRE ============================== -->
+<div class="sec" style="--c: var(--purple)">
+  <div class="sec-head"><div class="sec-letter">≡</div><div class="sec-titles"><h1>SOMMAIRE</h1><p>Organisation du dossier et parcours de lecture conseillés</p></div></div>
+  <div class="toc">
+    <div class="toc-row"><div class="toc-l" style="background:var(--cyan)">A</div><div class="toc-t"><b>Cadre du document</b><span>Finalité, public, état du projet, principes, confidentialité</span></div></div>
+    <div class="toc-row"><div class="toc-l" style="background:var(--pink)">B</div><div class="toc-t"><b>La plateforme en bref</b><span>Périmètre, rôles, fonctionnalités livrées, statut des 7 innovations, offres</span></div></div>
+    <div class="toc-row"><div class="toc-l" style="background:var(--orange)">C</div><div class="toc-t"><b>Architecture technique</b><span>Schéma, technologies, arborescence, données, adaptateurs, tâches planifiées</span></div></div>
+    <div class="toc-row"><div class="toc-l" style="background:var(--purple)">D</div><div class="toc-t"><b>Prise en main développeur</b><span>Installation locale, comptes de démonstration, tests, conventions, méthode de travail</span></div></div>
+    <div class="toc-row"><div class="toc-l" style="background:var(--cyan)">E</div><div class="toc-t"><b>Configuration</b><span>Toutes les variables du fichier .env et l'exemple de production</span></div></div>
+    <div class="toc-row"><div class="toc-l" style="background:var(--pink)">F</div><div class="toc-t"><b>Mise en ligne sur le VPS Algérie Télécom (aaPanel)</b><span>Remplacer l'ancienne version pas à pas, vérifications, retour arrière, mises à jour</span></div></div>
+    <div class="toc-row"><div class="toc-l" style="background:var(--orange)">G</div><div class="toc-t"><b>Services externes</b><span>E-mail Admail, paiement SATIM (certification CIB), SMS, IA optionnelle, DNS</span></div></div>
+    <div class="toc-row"><div class="toc-l" style="background:var(--purple)">H</div><div class="toc-t"><b>Back-office &amp; exploitation</b><span>Rôles, procédures de modération, flags, paramètres, sauvegardes, surveillance</span></div></div>
+    <div class="toc-row"><div class="toc-l" style="background:var(--cyan)">I</div><div class="toc-t"><b>Sécurité &amp; conformité</b><span>Mesures en place, audit d'octobre 2026, loi 18-07, procédure d'incident</span></div></div>
+    <div class="toc-row"><div class="toc-l" style="background:var(--pink)">J</div><div class="toc-t"><b>Application mobile</b><span>Configuration, compilation, publication sur les stores</span></div></div>
+    <div class="toc-row"><div class="toc-l" style="background:var(--orange)">K</div><div class="toc-t"><b>Référence API</b><span>Endpoints /api/v1 par module</span></div></div>
+    <div class="toc-row"><div class="toc-l" style="background:var(--purple)">L</div><div class="toc-t"><b>Dépannage</b><span>Symptômes fréquents, causes, solutions</span></div></div>
+    <div class="toc-row"><div class="toc-l" style="background:var(--cyan)">M</div><div class="toc-t"><b>Feuille de route &amp; aide-mémoire</b><span>Modules à venir, améliorations techniques, commandes utiles</span></div></div>
+  </div>
+</div>
+
+<!-- ============================== A ============================== -->
+<div class="sec" style="--c: var(--cyan)">
+  <div class="sec-head"><div class="sec-letter">A</div><div class="sec-titles"><h1>CADRE DU DOCUMENT</h1><p>Finalité, public visé et état du projet</p></div></div>
+
+  <h2>1. Finalité</h2>
+  <p>Le cahier des charges « 7 innovations » décrit <i>ce que GoFix doit devenir</i>. Ce dossier décrit <b>ce qui est réellement construit en V1</b> et
+    <b>comment s'en servir</b> : installer le projet, le configurer, le mettre en ligne sur le serveur Algérie Télécom, l'administrer et le faire évoluer.</p>
+
+  <h2>2. Public et parcours de lecture</h2>
+  <table>
+    <thead><tr><th style="width:32%">Profil</th><th>Sections prioritaires</th><th style="width:30%">Objectif</th></tr></thead>
+    <tbody>
+      <tr><td>Direction / responsable produit</td><td>B, F (encadré de décision), H, M</td><td>Décider et piloter la mise en ligne</td></tr>
+      <tr><td>Développeur qui reprend le code</td><td>B, C, D, E, K, L</td><td>Être productif en une journée</td></tr>
+      <tr><td>Administrateur système</td><td>E, F, G, H.7–H.9, I, L</td><td>Déployer, sauvegarder, sécuriser</td></tr>
+      <tr><td>Modérateur / support</td><td>H.1–H.6</td><td>Traiter validations, litiges, tickets</td></tr>
+    </tbody>
+  </table>
+
+  <h2>3. État du projet (octobre 2026)</h2>
+  <table>
+    <thead><tr><th style="width:30%">Brique</th><th style="width:16%">Statut</th><th>Commentaire</th></tr></thead>
+    <tbody>
+      <tr><td>Site web (PWA) FR / AR</td><td><span class="pill p-ok">Prêt</span></td><td>Mobile d'abord (contrôlé à 360 px), arabe en RTL, thème sombre et clair</td></tr>
+      <tr><td>API REST + base MongoDB</td><td><span class="pill p-ok">Prêt</span></td><td>67 tests automatisés réussis (sécurité, paiement paramétrable, profil, notifications push, géolocalisation, non-régressions)</td></tr>
+      <tr><td>Back-office</td><td><span class="pill p-ok">Prêt</span></td><td>3 rôles admin, journal d'audit, flags et paramètres sans redéploiement</td></tr>
+      <tr><td>Application iOS / Android</td><td><span class="pill p-todo">À publier</span></td><td>Code prêt (Expo), compilation et publication sur les stores à faire (section J)</td></tr>
+      <tr><td>Paiement CIB / Edahabia</td><td><span class="pill p-todo">À certifier</span></td><td>Adaptateur SATIM prêt et paramétrable dans le back-office (onglet « Moyen de paiement ») ; certification sur cibweb.dz à dérouler (G.2)</td></tr>
+      <tr><td>E-mails transactionnels</td><td><span class="pill p-todo">À paramétrer</span></td><td>Paramétrable dans Admin → E-mails (serveur, adresses d'expédition et de réponse, e-mail de test) ; boîte Admail à saisir (G.1)</td></tr>
+      <tr><td>SMS (connexion par code)</td><td><span class="pill p-no">Optionnel</span></td><td>Adaptateur prêt, désactivé par flag tant qu'aucun fournisseur n'est choisi</td></tr>
+      <tr><td>VISION, EDU AI, PRO AI, PASSPORT, VOICE</td><td><span class="pill p-soon">À venir</span></td><td>Affichés comme « à venir » dans le site et l'app ; flags désactivés</td></tr>
+    </tbody>
+  </table>
+
+  <h2>4. Principes appliqués</h2>
+  <ul>
+    <li><b>Souveraineté des données</b> — aucun CDN étranger, polices embarquées, aucun traceur publicitaire ; tout tourne sur le serveur en Algérie.</li>
+    <li><b>API d'abord</b> — toute la logique est dans l'API <code>/api/v1</code>, utilisée à l'identique par le site et l'application mobile.</li>
+    <li><b>Mobile d'abord</b> — chaque écran est vérifié à 360 px de large, en français et en arabe.</li>
+    <li><b>Règles côté serveur</b> — floutage des profils, droits d'abonnement et Trust Score sont calculés par l'API, jamais par l'interface seule.</li>
+    <li><b>Activation progressive</b> — chaque module s'active ou se coupe par <i>feature flag</i> depuis le back-office.</li>
+    <li><b>Privacy by design</b> (loi n° 18-07) — consentements horodatés, export et suppression des données, journal d'audit.</li>
+    <li><b>Aucune dépendance obligatoire à une IA générative</b> — AI MATCH et le chatbot fonctionnent par règles explicables.</li>
+  </ul>
+
+  <h2>5. Confidentialité des accès</h2>
+  <div class="note danger"><h4>Aucun mot de passe dans ce dossier</h4>
+    <p>Les accès (panneau aaPanel, SSH root, Admail, espace cibweb.dz, comptes administrateur) ont été transmis par e-mail. Ils doivent être
+      <b>changés dès la première connexion</b>, puis conservés dans un gestionnaire de mots de passe (Bitwarden, KeePass…) partagé
+      uniquement avec les personnes habilitées. Ne jamais les écrire dans le code, dans le dépôt Git, dans ce document ou dans une conversation.</p></div>
+</div>
+
+<!-- ============================== B ============================== -->
+<div class="sec" style="--c: var(--pink)">
+  <div class="sec-head"><div class="sec-letter">B</div><div class="sec-titles"><h1>LA PLATEFORME EN BREF</h1><p>Périmètre fonctionnel, rôles et fonctionnalités livrées en V1</p></div></div>
+
+  <h2>1. Périmètre</h2>
+  <ul>
+    <li><b>GoFix Services</b> — mise en relation entre particuliers et professionnels (plomberie, électricité, coiffure, ménage, pâtisserie…).</li>
+    <li><b>GoFix Academy</b> — soutien scolaire et cours particuliers, à domicile, en ligne ou en centre, avec professeurs vérifiés.</li>
+    <li><b>Socle commun</b> — comptes, profils, recherche, messagerie, rendez-vous, avis, abonnements, vérification des pièces, notifications, back-office.</li>
+  </ul>
+
+  <h2>2. Rôles utilisateurs</h2>
+  <table>
+    <thead><tr><th style="width:20%">Rôle</th><th>Ce qu'il peut faire</th></tr></thead>
+    <tbody>
+      <tr><td><b>Client</b></td><td>Rechercher (texte libre ou filtres), publier une demande ouverte ou ciblée, échanger par messagerie, prendre rendez-vous, ouvrir un litige, laisser un avis vérifié, gérer ses favoris.</td></tr>
+      <tr><td><b>Professionnel</b></td><td>Créer sa fiche en 7 étapes (métier, zones, disponibilités, photo, couverture, pièces), recevoir des demandes, proposer des rendez-vous, suivre son Trust Score. Accès gratuit de 30 jours ou 5 demandes, puis abonnement.</td></tr>
+      <tr><td><b>Professeur</b></td><td>Même logique que le professionnel, avec matières, niveaux et formats (domicile, en ligne, centre).</td></tr>
+      <tr><td><b>Élève</b></td><td>Demandes Academy, y compris multi-professeurs (jusqu'à 5). Consentement parental obligatoire sous l'âge défini dans les paramètres (18 ans par défaut).</td></tr>
+      <tr><td><b>Administrateurs</b></td><td><code>super_admin</code>, <code>moderator</code>, <code>support</code> — détail en section H.2.</td></tr>
+    </tbody>
+  </table>
+  <p class="small">Un même compte peut cumuler plusieurs rôles (ex. client et professionnel) et passer de l'un à l'autre avec le sélecteur de mode du compte.</p>
+
+  <h2>3. Fonctionnalités livrées par lot</h2>
+  <table>
+    <thead><tr><th style="width:24%">Lot</th><th>Contenu livré</th></tr></thead>
+    <tbody>
+      <tr><td>P1 – Socle</td><td>Inscription e-mail + téléphone (+213), connexion par e-mail ou téléphone, code SMS (flag), consentements horodatés, FR/AR (RTL), thème sombre/clair, export et suppression des données.</td></tr>
+      <tr><td>P2 – Tunnel pro / prof</td><td>Parcours en 7 étapes avec brouillon sauvegardé sur le serveur, photo, couverture, pièces justificatives, demande de nouvelle catégorie.</td></tr>
+      <tr><td>P3 – Catalogue</td><td>Recherche intelligente, filtres wilaya / catégorie, floutage serveur selon l'offre (matrice de déverrouillage), couvertures et miniatures (initiales si pas de photo).</td></tr>
+      <tr><td>P4 – Abonnements</td><td>Offres, commande, paiement CIB / Edahabia par page SATIM, factures PDF, relances avant expiration, expiration automatique.</td></tr>
+      <tr><td>P5 – Mise en relation</td><td>Demandes ouvertes ou ciblées, messagerie, favoris, notifications, rendez-vous (proposer, confirmer, terminer, annuler, litige), avis vérifiés.</td></tr>
+      <tr><td>P6 – Assistant</td><td>Chatbot FAQ en français et en arabe, bascule vers un conseiller (création d'un ticket).</td></tr>
+      <tr><td>P7 – Modération</td><td>Validation des pièces, signalements, litiges, tickets, FAQ, taxonomie, journal d'audit, registre des traitements.</td></tr>
+      <tr><td>P8 – Confiance</td><td>TRUST SCORE™ v2 et AI MATCH™ (voir ci-dessous).</td></tr>
+    </tbody>
+  </table>
+
+  <h2>4. Les 7 innovations : statut en V1</h2>
+  <table>
+    <thead><tr><th style="width:22%">Innovation</th><th style="width:13%">Statut</th><th>Ce qui est en place</th></tr></thead>
+    <tbody>
+      <tr><td><b>AI MATCH™</b></td><td><span class="pill p-ok">Livré</span></td><td>Analyse d'une demande libre FR/AR (métier, lieu, urgence, jour, mode), filtres durs, score 0-100 sur critères pondérés et paramétrables, formule versionnée, 3 à 5 recommandations avec raisons lisibles, explication détaillée (« Pourquoi ? »), rotation d'exposition, enregistrement des retours, fonctionnement sans IA générative.</td></tr>
+      <tr><td><b>TRUST SCORE™</b></td><td><span class="pill p-ok">Livré</span></td><td>Score 0-100, statuts Insuffisant / Établi / Excellent, 4 sous-indicateurs (identité, réactivité, satisfaction, fiabilité), événements horodatés avec source, contestation, recalcul par un modérateur avec motif, aucun effet de l'abonnement (vérifié par test).</td></tr>
+      <tr><td>VISION™</td><td><span class="pill p-soon">À venir</span></td><td>Écran « à venir », flag <code>vision</code> désactivé.</td></tr>
+      <tr><td>EDU AI™</td><td><span class="pill p-soon">À venir</span></td><td>Flag <code>edu_ai</code> ; le matching Academy actuel repose sur matière, niveau, format et Trust.</td></tr>
+      <tr><td>PRO AI™</td><td><span class="pill p-soon">À venir</span></td><td>Flag <code>pro_ai</code> ; champs <code>ai{}</code> réservés dans les profils.</td></tr>
+      <tr><td>PASSPORT™</td><td><span class="pill p-soon">À venir</span></td><td>Flag <code>passport</code> ; champ <code>passport{}</code> réservé dans les profils.</td></tr>
+      <tr><td>VOICE™</td><td><span class="pill p-soon">À venir</span></td><td>Flag <code>voice</code> ; réutilisera le même schéma d'intention qu'AI MATCH.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>5. Offres (prix modifiables dans le back-office)</h2>
+  <table class="center">
+    <thead><tr><th>Public</th><th>Offre</th><th>Prix par défaut</th><th>Paramètre</th></tr></thead>
+    <tbody>
+      <tr><td>Professionnels et professeurs</td><td>Pro</td><td>1 500 DA / mois</td><td><code>plan_price_professional_pro</code></td></tr>
+      <tr><td>Professionnels et professeurs</td><td>Premium</td><td>3 000 DA / mois</td><td><code>plan_price_professional_premium</code></td></tr>
+      <tr><td>Clients</td><td>Pro</td><td>500 DA / mois</td><td><code>plan_price_client_pro</code></td></tr>
+      <tr><td>Clients</td><td>Premium</td><td>1 000 DA / mois</td><td><code>plan_price_client_premium</code></td></tr>
+      <tr><td>Élèves / étudiants</td><td>Pass étudiant</td><td>300 DA / mois</td><td><code>plan_price_student_student_pass</code></td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ============================== C ============================== -->
+<div class="sec" style="--c: var(--orange)">
+  <div class="sec-head"><div class="sec-letter">C</div><div class="sec-titles"><h1>ARCHITECTURE TECHNIQUE</h1><p>Composants, technologies, organisation du code et des données</p></div></div>
+
+  <h2>1. Vue d'ensemble (cible de production)</h2>
+  <div class="diagram">
+    <div class="row">
+      <div class="box" style="--c:var(--cyan)"><b>Navigateur</b>Site PWA (mobile et ordinateur)</div>
+      <div class="box" style="--c:var(--cyan)"><b>Application iOS / Android</b>Expo · même API</div>
+    </div>
+    <div class="arrow">▼ HTTPS 443</div>
+    <div class="zone"><div class="zone-lbl">VPS Algérie Télécom — gofix-digital.dz</div>
+      <div class="row"><div class="box" style="--c:var(--purple)"><b>Nginx d'aaPanel</b>Certificat Let's Encrypt · proxy vers 127.0.0.1:8080</div></div>
+      <div class="arrow">▼</div>
+      <div class="zone"><div class="zone-lbl">Docker Compose (/opt/gofix)</div>
+        <div class="row"><div class="box" style="--c:var(--pink)"><b>nginx</b>En-têtes de sécurité, CSP, IP réelle, routage</div></div>
+        <div class="arrow">▼ &nbsp; / → frontend &nbsp;&nbsp;·&nbsp;&nbsp; /api → backend</div>
+        <div class="row">
+          <div class="box" style="--c:var(--orange)"><b>frontend</b>React compilé, servi en statique</div>
+          <div class="box" style="--c:var(--orange)"><b>backend</b>FastAPI · /api/v1 · tâches planifiées</div>
+          <div class="box" style="--c:var(--orange)"><b>mongo</b>MongoDB 7 · volume mongo_data</div>
+          <div class="box" style="--c:var(--orange)"><b>stockage</b>Volume storage_data (public / privé)</div>
+        </div>
+      </div>
+    </div>
+    <div class="arrow">▼ appels sortants du backend</div>
+    <div class="row">
+      <div class="box" style="--c:var(--green)"><b>SATIM</b>CIB / Edahabia</div>
+      <div class="box" style="--c:var(--green)"><b>SMTP Admail</b>E-mails</div>
+      <div class="box" style="--c:var(--green)"><b>Passerelle SMS</b>Optionnel</div>
+      <div class="box" style="--c:var(--green)"><b>LLM</b>Optionnel</div>
+    </div>
+  </div>
+
+  <h2>2. Technologies</h2>
+  <table>
+    <thead><tr><th style="width:22%">Couche</th><th>Technologies</th></tr></thead>
+    <tbody>
+      <tr><td>Site web</td><td>React 19 (Create React App + craco), Tailwind CSS 3, composants shadcn/ui, React Query, axios, PWA (service worker), police Tajawal embarquée</td></tr>
+      <tr><td>Application mobile</td><td>React Native avec Expo SDK 57, Expo Router, React Query, axios, SecureStore pour les jetons</td></tr>
+      <tr><td>API</td><td>Python 3.11, FastAPI, Motor (MongoDB asynchrone), Pydantic, bcrypt, PyJWT, Pillow (images), fpdf2 (factures PDF)</td></tr>
+      <tr><td>Base de données</td><td>MongoDB 7 (index et TTL créés automatiquement au démarrage)</td></tr>
+      <tr><td>Infrastructure</td><td>Docker Compose, Nginx 1.27, aaPanel sur le VPS (proxy HTTPS)</td></tr>
+      <tr><td>Tests</td><td>pytest + httpx contre une vraie base MongoDB dédiée (<code>gofix_test</code>)</td></tr>
+    </tbody>
+  </table>
+
+  <h2>3. Organisation du dépôt</h2>
+<pre>gofix-mvp/
+├─ backend/                 API FastAPI
+│  ├─ app/
+│  │  ├─ main.py            application, middlewares, en-têtes, démarrage (index, flags, super-admin)
+│  │  ├─ core/              config (.env), db, security (bcrypt/JWT), deps (auth, rôles), ratelimit, safety (garde-fous prod)
+│  │  ├─ adapters/          payment (mock | satim), email (console | smtp), sms (console | http), llm, storage
+│  │  ├─ services/          trust, matching, intent, billing, scheduler, notify, audit, visibility, config_store…
+│  │  ├─ api/v1/            auth, users, catalog, marketplace, onboarding, provider, requests, jobs, match,
+│  │  │                     trust_api, billing, social, chatbot, public, admin, admin_ops, admin_taxonomy
+│  │  ├─ data/              valeurs par défaut (flags, paramètres), référentiels, registre des traitements
+│  │  └─ seed.py            référentiels (+ démo hors production)
+│  └─ tests/               67 tests d'intégration
+├─ frontend/                site React (src/pages, components, i18n, lib, hooks, services)
+├─ mobile/                  application Expo (src/app = écrans, src/ui, src/i18n synchronisé depuis le web)
+├─ deploy/nginx/            configuration Nginx (conf.d) et certificats éventuels (certs)
+├─ scripts/                 deploy.sh, package_release.ps1, backup_mongo.sh, restore_mongo.sh, build_docs.py
+├─ docs/                    ARCHITECTURE.md, SECURITY_AUDIT.md, ce dossier
+├─ docker-compose.yml       mongo, backend, frontend, nginx (+ service de tests)
+└─ .env.example             modèle de configuration</pre>
+
+  <h2>4. Parcours d'une requête</h2>
+  <ol>
+    <li>Le site ou l'app appelle <code>https://gofix-digital.dz/api/v1/…</code> avec le jeton <code>Authorization: Bearer</code> (accès de 15 min).</li>
+    <li>aaPanel termine le HTTPS et transmet la requête au Nginx de GoFix, qui détermine l'IP réelle du client et ajoute les en-têtes de sécurité.</li>
+    <li>FastAPI valide les données (Pydantic), vérifie l'identité, le rôle et le statut du compte (suspendu = refusé), applique les limites de débit.</li>
+    <li>La logique métier lit et écrit dans MongoDB ; les actions sensibles écrivent une ligne dans <code>audit_logs</code>.</li>
+    <li>Réponse JSON. Une erreur renvoie <code>{"detail": "code_erreur"}</code>, traduit par l'interface ; une erreur interne ne montre jamais de trace.</li>
+    <li>Quand le jeton expire, l'interface le renouvelle automatiquement (rotation du jeton de rafraîchissement, réutilisation détectée et bloquée).</li>
+  </ol>
+
+  <h2>5. Principales collections MongoDB</h2>
+  <table>
+    <thead><tr><th style="width:27%">Collection</th><th>Rôle</th></tr></thead>
+    <tbody>
+      <tr><td><code>users</code></td><td>Comptes, rôles, mode actif, rôle admin, statut (actif, suspendu, supprimé), préférences, tuteur</td></tr>
+      <tr><td><code>professional_profiles</code> / <code>teacher_profiles</code></td><td>Fiches publiques : métier ou matières, zones, disponibilités, médias, pièces (privées), Trust, accès gratuit</td></tr>
+      <tr><td><code>requests</code></td><td>Demandes des clients et élèves, destinataires et réponses</td></tr>
+      <tr><td><code>conversations</code> / <code>messages</code></td><td>Messagerie</td></tr>
+      <tr><td><code>jobs</code> / <code>reviews</code></td><td>Rendez-vous (cycle de vie complet, litiges) et avis vérifiés</td></tr>
+      <tr><td><code>trust_events</code> / <code>trust_flags</code> / <code>trust_contests</code></td><td>Événements du Trust Score, alertes anti-fraude, contestations</td></tr>
+      <tr><td><code>match_results</code> / <code>match_feedback</code></td><td>Décisions AI MATCH tracées (formule, raisons, durée) et retours</td></tr>
+      <tr><td><code>payment_orders</code> / <code>subscriptions</code> / <code>invoices</code></td><td>Commandes, abonnements, factures</td></tr>
+      <tr><td><code>feature_flags</code> / <code>settings</code></td><td>Activation des modules et paramètres modifiables dans le back-office</td></tr>
+      <tr><td><code>audit_logs</code> / <code>consents</code></td><td>Journal d'audit, consentements horodatés</td></tr>
+      <tr><td><code>login_attempts</code> / <code>refresh_tokens</code> / <code>otp_codes</code></td><td>Sécurité de connexion (purge automatique par index TTL)</td></tr>
+    </tbody>
+  </table>
+  <p class="small">Schéma détaillé, champs et index : <code>docs/ARCHITECTURE.md</code>.</p>
+
+  <h2>6. Adaptateurs (choisis par variables d'environnement)</h2>
+  <table>
+    <thead><tr><th style="width:18%">Adaptateur</th><th style="width:30%">Mode développement</th><th>Mode réel</th></tr></thead>
+    <tbody>
+      <tr><td>Paiement</td><td>« Paiement de test (simulé) »</td><td>SATIM : CIB / Edahabia — choisi et paramétré dans le back-office (le .env sert de valeur par défaut) ; le mode simulé est refusé en production</td></tr>
+      <tr><td>E-mail</td><td><code>console</code> (affiché dans les logs)</td><td><code>smtp</code> : boîte Admail (port 465 SSL ou 587 STARTTLS)</td></tr>
+      <tr><td>SMS</td><td><code>console</code> (code dans les logs)</td><td><code>http</code> : passerelle SMS algérienne</td></tr>
+      <tr><td>IA (chatbot)</td><td><code>none</code></td><td><code>openai_compatible</code> + flag <code>chatbot_llm</code></td></tr>
+      <tr><td>Stockage</td><td><code>local</code> : volume Docker</td><td>Identique en V1 ; stockage objet (S3 / MinIO) prévu</td></tr>
+    </tbody>
+  </table>
+
+  <h2>7. Tâches planifiées</h2>
+  <p>Le backend exécute une boucle toutes les <b>15 minutes</b> (<code>services/scheduler.py</code>) :</p>
+  <ul>
+    <li>expiration des abonnements échus, avec notification et ligne d'audit ;</li>
+    <li>relances avant expiration (J-7, J-3, J-1 par défaut, paramètre <code>subscription_reminder_days</code>) ;</li>
+    <li>expiration des commandes non payées après 30 minutes (<code>payment_timeout_minutes</code>) ;</li>
+    <li>validation automatique des rendez-vous terminés sans litige après 72 h, et rappels des rendez-vous à venir.</li>
+  </ul>
+</div>
+
+<!-- ============================== D ============================== -->
+<div class="sec" style="--c: var(--purple)">
+  <div class="sec-head"><div class="sec-letter">D</div><div class="sec-titles"><h1>PRISE EN MAIN DÉVELOPPEUR</h1><p>Installer, tester et faire évoluer le projet sur un poste de travail</p></div></div>
+
+  <h2>1. Prérequis</h2>
+  <ul>
+    <li><b>Docker Desktop</b> (Windows / macOS) ou Docker Engine + plugin Compose (Linux).</li>
+    <li><b>Git</b>. Le dossier n'est pas encore versionné : créer un <b>dépôt Git privé</b> (GitHub, GitLab ou serveur interne) est la toute première action à faire.</li>
+    <li><b>Node.js 20</b> pour l'application mobile (et pour lancer le site hors Docker).</li>
+    <li>Un éditeur : VS Code recommandé.</li>
+  </ul>
+
+  <h2>2. Installation locale en 5 commandes</h2>
+<pre>cp .env.example .env                    <span class="c"># puis renseigner JWT_SECRET, ADMIN_EMAIL, ADMIN_PASSWORD</span>
+openssl rand -hex 32                    <span class="c"># valeur pour JWT_SECRET</span>
+docker compose up -d --build            <span class="c"># mongo + backend + frontend + nginx</span>
+docker compose exec backend python -m app.seed   <span class="c"># référentiels + données de démonstration</span>
+<span class="c"># ouvrir http://localhost  (back-office : http://localhost/admin)</span></pre>
+  <div class="note"><h4>Bon à savoir</h4>
+    <ul>
+      <li>Le super-administrateur défini par <code>ADMIN_EMAIL</code> / <code>ADMIN_PASSWORD</code> est créé, ou son mot de passe réinitialisé, à chaque démarrage.</li>
+      <li>Le seed est idempotent : on peut le relancer sans créer de doublons.</li>
+      <li>La documentation interactive de l'API est disponible en local sur <code>http://localhost/api/docs</code> (masquée en production).</li>
+    </ul></div>
+
+  <h2>3. Comptes de démonstration (local uniquement)</h2>
+  <p>Mot de passe commun : <code>GoFix@Demo2026</code>. Ces comptes ne doivent <b>jamais</b> exister en production : le seed complet y est refusé.</p>
+  <table>
+    <thead><tr><th style="width:36%">Compte</th><th>Usage</th></tr></thead>
+    <tbody>
+      <tr><td><code>client@gofix.dz</code></td><td>Client avec conversation et rendez-vous en cours avec <code>pro@gofix.dz</code></td></tr>
+      <tr><td><code>premium.client@gofix.dz</code></td><td>Client avec abonnement Premium actif (profils déverrouillés)</td></tr>
+      <tr><td><code>eleve@gofix.dz</code></td><td>Élève (Academy)</td></tr>
+      <tr><td><code>pro@gofix.dz</code> / <code>prof@gofix.dz</code></td><td>Professionnel / professeur avec accès gratuit en cours (tableau de bord)</td></tr>
+      <tr><td><code>attente.pro@gofix.dz</code></td><td>Professionnel en attente de validation des pièces</td></tr>
+      <tr><td><code>nouveau.pro@gofix.dz</code> / <code>nouveau.prof@gofix.dz</code></td><td>Comptes sans fiche, pour tester le tunnel d'inscription</td></tr>
+      <tr><td><code>moderateur@gofix.dz</code> / <code>support@gofix.dz</code></td><td>Rôles admin moderator et support</td></tr>
+      <tr><td><code>pro02…@demo.gofix.dz</code>, <code>client01…@demo.gofix.dz</code></td><td>Profils et clients générés (catalogue réaliste avec historique d'avis)</td></tr>
+    </tbody>
+  </table>
+
+  <h2>4. Tests automatisés</h2>
+<pre>docker compose --profile test run --rm tests     <span class="c"># base dédiée gofix_test, supprimée à la fin — 67 tests</span></pre>
+  <p>Ils couvrent : profils suspendus jamais affichés, floutage serveur, AI MATCH (FR/AR, raisons, traçabilité), Trust Score (statuts, non achetable),
+    cycle des rendez-vous et litiges, paiements (succès, échec, double callback, callback falsifié, expiration), Academy, chatbot, et la sécurité
+    (verrouillage des comptes, IP falsifiée, droits admin, jeton de réinitialisation à usage unique, contenu réel des fichiers, effacement des données,
+    paiement fictif refusé en production). <b>Règle : aucun déploiement si un test échoue.</b></p>
+
+  <h2>5. Application mobile en développement</h2>
+<pre>cd mobile
+npm install
+EXPO_PUBLIC_API_URL=http://192.168.1.20 npx expo start   <span class="c"># IP du PC sur le réseau local, puis scanner le QR avec Expo Go</span></pre>
+
+  <h2>6. Conventions à respecter</h2>
+  <table>
+    <thead><tr><th style="width:24%">Sujet</th><th>Règle</th></tr></thead>
+    <tbody>
+      <tr><td>Textes et langues</td><td>Aucun texte en dur. Dictionnaires <code>frontend/src/i18n/</code> : <code>fr.js</code> + <code>fr.lots.js</code> + <code>fr.lots2.js</code> fusionnés (idem en <code>ar</code>). Après modification : <code>npm run i18n:sync</code> dans <code>mobile/</code>.</td></tr>
+      <tr><td>Erreurs</td><td>L'API renvoie un code (<code>{"detail": "email_taken"}</code>) ; sa traduction se trouve dans <code>errors.*</code> des dictionnaires.</td></tr>
+      <tr><td>Mobile et RTL</td><td>Vérifier chaque écran à 360 px en FR et en AR ; utiliser les propriétés logiques (<code>ms-</code>, <code>me-</code>, <code>start</code>, <code>end</code>) ; zones tactiles d'au moins 44 px.</td></tr>
+      <tr><td>Formats</td><td>Dates JJ/MM/AAAA à l'heure d'Alger, montants en DA, téléphones au format +213 (affichés 05 xx xx xx xx).</td></tr>
+      <tr><td>Sécurité</td><td>Toute règle d'accès est vérifiée côté API ; toute action admin sensible appelle <code>audit()</code> ; aucun secret dans le code.</td></tr>
+      <tr><td>Nouveau module</td><td>Derrière un feature flag déclaré dans <code>backend/app/data/defaults.py</code>, désactivé par défaut.</td></tr>
+      <tr><td>Contenu externe</td><td>Aucun script, police ou image d'un domaine tiers : la politique de sécurité (CSP) le bloquerait.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>7. Méthode pour ajouter une fonctionnalité</h2>
+  <ol style="--c: var(--purple)">
+    <li>Créer une branche Git (<code>feature/…</code>).</li>
+    <li>API : modèle Pydantic, route dans <code>api/v1/</code>, logique dans <code>services/</code>, contrôle des droits, audit si besoin.</li>
+    <li>Écrire le test dans <code>backend/tests/</code> et lancer toute la suite.</li>
+    <li>Interface web, puis mobile, avec les textes FR + AR.</li>
+    <li>Vérifier à 360 px (FR et AR), en thème sombre et clair.</li>
+    <li>Mettre à jour <code>docs/ARCHITECTURE.md</code> (endpoints, collections) et, si besoin, ce dossier.</li>
+    <li>Revue de code, fusion, puis déploiement (section F.11).</li>
+  </ol>
+</div>
+
+<!-- ============================== E ============================== -->
+<div class="sec" style="--c: var(--cyan)">
+  <div class="sec-head"><div class="sec-letter">E</div><div class="sec-titles"><h1>CONFIGURATION</h1><p>Le fichier .env : une seule source de vérité, jamais versionnée</p></div></div>
+
+  <h2>1. Variables</h2>
+  <table>
+    <thead><tr><th style="width:27%">Variable</th><th>Rôle</th><th style="width:30%">Valeur en production</th></tr></thead>
+    <tbody>
+      <tr><td><code>APP_ENV</code></td><td>Environnement ; <code>production</code> active les garde-fous de démarrage</td><td><code>production</code></td></tr>
+      <tr><td><code>DB_NAME</code></td><td>Nom de la base</td><td><code>gofix</code></td></tr>
+      <tr><td><code>MONGO_URL</code></td><td>Connexion MongoDB</td><td><code>mongodb://user:mdp@mongo:27017/?authSource=admin</code></td></tr>
+      <tr><td><code>MONGO_ROOT_USER</code> / <code>_PASSWORD</code></td><td>Active l'authentification MongoDB (sur un volume neuf)</td><td>Valeurs fortes</td></tr>
+      <tr><td><code>FRONTEND_URL</code></td><td>URL publique (e-mails, retours de paiement)</td><td><code>https://gofix-digital.dz</code></td></tr>
+      <tr><td><code>CORS_ORIGINS</code></td><td>Origines autorisées par l'API</td><td><code>https://gofix-digital.dz,https://www.gofix-digital.dz</code></td></tr>
+      <tr><td><code>JWT_SECRET</code></td><td>Signature des jetons</td><td><code>openssl rand -hex 32</code></td></tr>
+      <tr><td><code>JWT_ACCESS_TTL_MINUTES</code> / <code>JWT_REFRESH_TTL_DAYS</code></td><td>Durée des jetons</td><td><code>15</code> / <code>30</code></td></tr>
+      <tr><td><code>ADMIN_EMAIL</code> / <code>ADMIN_PASSWORD</code></td><td>Super-administrateur créé au démarrage</td><td>Adresse de l'entreprise ; 12 caractères minimum</td></tr>
+      <tr><td><code>STORAGE_BACKEND</code> / <code>STORAGE_LOCAL_ROOT</code></td><td>Stockage des fichiers</td><td><code>local</code> / <code>/data/storage</code></td></tr>
+      <tr><td><code>EMAIL_PROVIDER</code>, <code>SMTP_HOST</code>, <code>SMTP_PORT</code>, <code>SMTP_USER</code>, <code>SMTP_PASSWORD</code>, <code>SMTP_FROM</code>, <code>SMTP_TLS</code></td><td>Envoi des e-mails : valeurs de secours seulement, la configuration saisie dans Admin → E-mails est prioritaire (465 = SSL ; 587 = STARTTLS)</td><td><code>smtp</code> + paramètres Admail (G.1)</td></tr>
+      <tr><td><code>SMS_PROVIDER</code>, <code>SMS_HTTP_URL</code>, <code>SMS_HTTP_TOKEN</code>, <code>SMS_SENDER_ID</code></td><td>Envoi des codes SMS</td><td><code>console</code> tant que le flag OTP est coupé</td></tr>
+      <tr><td><code>PAYMENT_PROVIDER</code>, <code>SATIM_BASE_URL</code>, <code>SATIM_USERNAME</code>, <code>SATIM_PASSWORD</code>, <code>SATIM_TERMINAL_ID</code></td><td>Valeurs <b>par défaut</b> du paiement, utilisées tant que rien n'est enregistré dans le back-office (onglet « Moyen de paiement »)</td><td>Peuvent rester vides : tout se règle dans le back-office (G.2)</td></tr>
+      <tr><td><code>CONFIG_ENCRYPTION_KEY</code></td><td>Clé de chiffrement des secrets saisis dans le back-office (mots de passe SATIM et SMTP). À défaut, dérivée de <code>JWT_SECRET</code></td><td><code>openssl rand -hex 32</code> (recommandé)</td></tr>
+      <tr><td><code>LLM_PROVIDER</code>, <code>LLM_BASE_URL</code>, <code>LLM_API_KEY</code>, <code>LLM_MODEL</code></td><td>Reformulation du chatbot (facultatif)</td><td><code>none</code></td></tr>
+      <tr><td><code>MOBILE_APP_SCHEME</code></td><td>Retour de paiement vers l'application</td><td><code>gofix</code></td></tr>
+      <tr><td><code>HTTP_BIND</code> / <code>HTTPS_BIND</code></td><td>Ports publiés par le Nginx de GoFix</td><td><code>127.0.0.1:8080</code> / <code>127.0.0.1:8443</code> (aaPanel)</td></tr>
+      <tr><td><code>EXPOSE_API_DOCS</code></td><td>Affiche <code>/api/docs</code> en production</td><td><code>false</code></td></tr>
+      <tr><td><code>ALLOW_MOCK_PAYMENTS</code></td><td>Autorise le paiement fictif en production</td><td><code>false</code> (serveur de préproduction uniquement)</td></tr>
+    </tbody>
+  </table>
+
+  <h2>2. Exemple de .env de production (gofix-digital.dz)</h2>
+<pre>APP_ENV=production
+DB_NAME=gofix
+MONGO_ROOT_USER=gofix_root
+MONGO_ROOT_PASSWORD=&lt;openssl rand -hex 24&gt;
+MONGO_URL=mongodb://gofix_root:&lt;même mot de passe&gt;@mongo:27017/?authSource=admin
+FRONTEND_URL=https://gofix-digital.dz
+CORS_ORIGINS=https://gofix-digital.dz,https://www.gofix-digital.dz
+JWT_SECRET=&lt;openssl rand -hex 32&gt;
+JWT_ACCESS_TTL_MINUTES=15
+JWT_REFRESH_TTL_DAYS=30
+ADMIN_EMAIL=admin@gofix-digital.dz
+ADMIN_PASSWORD=&lt;12 caractères minimum, lettres et chiffres&gt;
+STORAGE_BACKEND=local
+STORAGE_LOCAL_ROOT=/data/storage
+EMAIL_PROVIDER=smtp
+SMTP_HOST=&lt;fourni par Algérie Télécom&gt;
+SMTP_PORT=465
+SMTP_USER=no-reply@gofix-digital.dz
+SMTP_PASSWORD=&lt;mot de passe de la boîte&gt;
+SMTP_FROM=no-reply@gofix-digital.dz
+SMTP_TLS=true
+SMS_PROVIDER=console
+CONFIG_ENCRYPTION_KEY=&lt;openssl rand -hex 32&gt;
+<span class="c"># Paiement : à paramétrer dans le back-office → « Moyen de paiement » (aucune variable SATIM nécessaire ici)</span>
+LLM_PROVIDER=none
+MOBILE_APP_SCHEME=gofix
+HTTP_BIND=127.0.0.1:8080
+HTTPS_BIND=127.0.0.1:8443</pre>
+
+  <div class="note warn"><h4>Garde-fous de production</h4>
+    <p>Avec <code>APP_ENV=production</code>, l'API <b>refuse de démarrer</b> et explique pourquoi dans les logs si : <code>JWT_SECRET</code> fait moins de 32 caractères ou est
+      un mot courant, <code>ADMIN_PASSWORD</code> est trop faible, <code>FRONTEND_URL</code> n'est pas en https, <code>CORS_ORIGINS</code> contient « localhost »,
+      Elle avertit (sans bloquer) si le paiement en ligne n'est pas encore paramétré, si les e-mails ou SMS restent en mode console ou si MongoDB n'a pas de mot de passe.
+      Tant que SATIM n'est pas paramétré, les commandes d'abonnement répondent « paiement momentanément indisponible » : le mode simulé n'est jamais utilisé en production.</p></div>
+  <p>Après toute modification du <code>.env</code> : <code>docker compose up -d</code> (les conteneurs concernés redémarrent). Protéger le fichier : <code>chmod 600 .env</code>.</p>
+</div>
+
+<!-- ============================== F ============================== -->
+<div class="sec" style="--c: var(--pink)">
+  <div class="sec-head"><div class="sec-letter">F</div><div class="sec-titles"><h1>MISE EN LIGNE SUR LE VPS</h1><p>Remplacer l'ancienne version de gofix-digital.dz sur le serveur Algérie Télécom géré par aaPanel</p></div></div>
+
+  <div class="note ok"><h4>Décision : pouvez-vous retirer l'ancienne version vous-même ?</h4>
+    <p><b>Oui</b>, en suivant cette section dans l'ordre, à quatre conditions :</p>
+    <ol>
+      <li><b>Sauvegarder entièrement l'ancienne version</b> (fichiers et base) et télécharger la sauvegarde sur un autre support avant toute modification (F.2).</li>
+      <li><b>Ne pas la supprimer tout de suite</b> : la garder archivée sur le serveur au moins 30 jours, pour pouvoir revenir en arrière en quelques minutes.</li>
+      <li><b>Basculer le domaine seulement après</b> avoir testé la nouvelle version sur le serveur lui-même (F.8, test par tunnel SSH).</li>
+      <li><b>Comptes et données</b> : les utilisateurs de l'ancienne version (dont son compte administrateur) ne sont <b>pas</b> repris automatiquement.
+        S'il y a de vrais inscrits à conserver, prévoir une migration avant la bascule ; sinon, la V1 démarre sur une base propre.</li>
+    </ol></div>
+
+  <h2>F.0 Vue d'ensemble de l'opération</h2>
+  <table>
+    <thead><tr><th style="width:8%">Étape</th><th style="width:40%">Action</th><th style="width:16%">Durée indicative</th><th>Impact visiteurs</th></tr></thead>
+    <tbody>
+      <tr><td>F.1</td><td>Premier accès et sécurisation du serveur</td><td>30 min</td><td>Aucun</td></tr>
+      <tr><td>F.2</td><td>Inventaire et sauvegarde de l'ancienne version</td><td>30 min</td><td>Aucun</td></tr>
+      <tr><td>F.3</td><td>Préparation du serveur (Docker, mémoire)</td><td>20 min</td><td>Aucun</td></tr>
+      <tr><td>F.4 – F.6</td><td>Dépôt du code, .env, démarrage de GoFix V1</td><td>30 min</td><td>Aucun (ancienne version toujours en ligne)</td></tr>
+      <tr><td>F.7 – F.8</td><td>Reverse proxy aaPanel, HTTPS, bascule</td><td>15 min</td><td>Coupure de quelques secondes</td></tr>
+      <tr><td>F.9</td><td>Vérifications après mise en ligne</td><td>30 min</td><td>—</td></tr>
+    </tbody>
+  </table>
+
+  <h2>F.1 Premier accès et sécurisation</h2>
+  <ol style="--c: var(--pink)">
+    <li><b>SSH</b> : <code>ssh root@&lt;IP publique du VPS&gt;</code>. Le serveur impose de changer le mot de passe root à la première connexion : choisir un mot de passe long et unique.</li>
+    <li><b>Mettre le système à jour</b> : <code>apt update &amp;&amp; apt -y upgrade</code> (Debian/Ubuntu ; adapter si le VPS est sous une autre distribution).</li>
+    <li><b>Clé SSH</b> : depuis votre PC, <code>ssh-keygen -t ed25519</code> puis <code>ssh-copy-id root@&lt;IP&gt;</code>. Une fois la connexion par clé vérifiée, mettre
+      <code>PasswordAuthentication no</code> dans <code>/etc/ssh/sshd_config</code> puis <code>systemctl restart ssh</code>.</li>
+    <li><b>aaPanel</b> : changer le mot de passe du panneau, garder secrète l'« entrée de sécurité » (le chemin après le port 8888), activer la double authentification
+      si elle est proposée, et limiter l'accès au port 8888 à votre IP (aaPanel → <i>Security</i>).</li>
+    <li><b>Pare-feu</b> : n'ouvrir que 22 (SSH), 80, 443 et 8888 (restreint). Ne jamais ouvrir 8080, 8443 ni 27017.</li>
+    <li><b>Changer tous les mots de passe reçus par e-mail</b> : aaPanel, root, Admail, cibweb.dz, et le compte administrateur de l'ancienne plateforme.</li>
+  </ol>
+
+  <h2>F.2 Inventaire et sauvegarde de l'ancienne version</h2>
+  <ol style="--c: var(--pink)">
+    <li>aaPanel → <b>Website</b> : ouvrir le site <code>gofix-digital.dz</code> et noter son type (PHP, Node, proxy…), son dossier racine
+      (souvent <code>/www/wwwroot/gofix-digital.dz</code>) et sa configuration SSL.</li>
+    <li>aaPanel → <b>Databases</b> : lancer une sauvegarde de chaque base utilisée par l'ancien site, puis la télécharger.</li>
+    <li>Vérifier si l'ancienne version tourne sous Docker : <code>docker ps</code> (si la commande existe).</li>
+    <li>Archiver les fichiers et la configuration Nginx du site :</li>
+  </ol>
+<pre>mkdir -p /root/ancienne-version
+tar czf /root/ancienne-version/site-$(date +%F).tar.gz /www/wwwroot/gofix-digital.dz
+cp -r /www/server/panel/vhost/nginx /root/ancienne-version/vhost-nginx-$(date +%F)   <span class="c"># configuration du site</span>
+ls -lh /root/ancienne-version</pre>
+  <p>Télécharger ensuite le dossier <code>/root/ancienne-version</code> sur votre PC (aaPanel → <i>Files</i>, ou <code>scp -r root@&lt;IP&gt;:/root/ancienne-version .</code>).</p>
+
+  <h2>F.3 Préparer le serveur</h2>
+<pre>free -h ; nproc ; df -h /           <span class="c"># conseillé : 2 vCPU, 4 Go de RAM, 20 Go libres</span>
+grep -c avx /proc/cpuinfo           <span class="c"># doit être &gt; 0 : MongoDB 7 exige l'instruction AVX</span>
+<span class="c"># Mémoire d'échange de 2 Go (la compilation du site en a besoin si la RAM est ≤ 4 Go)</span>
+fallocate -l 2G /swapfile &amp;&amp; chmod 600 /swapfile &amp;&amp; mkswap /swapfile &amp;&amp; swapon /swapfile
+echo '/swapfile none swap sw 0 0' &gt;&gt; /etc/fstab
+<span class="c"># Docker : aaPanel → App Store → Docker, ou :</span>
+curl -fsSL https://get.docker.com | sh
+docker compose version</pre>
+  <div class="note warn"><h4>Si « grep -c avx » affiche 0</h4>
+    <p>Le processeur virtuel ne transmet pas AVX : MongoDB 7 ne démarrera pas (erreur « Illegal instruction »). Demander à Algérie Télécom d'activer le mode CPU « host »
+      sur la VM, ou passer l'image en <code>mongo:4.4</code> dans <code>docker-compose.yml</code> en remplaçant <code>mongosh</code> par <code>mongo</code> dans le healthcheck.</p></div>
+
+  <h2>F.4 Déposer le code</h2>
+  <p><b>Option A — dépôt Git privé (recommandé)</b> :</p>
+<pre>mkdir -p /opt/gofix &amp;&amp; cd /opt/gofix
+git clone &lt;url-du-depot-prive&gt; .</pre>
+  <p><b>Option B — archive depuis le PC (Windows)</b> : le script <code>scripts\package_release.ps1</code> crée <code>gofix-release.tar.gz</code> à côté du dossier
+    <code>gofix-mvp</code>. L'archive ne contient ni <code>.env</code>, ni <code>node_modules</code>, ni l'application mobile, ni les sauvegardes, et les scripts y sont convertis au format Linux.</p>
+<pre><span class="c"># PowerShell, dans le dossier gofix-mvp</span>
+powershell -ExecutionPolicy Bypass -File scripts\package_release.ps1
+scp ..\gofix-release.tar.gz root@&lt;IP&gt;:/opt/
+<span class="c"># sur le serveur (première fois)</span>
+mkdir -p /opt/gofix &amp;&amp; tar xzf /opt/gofix-release.tar.gz -C /opt/gofix</pre>
+
+  <h2>F.5 Fichier .env de production</h2>
+<pre>cd /opt/gofix
+cp .env.example .env &amp;&amp; chmod 600 .env
+nano .env        <span class="c"># reprendre l'exemple de la section E.2 ; générer chaque secret avec openssl rand -hex 32</span></pre>
+  <p>Points clés : <code>APP_ENV=production</code>, <code>HTTP_BIND=127.0.0.1:8080</code>, <code>HTTPS_BIND=127.0.0.1:8443</code> (aaPanel garde les ports 80 et 443),
+    <code>MONGO_ROOT_USER</code> / <code>MONGO_ROOT_PASSWORD</code> renseignés <b>avant</b> le premier démarrage. Ils ne s'appliquent qu'à un volume MongoDB neuf.</p>
+
+  <h2>F.6 Démarrer GoFix V1</h2>
+<pre>cd /opt/gofix
+bash scripts/deploy.sh        <span class="c"># 5 à 15 min la première fois ; se termine par « Déploiement terminé »</span></pre>
+  <p>Le script <code>scripts/deploy.sh</code> vérifie Docker et le <code>.env</code>, sauvegarde la base si elle tourne déjà, construit et démarre les 4 services,
+    attend que <code>/api/health</code> réponde, charge les référentiels (wilayas, métiers, matières, offres, FAQ) puis nettoie les anciennes images.
+    En cas d'échec, il affiche l'état des services et les derniers logs du backend. Équivalent manuel :</p>
+<pre>docker compose up -d --build
+docker compose ps                                             <span class="c"># 4 services « Up », backend « healthy »</span>
+curl -s http://127.0.0.1:8080/api/health                      <span class="c"># {"status":"ok","db":true,…}</span>
+docker compose exec backend python -m app.seed --reference-only</pre>
+  <div class="note"><h4>Si le backend redémarre en boucle</h4>
+    <p>Lire <code>docker compose logs backend</code> : un message « Unsafe production configuration » liste précisément les valeurs du <code>.env</code> à corriger.</p></div>
+
+  <h2>F.7 Reverse proxy et HTTPS dans aaPanel</h2>
+  <ol style="--c: var(--pink)">
+    <li>aaPanel → <b>Website</b> → site <code>gofix-digital.dz</code> (vérifier que <code>www.gofix-digital.dz</code> figure dans les domaines).</li>
+    <li>Onglet <b>SSL</b> → <i>Let's Encrypt</i> → cocher les deux domaines → <i>Apply</i>, puis activer <b>Force HTTPS</b>.</li>
+    <li>Onglet <b>Reverse proxy</b> → <i>Add</i> : nom <code>gofix</code>, URL cible <code>http://127.0.0.1:8080</code>, domaine envoyé <code>$host</code>.</li>
+    <li>Onglet <b>Config</b> (fichier Nginx du site) : vérifier ou compléter le bloc du proxy comme ci-dessous, puis enregistrer.</li>
+  </ol>
+<pre>client_max_body_size 10m;            <span class="c"># photos et pièces justificatives (jusqu'à 10 Mo)</span>
+location / {
+    proxy_pass http://127.0.0.1:8080;
+    proxy_set_header Host $host;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;   <span class="c"># indispensable : IP réelle des visiteurs</span>
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_read_timeout 60s;
+}</pre>
+  <div class="note warn"><h4>Pourquoi l'en-tête X-Forwarded-For est indispensable</h4>
+    <p>Les limites anti-abus (connexion, mot de passe oublié, formulaires) fonctionnent par adresse IP. Sans cet en-tête, tous les visiteurs auraient l'IP du serveur
+      et se bloqueraient mutuellement. Le Nginx de GoFix ne fait confiance qu'au proxy local, donc un visiteur ne peut pas usurper une IP.</p></div>
+
+  <h2>F.8 Tester puis basculer</h2>
+  <ol style="--c: var(--pink)">
+    <li><b>Test avant bascule</b> : depuis votre PC, ouvrir un tunnel <code>ssh -L 8080:127.0.0.1:8080 root@&lt;IP&gt;</code>, puis naviguer sur <code>http://localhost:8080</code> :
+      connexion avec <code>ADMIN_EMAIL</code>, back-office, recherche, création d'un compte test.</li>
+    <li><b>Bascule</b> : appliquer le reverse proxy (F.7). Les fichiers de l'ancienne version restent sur le disque, intacts, mais ne sont plus servis.</li>
+    <li>Vider le cache du navigateur et ouvrir <code>https://gofix-digital.dz</code> : la V1 doit s'afficher avec le cadenas.</li>
+    <li>Dérouler les vérifications de F.9. Au bout de 30 jours sans problème, supprimer l'ancienne version (fichiers et base) dans aaPanel.</li>
+  </ol>
+
+  <h2>F.9 Vérifications après mise en ligne</h2>
+  <table>
+    <thead><tr><th style="width:44%">Test</th><th>Résultat attendu</th></tr></thead>
+    <tbody>
+      <tr><td><code>https://gofix-digital.dz</code> sur téléphone</td><td>Cadenas, page d'accueil en FR ; drapeau algérien → arabe RTL</td></tr>
+      <tr><td><code>http://gofix-digital.dz</code></td><td>Redirection automatique vers https</td></tr>
+      <tr><td><code>https://gofix-digital.dz/api/health</code></td><td><code>{"status":"ok","db":true,…}</code></td></tr>
+      <tr><td><code>https://gofix-digital.dz/api/docs</code></td><td>404 (documentation masquée en production)</td></tr>
+      <tr><td>Connexion <code>/admin</code> avec <code>ADMIN_EMAIL</code></td><td>Back-office complet</td></tr>
+      <tr><td>Inscription d'un compte de test</td><td>Compte créé, consentements enregistrés</td></tr>
+      <tr><td>« Mot de passe oublié » sur ce compte</td><td>E-mail reçu depuis <code>no-reply@gofix-digital.dz</code>, lien fonctionnel</td></tr>
+      <tr><td>Tunnel pro : envoi d'une photo et d'une pièce</td><td>Envoi accepté (sinon voir <code>client_max_body_size</code>)</td></tr>
+      <tr><td>Paiement (environnement de test SATIM)</td><td>Page SATIM, retour sur <code>/payment/result</code>, abonnement activé une seule fois</td></tr>
+      <tr><td>5 mauvais mots de passe sur un compte test</td><td>Blocage « Trop de tentatives » pour cette IP uniquement</td></tr>
+      <tr><td>En-têtes : <code>curl -sI https://gofix-digital.dz</code></td><td><code>Content-Security-Policy</code>, <code>X-Frame-Options: DENY</code>, HSTS (si activé dans aaPanel)</td></tr>
+      <tr><td>Sauvegarde : <code>./scripts/backup_mongo.sh</code></td><td>« Backup OK » et fichier dans <code>backups/</code></td></tr>
+    </tbody>
+  </table>
+
+  <h2>F.10 Retour arrière</h2>
+  <ul>
+    <li><b>Revenir à l'ancienne version</b> : dans aaPanel, supprimer le reverse proxy du site et restaurer sa configuration sauvegardée en F.2
+      (<code>/root/ancienne-version/vhost-nginx-…</code>), puis <code>docker compose down</code> dans <code>/opt/gofix</code>.</li>
+    <li><b>Revenir à une version précédente de GoFix</b> : <code>git checkout &lt;tag précédent&gt;</code> puis <code>docker compose up -d --build</code> ;
+      si la base a été modifiée, <code>./scripts/restore_mongo.sh backups/&lt;fichier&gt;</code>.</li>
+  </ul>
+
+  <h2>F.11 Mises à jour ultérieures</h2>
+<pre><span class="c"># Sur le PC : nouvelle archive puis envoi</span>
+powershell -ExecutionPolicy Bypass -File scripts\package_release.ps1
+scp ..\gofix-release.tar.gz root@&lt;IP&gt;:/opt/
+<span class="c"># Sur le serveur : sauvegarde + installation + redémarrage + vérification (le .env n'est jamais écrasé)</span>
+bash /opt/gofix/scripts/deploy.sh /opt/gofix-release.tar.gz
+<span class="c"># Avec un dépôt Git à la place de l'archive :</span>
+cd /opt/gofix &amp;&amp; git pull &amp;&amp; bash scripts/deploy.sh</pre>
+  <p class="small">Conseil : étiqueter chaque version mise en ligne (<code>git tag v1.0.1</code>) pour pouvoir revenir en arrière précisément.</p>
+</div>
+
+<!-- ============================== G ============================== -->
+<div class="sec" style="--c: var(--orange)">
+  <div class="sec-head"><div class="sec-letter">G</div><div class="sec-titles"><h1>SERVICES EXTERNES</h1><p>E-mail, paiement en ligne, SMS, IA et nom de domaine</p></div></div>
+
+  <h2>G.1 E-mails avec Admail (Algérie Télécom)</h2>
+  <p>Admail (<code>admail.djaweb.dz/new2017</code>) gère les boîtes du domaine <code>gofix-digital.dz</code>. GoFix envoie ses e-mails (réinitialisation de mot de passe…)
+    via le serveur SMTP d'Algérie Télécom avec une boîte dédiée.</p>
+  <ol style="--c: var(--orange)">
+    <li><b>Créer la boîte d'envoi</b> : Admail → <i>Gérer mes comptes</i> → <i>Ajouter un nouveau compte</i> → Nom « GoFix », login <code>no-reply</code>,
+      bouton <i>Créer le mot de passe</i> (le copier dans le gestionnaire de mots de passe), type <i>Basic</i>, petit quota → <i>Envoyer</i>.</li>
+    <li><b>Boîtes utiles en plus</b> : <code>contact@</code> (affichée sur le site), <code>support@</code> (tickets), <code>admin@</code> (compte <code>ADMIN_EMAIL</code>).</li>
+    <li><b>Obtenir les paramètres SMTP sortants</b> : le guide Admail ne les donne pas. Les demander au support (<code>support@algerietelecom.dz</code>) :
+      nom du serveur SMTP, port (465 SSL ou 587 STARTTLS), authentification requise, limites d'envoi par heure ou par jour.</li>
+    <li><b>Renseigner le .env</b> : <code>EMAIL_PROVIDER=smtp</code>, <code>SMTP_HOST</code>, <code>SMTP_PORT</code>, <code>SMTP_USER=no-reply@gofix-digital.dz</code>,
+      <code>SMTP_PASSWORD</code>, <code>SMTP_FROM=no-reply@gofix-digital.dz</code>, puis <code>docker compose up -d</code>.</li>
+    <li><b>Tester</b> avec « Mot de passe oublié » et vérifier la réception, y compris dans les courriers indésirables.</li>
+    <li><b>Délivrabilité</b> : demander à Algérie Télécom de confirmer les enregistrements SPF (et DKIM si disponible) du domaine.</li>
+  </ol>
+  <div class="note warn"><h4>Renouvellement de l'abonnement messagerie</h4>
+    <p>Admail affiche une alerte 15 jours avant la fin de l'abonnement. Sans renouvellement, les boîtes s'arrêtent, ainsi que les e-mails de réinitialisation
+      de mot de passe. À inscrire dans le calendrier de l'entreprise.</p></div>
+
+  <h2>G.2 Paiement en ligne CIB / Edahabia (SATIM)</h2>
+  <h3>Fonctionnement dans GoFix</h3>
+  <ol style="--c: var(--orange)">
+    <li>L'utilisateur choisit une offre ; l'API crée une commande au prix fixé par le serveur et l'enregistre chez SATIM (<code>register.do</code>).</li>
+    <li>Le navigateur ou l'app est redirigé vers la <b>page de paiement hébergée par SATIM</b> : GoFix ne voit jamais les numéros de carte.</li>
+    <li>SATIM renvoie vers <code>https://gofix-digital.dz/api/v1/billing/callback/satim</code> ; l'API vérifie le statut directement auprès de SATIM (<code>confirmOrder.do</code>).</li>
+    <li>Si le paiement est confirmé, l'abonnement est activé <b>une seule fois</b>, même en cas de retours multiples, et la facture PDF est générée.</li>
+  </ol>
+  <h3>Certification (espace cibweb.dz → « Certification sites web marchands »)</h3>
+  <ol style="--c: var(--orange)">
+    <li>Avoir un contrat de paiement en ligne avec la banque de l'entreprise (adhésion e-paiement CIB) ; la banque transmet les accès à l'environnement de <b>test</b> SATIM
+      (URL, identifiant, mot de passe, terminal).</li>
+    <li>Back-office (super-admin) → onglet <b>Moyen de paiement</b> : choisir « SATIM – CIB / Edahabia », environnement « test », saisir l'URL de l'API,
+      l'identifiant, le mot de passe et le Terminal ID fournis par la banque, puis <i>Enregistrer</i> et <i>Tester la connexion</i>. Aucun redémarrage n'est nécessaire.
+      Communiquer à la SATIM l'URL de retour affichée sur le même écran.</li>
+    <li>Vérifier les pages exigées par la certification : CGV (<code>/legal/cgv</code>), mentions légales (<code>/legal/mentions</code>) et confidentialité
+      (<code>/legal/privacy</code>), complétées avec les informations réelles de la société (raison sociale, RC, NIF, adresse, contact).</li>
+    <li>Dérouler les scénarios demandés par SATIM (paiement accepté, refusé, annulé, carte invalide…) et fournir les captures et numéros de commande
+      visibles dans le back-office → <i>Paiements</i>.</li>
+    <li>Après validation, la banque fournit les accès de <b>production</b> : dans le même onglet, passer l'environnement sur « Production SATIM »,
+      remplacer l'URL, l'identifiant, le mot de passe et le terminal, enregistrer, tester, puis faire un premier paiement réel de faible montant.</li>
+  </ol>
+  <div class="note"><h4>Sécurité de l'écran « Moyen de paiement »</h4>
+    <ul>
+      <li>Réservé au <b>super-admin</b> ; chaque enregistrement et chaque test sont inscrits au journal d'audit, sans aucun secret.</li>
+      <li>Le mot de passe SATIM est <b>chiffré</b> en base et n'est jamais réaffiché : le laisser vide conserve celui qui est enregistré.</li>
+      <li>Le chiffrement utilise <code>CONFIG_ENCRYPTION_KEY</code> (ou, à défaut, <code>JWT_SECRET</code>) : si cette clé change, ressaisir le mot de passe SATIM — l'écran le signale.</li>
+      <li>« Tester la connexion » vérifie que le serveur SATIM répond et accepte les identifiants, sans débiter de carte ; seul un paiement de test complet valide toute la chaîne.</li>
+      <li>Le « paiement de test (simulé) » est impossible à sélectionner en production : il activerait des abonnements sans paiement.</li>
+    </ul></div>
+  <div class="note"><h4>Si l'ancienne version était déjà certifiée</h4>
+    <p>La certification porte sur l'intégration technique du site. Comme la V1 est une nouvelle intégration, vérifier son statut dans l'espace cibweb.dz et, en cas de doute,
+      demander à la SATIM si une nouvelle recette est nécessaire.</p></div>
+
+  <h2>G.3 SMS (connexion par code)</h2>
+  <p>Désactivé par défaut (flag <code>auth_phone_otp</code>). Pour l'activer : choisir une passerelle SMS algérienne avec API HTTP, puis renseigner
+    <code>SMS_PROVIDER=http</code>, <code>SMS_HTTP_URL</code>, <code>SMS_HTTP_TOKEN</code>, <code>SMS_SENDER_ID=GOFIX</code>. L'adaptateur envoie un
+    <code>POST</code> JSON <code>{"to", "from", "text"}</code> avec l'en-tête <code>Authorization: Bearer &lt;token&gt;</code> ; l'adapter si la passerelle attend un autre format
+    (<code>backend/app/adapters/sms.py</code>). Activer ensuite le flag dans le back-office. Limites : 3 envois par 10 minutes et 5 essais par code.</p>
+
+  <h2>G.4 IA générative (facultatif)</h2>
+  <p>Le chatbot répond à partir de la FAQ, sans IA externe. Une reformulation par un modèle de langage est possible (<code>LLM_PROVIDER=openai_compatible</code> +
+    flag <code>chatbot_llm</code>). Avant de l'activer, vérifier où le fournisseur héberge les données, au regard de la loi 18-07.</p>
+
+  <h2>G.5 Nom de domaine</h2>
+  <table>
+    <thead><tr><th style="width:22%">Enregistrement</th><th>Valeur</th><th style="width:32%">Remarque</th></tr></thead>
+    <tbody>
+      <tr><td><code>A gofix-digital.dz</code></td><td>IP publique du VPS</td><td>Vérifier avec <code>nslookup gofix-digital.dz</code></td></tr>
+      <tr><td><code>A www.gofix-digital.dz</code></td><td>IP publique du VPS</td><td>Nécessaire pour le certificat « www »</td></tr>
+      <tr><td><code>MX</code></td><td>Serveurs de messagerie d'Algérie Télécom</td><td>Ne pas modifier (Admail)</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ============================== H ============================== -->
+<div class="sec" style="--c: var(--purple)">
+  <div class="sec-head"><div class="sec-letter">H</div><div class="sec-titles"><h1>BACK-OFFICE &amp; EXPLOITATION</h1><p>Administrer la plateforme au quotidien</p></div></div>
+
+  <h2>H.1 Accès</h2>
+  <p><code>https://gofix-digital.dz/admin</code>, avec le compte <code>ADMIN_EMAIL</code>. Ce compte est recréé, ou son mot de passe réinitialisé, à chaque démarrage à partir du <code>.env</code> :
+    en cas d'oubli, modifier <code>ADMIN_PASSWORD</code> puis lancer <code>docker compose up -d backend</code>. Créer ensuite des comptes nominatifs pour l'équipe
+    (inscription normale, puis rôle admin attribué par le super-admin).</p>
+
+  <h2>H.2 Rôles d'administration</h2>
+  <table>
+    <thead><tr><th style="width:17%">Rôle</th><th>Accès</th></tr></thead>
+    <tbody>
+      <tr><td><b>super_admin</b></td><td>Tout, y compris feature flags, paramètres, offres et matrice de déverrouillage, rôles admin, journal d'audit, registre des traitements. Seul à pouvoir suspendre un autre administrateur.</td></tr>
+      <tr><td><b>moderator</b></td><td>Utilisateurs (suspension et réactivation avec motif), validation des pièces, signalements, litiges, Trust Score (recalcul, contestations), taxonomie, tickets.</td></tr>
+      <tr><td><b>support</b></td><td>Consultation des utilisateurs, des validations, des litiges et des paiements ; traitement des tickets ; gestion de la FAQ.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>H.3 Onglets du back-office</h2>
+  <table>
+    <thead><tr><th style="width:22%">Onglet</th><th>Usage</th></tr></thead>
+    <tbody>
+      <tr><td>Tableau de bord</td><td>Inscriptions, demandes, abonnements, files en attente</td></tr>
+      <tr><td>Utilisateurs</td><td>Recherche, suspension et réactivation (motif obligatoire, audité)</td></tr>
+      <tr><td>Validation</td><td>Pièces des pros et profs : consulter, valider, refuser avec motif, marquer « faux document » (forte baisse du Trust, audité)</td></tr>
+      <tr><td>Signalements</td><td>Traiter les signalements, avec suspension possible du compte visé</td></tr>
+      <tr><td>Litiges</td><td>Donner raison au client ou au pro : les deux parties sont notifiées et le Trust est recalculé</td></tr>
+      <tr><td>Trust</td><td>Contestations, recalcul avec motif journalisé, décisions AI MATCH récentes (explicabilité)</td></tr>
+      <tr><td>Tickets</td><td>Messages du formulaire de contact et du chatbot</td></tr>
+      <tr><td>FAQ</td><td>Questions et réponses FR/AR du chatbot ; liste des questions restées sans réponse</td></tr>
+      <tr><td>Offres</td><td>Prix, contenu des offres, matrice de déverrouillage (champs visibles selon l'offre)</td></tr>
+      <tr><td>Paiements</td><td>Commandes, statuts, factures</td></tr>
+      <tr><td>Société &amp; mentions légales</td><td>Super-admin : raison sociale, RC, NIF, NIS, article d'imposition, adresse, contacts, ANPDP, version et date des textes légaux, case « validés par un juriste » — affichés dans les pages légales (site et app) et sur les factures</td></tr>
+      <tr><td>Moyen de paiement</td><td>Super-admin : choix SATIM / test, accès marchand SATIM (mot de passe chiffré), URL de retour, test de connexion (G.2)</td></tr>
+      <tr><td>Taxonomie</td><td>Familles, métiers, rôles, spécialités, matières, niveaux ; demandes de nouvelles catégories</td></tr>
+      <tr><td>Flags / Paramètres</td><td>Activation des modules et réglages, sans redéploiement</td></tr>
+      <tr><td>Journal d'audit</td><td>Qui a fait quoi, quand, sur quoi, depuis quelle IP</td></tr>
+    </tbody>
+  </table>
+
+  <h2>H.4 Routine quotidienne de modération (15 à 30 min)</h2>
+  <ol style="--c: var(--purple)">
+    <li><b>Validation</b> : traiter les pièces en attente (un pro non validé reste peu visible).</li>
+    <li><b>Signalements et litiges</b> : décision motivée, idéalement sous 48 h.</li>
+    <li><b>Contestations Trust</b> : vérifier les événements contestés, recalculer si nécessaire. On ne modifie jamais une note à la main.</li>
+    <li><b>Tickets</b> : répondre et clôturer.</li>
+    <li><b>FAQ</b> : transformer les questions sans réponse du chatbot en nouvelles entrées FR + AR.</li>
+    <li><b>Taxonomie</b> : accepter ou refuser les demandes de nouvelles catégories.</li>
+  </ol>
+
+  <h2>H.5 Feature flags</h2>
+  <table>
+    <thead><tr><th style="width:24%">Flag</th><th style="width:13%">Défaut</th><th>Effet</th></tr></thead>
+    <tbody>
+      <tr><td><code>ai_match</code></td><td>Activé</td><td>Recherche intelligente et classement AI MATCH</td></tr>
+      <tr><td><code>trust_score</code></td><td>Activé</td><td>Affichage du Trust Score</td></tr>
+      <tr><td><code>online_payment</code></td><td>Activé</td><td>Paiement en ligne des offres</td></tr>
+      <tr><td><code>chatbot</code></td><td>Activé</td><td>Bulle d'assistance</td></tr>
+      <tr><td><code>push_notifications</code></td><td>Activé</td><td>Notifications push sur les téléphones qui les ont acceptées (service Expo → APNs / FCM)</td></tr>
+      <tr><td><code>remote_courses</code></td><td>Activé</td><td>Univers « Cours à distance » sur l'accueil</td></tr>
+      <tr><td><code>auth_phone_otp</code></td><td>Désactivé</td><td>Connexion par code SMS (exige une passerelle SMS)</td></tr>
+      <tr><td><code>chatbot_llm</code></td><td>Désactivé</td><td>Reformulation par IA (exige <code>LLM_*</code>)</td></tr>
+      <tr><td><code>vision</code>, <code>edu_ai</code>, <code>voice</code>, <code>pro_ai</code>, <code>passport</code></td><td>Désactivés</td><td>Modules « à venir » : ne pas activer avant leur développement</td></tr>
+      <tr><td><code>video_calls</code></td><td>Désactivé</td><td>Visioconférence (hors V1)</td></tr>
+    </tbody>
+  </table>
+
+  <h2>H.6 Paramètres importants</h2>
+  <table>
+    <thead><tr><th style="width:33%">Paramètre</th><th style="width:17%">Défaut</th><th>Signification</th></tr></thead>
+    <tbody>
+      <tr><td><code>free_access_days</code> / <code>free_access_max_requests</code></td><td>30 / 5</td><td>Accès gratuit d'un nouveau pro ou prof</td></tr>
+      <tr><td><code>minor_age_threshold</code></td><td>18</td><td>Âge sous lequel le consentement parental est requis (à confirmer par un juriste)</td></tr>
+      <tr><td><code>request_max_recipients</code></td><td>5</td><td>Destinataires maximum par demande</td></tr>
+      <tr><td><code>match_weights</code> / <code>match_top_n</code></td><td>30/20/10/20/15/5 · 5</td><td>Pondérations AI MATCH (métier, proximité, disponibilité, Trust, avis, réactivité) et nombre de résultats</td></tr>
+      <tr><td><code>trust_rules_v2</code></td><td>25/20/30/25</td><td>Poids identité / réactivité / satisfaction / fiabilité</td></tr>
+      <tr><td><code>job_auto_complete_hours</code></td><td>72</td><td>Validation automatique d'un rendez-vous terminé</td></tr>
+      <tr><td><code>job_dispute_window_days</code></td><td>7</td><td>Délai pour ouvrir un litige</td></tr>
+      <tr><td><code>job_late_cancel_hours</code></td><td>24</td><td>En dessous, l'annulation pénalise la fiabilité du pro</td></tr>
+      <tr><td><code>subscription_reminder_days</code></td><td>7, 3, 1</td><td>Relances avant expiration</td></tr>
+      <tr><td><code>payment_timeout_minutes</code></td><td>30</td><td>Expiration d'une commande non payée</td></tr>
+      <tr><td><code>app_store_url</code> / <code>play_store_url</code></td><td>vides</td><td>Liens vers l'application sur l'App Store et Google Play (https uniquement). Vides : boutons « Bientôt » ; renseignés : boutons actifs sur l'accueil et la page <code>/app</code></td></tr>
+      <tr><td><code>data_retention_months</code></td><td>36/12/24/120</td><td>Conservation : comptes inactifs / audit / messages / paiements</td></tr>
+    </tbody>
+  </table>
+
+  <h2>H.7 Sauvegardes</h2>
+<pre>./scripts/backup_mongo.sh                          <span class="c"># base → backups/gofix-&lt;db&gt;-&lt;date&gt;.archive.gz (14 jours conservés)</span>
+./scripts/restore_mongo.sh backups/&lt;fichier&gt;       <span class="c"># restauration (remplace la base)</span>
+<span class="c"># fichiers envoyés (photos, pièces) :</span>
+docker run --rm -v gofix_storage_data:/d -v /opt/gofix/backups:/b alpine tar czf /b/storage-$(date +%F).tar.gz -C /d .
+<span class="c"># planification (crontab -e) : base chaque nuit à 2 h 30, fichiers chaque dimanche</span>
+30 2 * * * cd /opt/gofix &amp;&amp; ./scripts/backup_mongo.sh &gt;&gt; backups/backup.log 2&gt;&amp;1
+0 3 * * 0 docker run --rm -v gofix_storage_data:/d -v /opt/gofix/backups:/b alpine tar czf /b/storage-$(date +\%F).tar.gz -C /d .</pre>
+  <div class="note"><h4>Règle des 3 copies</h4>
+    <p>Copier chaque semaine le dossier <code>backups/</code> hors du VPS, sur un support situé en Algérie, et <b>tester une restauration chaque mois</b> sur un poste de
+      développement. Le volume s'appelle <code>&lt;nom du dossier&gt;_storage_data</code> : <code>gofix_storage_data</code> si le code est dans <code>/opt/gofix</code> (vérifier avec <code>docker volume ls</code>).</p></div>
+
+  <h2>H.8 Journaux et surveillance</h2>
+  <ul>
+    <li><code>docker compose logs -f backend</code> : journaux JSON (identifiant de requête, durée, statut). Un utilisateur qui signale une erreur peut fournir le <code>request_id</code> affiché.</li>
+    <li><code>/api/health</code> : à surveiller toutes les 5 minutes avec un outil de disponibilité externe, avec alerte par e-mail.</li>
+    <li>aaPanel → <i>Monitor</i> : CPU, mémoire, disque. Alerte si le disque dépasse 80 % (sauvegardes, images Docker).</li>
+    <li>Journal d'audit du back-office : à relire chaque semaine (suspensions, changements de flags et de rôles).</li>
+  </ul>
+
+  <h2>H.9 Limites connues à garder en tête</h2>
+  <ul>
+    <li>Le backend tourne avec <b>un seul processus</b> : le limiteur anti-abus est en mémoire. Il faudra passer à Redis avant de multiplier les instances.</li>
+    <li>Un redémarrage du backend remet à zéro les compteurs anti-abus en mémoire. Les verrouillages de compte, stockés en base, sont conservés.</li>
+  </ul>
+</div>
+
+<!-- ============================== I ============================== -->
+<div class="sec" style="--c: var(--cyan)">
+  <div class="sec-head"><div class="sec-letter">I</div><div class="sec-titles"><h1>SÉCURITÉ &amp; CONFORMITÉ</h1><p>Mesures en place, audit d'octobre 2026 et obligations légales</p></div></div>
+
+  <h2>1. Mesures en place</h2>
+  <table>
+    <thead><tr><th style="width:22%">Domaine</th><th>Mesure</th></tr></thead>
+    <tbody>
+      <tr><td>Authentification</td><td>Mots de passe bcrypt ; jeton d'accès de 15 min ; jeton de rafraîchissement de 30 j avec rotation et détection de réutilisation ; verrouillage après 5 échecs par IP et 10 échecs par compte (15 min).</td></tr>
+      <tr><td>Autorisation</td><td>Rôles vérifiés par l'API sur chaque route ; floutage et droits d'abonnement calculés côté serveur ; seul le super-admin agit sur les administrateurs.</td></tr>
+      <tr><td>Transport</td><td>HTTPS via aaPanel, HSTS ; jetons dans SecureStore sur mobile.</td></tr>
+      <tr><td>Navigateur</td><td>CSP stricte (aucun script externe ni inline), <code>X-Frame-Options DENY</code>, <code>nosniff</code>, <code>Referrer-Policy</code>, <code>Permissions-Policy</code>.</td></tr>
+      <tr><td>Fichiers</td><td>Contrôle du contenu réel (PDF, JPEG, PNG, WebP), 10 Mo maximum ; photos ré-encodées (métadonnées EXIF supprimées) ; pièces d'identité en stockage privé, consultables par l'admin dans un « bac à sable ».</td></tr>
+      <tr><td>Abus</td><td>Limites de débit sur la connexion, l'inscription, les codes SMS, le mot de passe oublié (3 par heure par adresse), le contact, les cookies et le retour de paiement.</td></tr>
+      <tr><td>Paiement</td><td>Page hébergée SATIM ; statut vérifié serveur à serveur ; activation idempotente ; montants fixés par le serveur ; mode fictif interdit en production.</td></tr>
+      <tr><td>Configuration</td><td>Refus de démarrer avec une configuration faible ; documentation de l'API masquée en production ; MongoDB non exposé et protégé par mot de passe.</td></tr>
+      <tr><td>Données personnelles</td><td>Export JSON ; suppression avec effacement des fichiers et anonymisation des traces partagées ; journal d'audit ; consentements horodatés.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>2. Audit de sécurité (octobre 2026)</h2>
+  <p>Revue complète du code, de la configuration et des dépendances. <b>15 points corrigés</b>, chacun couvert par un test automatisé. Les plus importants :
+    usurpation d'IP permettant de contourner les limites, attaque par force brute répartie sur plusieurs IP, démarrage possible en production avec une configuration
+    de développement (dont un paiement fictif), absence d'en-têtes de sécurité, droits excessifs des modérateurs sur les administrateurs, contrôle du type de fichier
+    fondé sur la déclaration du client, effacement incomplet des comptes. Détail complet : <code>docs/SECURITY_AUDIT.md</code>.</p>
+  <table>
+    <thead><tr><th style="width:40%">Risque résiduel accepté en V1</th><th>Plan</th></tr></thead>
+    <tbody>
+      <tr><td>Pas de double authentification pour les admins</td><td>V1.1 (TOTP) ; d'ici là, mots de passe forts et comptes nominatifs</td></tr>
+      <tr><td>Jetons du site web stockés dans le navigateur</td><td>Atténué par la CSP ; passage à un cookie <code>HttpOnly</code> envisagé</td></tr>
+      <tr><td>Pièces d'identité non chiffrées au niveau applicatif</td><td>Demander le chiffrement du disque à l'hébergeur ; chiffrement applicatif en V1.1</td></tr>
+      <tr><td>Outils de compilation (react-scripts) signalés par npm audit</td><td>Non livrés aux navigateurs ; migration vers Vite prévue</td></tr>
+    </tbody>
+  </table>
+
+  <h2>3. Loi n° 18-07 (protection des données personnelles)</h2>
+  <ul>
+    <li><b>Déclaration</b> du traitement auprès de l'ANPDP avant l'ouverture ; le registre des traitements est exportable depuis le back-office (super-admin).</li>
+    <li><b>Pages légales</b> à faire valider par un juriste algérien : mentions, CGU, CGV, confidentialité.</li>
+    <li><b>Droits des personnes</b> : export et suppression accessibles depuis « Mon compte » (site et app).</li>
+    <li><b>Mineurs</b> : consentement parental sous le seuil défini (<code>minor_age_threshold</code>) ; données pédagogiques minimales.</li>
+    <li><b>Conservation</b> : durées définies dans <code>data_retention_months</code>.</li>
+  </ul>
+
+  <h2>4. Procédure en cas d'incident</h2>
+  <ol style="--c: var(--cyan)">
+    <li><b>Isoler</b> : couper l'accès public (désactiver le reverse proxy dans aaPanel) sans éteindre les conteneurs, pour conserver les traces.</li>
+    <li><b>Conserver les preuves</b> : <code>docker compose logs &gt; incident-$(date +%F).log</code>, export du journal d'audit, sauvegarde de la base.</li>
+    <li><b>Changer les secrets</b> : <code>JWT_SECRET</code> (déconnecte tout le monde), <code>ADMIN_PASSWORD</code>, mots de passe MongoDB, SMTP, aaPanel, root ;
+      faire régénérer le mot de passe marchand SATIM par la banque et le ressaisir dans le back-office (« Moyen de paiement »).</li>
+    <li><b>Corriger</b>, tester, redéployer, puis rouvrir l'accès.</li>
+    <li><b>Informer</b> la direction ; en cas de fuite de données personnelles, évaluer avec le juriste les obligations de notification.</li>
+  </ol>
+</div>
+
+<!-- ============================== J ============================== -->
+<div class="sec" style="--c: var(--pink)">
+  <div class="sec-head"><div class="sec-letter">J</div><div class="sec-titles"><h1>APPLICATION MOBILE</h1><p>Configurer, compiler et publier l'application iOS / Android</p></div></div>
+
+  <h2>1. Principe</h2>
+  <p>L'application (dossier <code>mobile/</code>) utilise exactement la même API que le site : mêmes comptes, mêmes données, mêmes règles. Le back-office reste sur le web.
+    Identifiant : <code>dz.gofix.app</code> (Android et iOS). Schéma de lien profond : <code>gofix://</code> (retour de paiement).</p>
+
+  <h2>2. Configuration de production</h2>
+  <ul>
+    <li><code>EXPO_PUBLIC_API_URL=https://gofix-digital.dz</code> au moment de la compilation (HTTPS obligatoire).</li>
+    <li>Côté serveur : <code>MOBILE_APP_SCHEME=gofix</code>.</li>
+    <li>Incrémenter <code>version</code> dans <code>mobile/app.json</code> à chaque publication.</li>
+    <li>Une fois l'application publiée, coller ses liens dans le back-office → <i>Paramètres</i> → <code>app_store_url</code> et <code>play_store_url</code> :
+      l'accueil du site et la page <code>/app</code> redirigent alors vers les stores, sans redéploiement.</li>
+  </ul>
+
+  <h2>3. Compiler</h2>
+<pre>cd mobile
+npm install
+npx expo prebuild                                   <span class="c"># génère android/ et ios/ (jamais modifiés à la main)</span>
+EXPO_PUBLIC_API_URL=https://gofix-digital.dz npx expo run:android --variant release   <span class="c"># Android Studio requis</span>
+EXPO_PUBLIC_API_URL=https://gofix-digital.dz npx expo run:ios --configuration Release <span class="c"># Mac + Xcode requis</span>
+<span class="c"># Option cloud (facultative) : npx eas-cli@latest build --platform all</span></pre>
+
+  <h2>4. Publier sur les stores</h2>
+  <table>
+    <thead><tr><th style="width:20%">Store</th><th>Prérequis</th><th style="width:30%">Éléments à préparer</th></tr></thead>
+    <tbody>
+      <tr><td>Google Play</td><td>Compte développeur Google Play (frais uniques), fichier AAB signé ; conserver la clé de signature en lieu sûr</td><td rowspan="2">Icône, captures (téléphone), description FR/AR, URL de confidentialité <code>https://gofix-digital.dz/legal/privacy</code>, formulaire « sécurité des données », compte de test pour la revue</td></tr>
+      <tr><td>App Store</td><td>Apple Developer Program (abonnement annuel), Mac avec Xcode, fiche App Store Connect</td></tr>
+    </tbody>
+  </table>
+  <div class="note"><h4>Compte de test pour les revues</h4>
+    <p>Apple et Google demandent un compte pour tester l'application. Créer un compte dédié en production (pas un compte de démonstration du seed), puis le désactiver après validation.</p></div>
+
+  <h2>5. Notifications push et localisation</h2>
+  <ul>
+    <li><b>Notifications</b> : écran d'explication puis autorisation du téléphone (une seule fois, après la connexion) ; le jeton de l'appareil est enregistré
+      (<code>push_tokens</code>) et chaque notification du site (réponse, message, rendez-vous, abonnement) est aussi envoyée sur le téléphone. Toucher la
+      notification ouvre l'écran concerné. Configuration Firebase / Apple : Guide d'installation, E.3b.</li>
+    <li><b>Localisation</b> : facultative, approximative (position précise bloquée sur Android), demandée seulement quand l'utilisateur appuie sur
+      « Détecter ma wilaya » ou « Près de moi ». L'API renvoie la wilaya la plus proche et ne conserve pas la position.</li>
+    <li><b>Profil</b> : chaque compte peut modifier nom, e-mail, téléphone (à revérifier), wilaya, et ajouter une photo facultative (visible par l'interlocuteur dans la messagerie).</li>
+  </ul>
+
+  <h2>Visites guidées</h2>
+  <p>Site : <code>frontend/src/components/tour/</code> (définitions dans <code>tours.js</code>, cibles = <code>data-testid</code>). Application :
+    <code>mobile/src/components/tour.jsx</code> (<code>&lt;TourTarget id&gt;</code> autour des éléments, <code>useScreenTour()</code> dans l'écran). Textes :
+    <code>tour.*</code> dans <code>fr.lots2.js</code> / <code>ar.lots2.js</code>. Chaque visite se lance une fois (mémorisée dans <code>gofix_tours_done</code>) ;
+    les tests automatiques posent <code>gofix_tours_done = "all"</code> pour ne pas être bloqués par la bulle.</p>
+
+  <h2>6. Traductions</h2>
+  <p>Les textes viennent des dictionnaires du site. Après toute modification côté web : <code>npm run i18n:sync</code> dans <code>mobile/</code>. Les textes propres à l'app sont dans
+    <code>mobile/src/i18n/mobile.js</code>. Le passage à l'arabe redémarre l'app pour activer le RTL natif.</p>
+</div>
+
+<!-- ============================== K ============================== -->
+<div class="sec" style="--c: var(--orange)">
+  <div class="sec-head"><div class="sec-letter">K</div><div class="sec-titles"><h1>RÉFÉRENCE API</h1><p>Endpoints /api/v1 par module (détail des champs : /api/docs en développement)</p></div></div>
+  <table>
+    <thead><tr><th style="width:17%">Module</th><th>Endpoints</th><th style="width:16%">Accès</th></tr></thead>
+    <tbody>
+      <tr><td>Santé</td><td><code>GET /api/health</code></td><td>Public</td></tr>
+      <tr><td>Authentification <code>/auth</code></td><td>register, login, refresh, logout, me, otp/request, otp/verify, password/forgot, password/reset</td><td>Public / Bearer</td></tr>
+      <tr><td>Compte <code>/users/me</code></td><td>PATCH profil (nom, e-mail, téléphone, wilaya, préférences), POST/DELETE photo, POST push-tokens (+ /remove), POST roles, PUT mode, GET export, DELETE (mot de passe requis)</td><td>Bearer</td></tr>
+      <tr><td>Référentiels</td><td>geo/wilayas, geo/wilayas/{code}/communes, geo/locate (wilaya la plus proche d'une position, non conservée), taxonomy/families · categories · roles · specialties, academy/subjects · levels</td><td>Public</td></tr>
+      <tr><td>Catalogue</td><td>catalog/professionals, catalog/teachers, catalog/…/{id}, files/public/{clé}</td><td>Public (floutage selon l'offre)</td></tr>
+      <tr><td>AI MATCH <code>/match</code></td><td>POST parse, POST recommend, POST feedback, GET explanations/{id}</td><td>Public / Bearer</td></tr>
+      <tr><td>Trust <code>/trust</code></td><td>GET profiles/{kind}/{id}, POST appeals, POST events/…, POST recompute/… (admin)</td><td>Public / Bearer / Admin</td></tr>
+      <tr><td>Inscription pro <code>/onboarding</code></td><td>status, draft (GET/PUT/DELETE), photo, cover, documents, category-requests, submit</td><td>Bearer</td></tr>
+      <tr><td>Espace pro <code>/provider</code></td><td>me, profile, media/{photo|cover}, documents, trust/contest</td><td>Bearer (pro / prof)</td></tr>
+      <tr><td>Demandes</td><td>POST requests, requests/mine, requests/{id}/close, requests/inbox, requests/{id}/respond, POST reports</td><td>Bearer</td></tr>
+      <tr><td>Rendez-vous <code>/jobs</code></td><td>POST, GET, GET {id}, confirm, cancel, complete, dispute, review</td><td>Bearer</td></tr>
+      <tr><td>Social</td><td>favorites, conversations (+ messages, unread-count), notifications (+ read-all)</td><td>Bearer</td></tr>
+      <tr><td>Paiement <code>/billing</code></td><td>plans, me, orders, orders/{n}, orders/{n}/confirm, callback/{provider}, invoices/{n}, invoices/{n}/pdf</td><td>Bearer / SATIM</td></tr>
+      <tr><td>Public</td><td>config, consents/cookies, contact, faq ; chatbot/ask, chatbot/faq/{id}, chatbot/handoff</td><td>Public</td></tr>
+      <tr><td>Admin <code>/admin</code></td><td>stats, dashboard, users (+ status, admin-role), feature-flags, settings, audit-logs, processing-register, faq, chatbot/unanswered, plans, unlock-matrix, reports, tickets, trust/contests, category-requests, profiles (+ documents, verification), taxonomy/{kind}, disputes, payments, matching/stats, match-results</td><td>Admin (selon rôle)</td></tr>
+    </tbody>
+  </table>
+  <div class="note"><h4>Conventions</h4>
+    <ul>
+      <li>Authentification : en-tête <code>Authorization: Bearer &lt;access_token&gt;</code>.</li>
+      <li>Erreurs : <code>{"detail": "code"}</code> (ex. <code>invalid_credentials</code>, <code>too_many_attempts</code>, <code>account_suspended</code>, <code>rate_limited</code>).</li>
+      <li>Dates en UTC (ISO 8601) ; les interfaces les affichent à l'heure d'Alger.</li>
+      <li>Toute réponse porte un en-tête <code>X-Request-ID</code>, utile pour retrouver une requête dans les logs.</li>
+    </ul></div>
+</div>
+
+<!-- ============================== L ============================== -->
+<div class="sec" style="--c: var(--purple)">
+  <div class="sec-head"><div class="sec-letter">L</div><div class="sec-titles"><h1>DÉPANNAGE</h1><p>Symptômes fréquents, causes probables et solutions</p></div></div>
+  <table>
+    <thead><tr><th style="width:27%">Symptôme</th><th style="width:30%">Cause probable</th><th>Solution</th></tr></thead>
+    <tbody>
+      <tr><td>« 502 Bad Gateway » sur le site</td><td>Stack GoFix arrêtée ou mauvais port dans aaPanel</td><td><code>docker compose ps</code> ; <code>curl http://127.0.0.1:8080/api/health</code> ; vérifier la cible <code>http://127.0.0.1:8080</code></td></tr>
+      <tr><td>Le backend redémarre en boucle</td><td>Configuration de production refusée</td><td><code>docker compose logs backend</code> → corriger les valeurs citées dans le <code>.env</code></td></tr>
+      <tr><td>MongoDB s'arrête avec « Illegal instruction »</td><td>Processeur virtuel sans AVX</td><td>Voir F.3 (CPU « host » ou image <code>mongo:4.4</code>)</td></tr>
+      <tr><td>MongoDB « Authentication failed »</td><td>Identifiants ajoutés sur un volume déjà initialisé</td><td>Les variables <code>MONGO_ROOT_*</code> ne s'appliquent qu'au premier démarrage : créer l'utilisateur manuellement ou repartir d'un volume neuf restauré depuis une sauvegarde</td></tr>
+      <tr><td>Aucun e-mail reçu</td><td><code>EMAIL_PROVIDER=console</code>, mauvais port ou identifiants SMTP</td><td>Logs « email » du backend ; port 465 (SSL) ou 587 (STARTTLS) ; dossier spam ; abonnement Admail actif</td></tr>
+      <tr><td>« Paiement momentanément indisponible »</td><td>SATIM non choisi ou incomplet (mode simulé interdit en production)</td><td>Back-office → <i>Moyen de paiement</i> : choisir SATIM, compléter, enregistrer, tester</td></tr>
+      <tr><td>Paiement : « service de paiement injoignable » (502)</td><td>URL SATIM erronée, identifiants refusés ou serveur sans accès réseau</td><td>« Tester la connexion » dans <i>Moyen de paiement</i> ; logs <code>satim_call</code> du backend</td></tr>
+      <tr><td>« Mot de passe enregistré illisible » dans <i>Moyen de paiement</i></td><td><code>CONFIG_ENCRYPTION_KEY</code> ou <code>JWT_SECRET</code> modifié</td><td>Ressaisir le mot de passe SATIM et enregistrer</td></tr>
+      <tr><td>Tout le monde est bloqué « Trop de tentatives »</td><td>IP réelle non transmise par aaPanel</td><td>Ajouter <code>X-Forwarded-For</code> dans la configuration du site (F.7)</td></tr>
+      <tr><td>Un utilisateur est bloqué à la connexion</td><td>5 échecs depuis son IP ou 10 échecs sur son compte</td><td>Attendre 15 min, ou utiliser « Mot de passe oublié »</td></tr>
+      <tr><td>Envoi de photo refusé (413)</td><td>Taille maximale trop basse dans aaPanel</td><td><code>client_max_body_size 10m;</code> dans la configuration du site</td></tr>
+      <tr><td>Envoi de pièce refusé (415)</td><td>Fichier qui n'est pas un vrai PDF ou une vraie image</td><td>Exporter de nouveau le document en PDF, JPEG ou PNG</td></tr>
+      <tr><td>Page blanche après une mise à jour</td><td>Ancienne version en cache (PWA)</td><td>Rechargement forcé ; vérifier la console du navigateur (erreur CSP éventuelle)</td></tr>
+      <tr><td>La compilation du site échoue (mémoire)</td><td>RAM insuffisante</td><td>Ajouter de la mémoire d'échange (F.3)</td></tr>
+      <tr><td>Mot de passe admin perdu</td><td>—</td><td>Modifier <code>ADMIN_PASSWORD</code> dans le <code>.env</code>, puis <code>docker compose up -d backend</code></td></tr>
+      <tr><td>Disque plein</td><td>Images Docker et sauvegardes</td><td><code>docker image prune -f</code> ; déplacer les anciennes sauvegardes hors du serveur</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ============================== M ============================== -->
+<div class="sec" style="--c: var(--cyan)">
+  <div class="sec-head"><div class="sec-letter">M</div><div class="sec-titles"><h1>FEUILLE DE ROUTE &amp; AIDE-MÉMOIRE</h1><p>Prochaines étapes produit et techniques, commandes utiles</p></div></div>
+
+  <h2>1. Modules « à venir » (ordre du cahier des charges)</h2>
+  <table>
+    <thead><tr><th style="width:22%">Phase</th><th>Contenu</th><th style="width:30%">Pré-requis déjà en place</th></tr></thead>
+    <tbody>
+      <tr><td>Phase 2 – Acquisition</td><td>VOICE™ + VISION™</td><td>Schéma d'intention AI MATCH, flags, stockage des médias</td></tr>
+      <tr><td>Phase 3 – Éducation</td><td>EDU AI™</td><td>Taxonomie scolaire administrable, Trust des professeurs</td></tr>
+      <tr><td>Phase 4 – Monétisation pro</td><td>PRO AI™ + PASSPORT™</td><td>Abonnements contrôlés côté serveur, champs <code>ai{}</code> et <code>passport{}</code></td></tr>
+    </tbody>
+  </table>
+
+  <h2>2. Améliorations techniques recommandées</h2>
+  <table>
+    <thead><tr><th style="width:9%">Priorité</th><th>Action</th><th style="width:36%">Bénéfice</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>Dépôt Git privé + intégration continue (tests à chaque modification)</td><td>Historique, retour arrière, aucune régression</td></tr>
+      <tr><td>2</td><td>Double authentification (TOTP) pour les administrateurs</td><td>Exigence du cahier des charges (MFA admin)</td></tr>
+      <tr><td>3</td><td>Surveillance externe de <code>/api/health</code> avec alertes</td><td>Détection immédiate des pannes</td></tr>
+      <tr><td>4</td><td>Chiffrement des pièces d'identité au repos</td><td>Protection des données sensibles</td></tr>
+      <tr><td>5</td><td>Migration de Create React App vers Vite</td><td>Compilation plus rapide, dépendances à jour</td></tr>
+      <tr><td>6</td><td>Limiteur de débit sur Redis, stockage objet (MinIO)</td><td>Montée en charge sur plusieurs instances</td></tr>
+      <tr><td>7</td><td>Liste complète des 1 541 communes (<code>backend/app/data/communes.json</code>)</td><td>Zones d'intervention plus précises</td></tr>
+    </tbody>
+  </table>
+
+  <h2>3. Aide-mémoire</h2>
+<pre><span class="c"># État et journaux</span>
+docker compose ps
+docker compose logs -f backend
+curl -s http://127.0.0.1:8080/api/health
+<span class="c"># Redémarrer / mettre à jour</span>
+docker compose up -d                      <span class="c"># après modification du .env</span>
+docker compose up -d --build              <span class="c"># après mise à jour du code</span>
+docker compose restart nginx              <span class="c"># après modification de deploy/nginx/conf.d</span>
+<span class="c"># Données</span>
+docker compose exec backend python -m app.seed --reference-only
+./scripts/backup_mongo.sh
+./scripts/restore_mongo.sh backups/&lt;fichier&gt;
+<span class="c"># Tests (poste de développement)</span>
+docker compose --profile test run --rm tests
+<span class="c"># Régénérer ce dossier en PDF</span>
+python scripts/build_docs.py</pre>
+
+  <div class="note ok"><h4>Décision recommandée</h4>
+    <p>Mettre en ligne la V1 sur gofix-digital.dz en suivant la section F, avec les paiements en environnement de test SATIM tant que la certification n'est pas obtenue.
+      Activer ensuite les paiements réels, publier l'application mobile, puis lancer la phase 2 (VOICE™ et VISION™) sur la base des retours des premiers utilisateurs.</p></div>
+  <p class="end">Fin du document — GOFIX DIGITAL</p>
+</div>
+
+</body>
+</html>

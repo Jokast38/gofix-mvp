@@ -89,6 +89,7 @@ const lots2 = {
     smtp_incomplete: "Renseignez le serveur SMTP, l'adresse d'expédition et le mot de passe si un identifiant est saisi.",
     smtp_not_selected: "Sélectionnez et enregistrez d'abord l'envoi SMTP.", invalid_host: "Nom de serveur invalide (ex. smtp.exemple.dz, sans http://).",
   },
+  nav: { menu: "Menu", closeMenu: "Fermer le menu", explore: "Explorer", mySpace: "Mon espace", account: "Mon compte", admin: "Administration" },
   promo: {
     sponsored: "Sponsorisé", bannerN: "Bannière {n} sur {total}", followUs: "Suivez GoFix",
     social: { facebook: "Facebook", instagram: "Instagram", tiktok: "TikTok", youtube: "YouTube", linkedin: "LinkedIn", x: "X (Twitter)" },

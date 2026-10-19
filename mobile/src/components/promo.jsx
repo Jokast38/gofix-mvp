@@ -5,14 +5,14 @@ import { Linking, Pressable, ScrollView, View } from "react-native";
 import { router } from "expo-router";
 import { Image } from "expo-image";
 import { useQuery } from "@tanstack/react-query";
-import Svg, { Circle, Path, Rect } from "react-native-svg";
+import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import { BadgeCheck, Crown, MapPin, Medal, Play, Star, Trophy } from "lucide-react-native";
 import { API_ORIGIN, fileUrl } from "@/api/client";
 import { promoService } from "@/api/services";
 import { useConfig } from "@/hooks/auth";
 import { useI18n, useLocalized } from "@/i18n";
 import { alpha, BRAND, neonFor, useTheme } from "@/theme";
-import { Avatar, Row, Section, Txt } from "@/ui";
+import { Avatar, Row, Section, Txt, useToast } from "@/ui";
 
 const SOCIAL_KEYS = ["facebook", "instagram", "tiktok", "youtube", "linkedin", "x"];
 const ROTATE_MS = 7000;
@@ -22,42 +22,38 @@ export function youtubeId(url = "") {
   return m ? m[1] : null;
 }
 
-// ---------- Brand marks (simplified, drawn here: the icon set has no brand logos) ----------
-export function BrandMark({ name, size = 20, fg }) {
+// ---------- Brand marks: official logos (Font Awesome 6 Brands, bundled with Expo) ----------
+const MARKS = { facebook: ["facebook", "#1877F2"], instagram: ["instagram", "#E1306C"], tiktok: ["tiktok", null],
+  youtube: ["youtube", "#FF0000"], linkedin: ["linkedin", "#0A66C2"], x: ["x-twitter", null] };
+
+export function BrandMark({ name, size = 20 }) {
   const { c } = useTheme();
-  const white = "#FFFFFF";
-  const marks = {
-    facebook: <><Circle cx="12" cy="12" r="10" fill="#1877F2" />
-      <Path d="M13.2 21v-7h2.3l.4-2.8h-2.7V9.5c0-.8.3-1.4 1.4-1.4H16V5.6c-.3 0-1.1-.1-2.1-.1-2.1 0-3.5 1.3-3.5 3.6v2.1H8V14h2.4v7z" fill={white} /></>,
-    instagram: <><Rect x="3" y="3" width="18" height="18" rx="5.5" fill="none" stroke="#E1306C" strokeWidth="2" />
-      <Circle cx="12" cy="12" r="4.2" fill="none" stroke="#E1306C" strokeWidth="2" /><Circle cx="17.3" cy="6.7" r="1.2" fill="#E1306C" /></>,
-    tiktok: <Path d="M14.5 3v11.4a3.4 3.4 0 1 1-2.9-3.4M14.5 3c.4 2.5 2.1 4.2 4.7 4.4" fill="none" stroke="#25F4EE" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />,
-    youtube: <><Rect x="2" y="5" width="20" height="14" rx="4.5" fill="#FF0000" /><Path d="M10 9.2v5.6l4.8-2.8z" fill={white} /></>,
-    linkedin: <><Rect x="2.5" y="2.5" width="19" height="19" rx="3.5" fill="#0A66C2" /><Rect x="6.3" y="10" width="2.4" height="7.6" fill={white} />
-      <Circle cx="7.5" cy="7.1" r="1.4" fill={white} />
-      <Path d="M10.9 10h2.3v1.1c.4-.7 1.3-1.3 2.5-1.3 2.1 0 2.6 1.3 2.6 3.2v4.6H16v-4.1c0-1-.2-1.7-1.2-1.7s-1.5.7-1.5 1.7v4.1h-2.4z" fill={white} /></>,
-    x: <Path d="M4 4l6.6 8.8L4.3 20h1.8l5.4-6.1 4.5 6.1H20l-6.9-9.3L19 4h-1.8l-5 5.6L8.1 4z" fill={fg || c.text} />,
-  };
-  return <Svg width={size} height={size} viewBox="0 0 24 24">{marks[name]}</Svg>;
+  const [icon, color] = MARKS[name];
+  return <FontAwesome6 brand name={icon} size={size} color={color || c.text} />;
 }
 
-/** GoFix social networks (Admin → Communication). Nothing while no link is set. */
+/** GoFix social networks (Admin → Communication). All six logos are shown; one without a link yet is greyed out ("Bientôt"). */
 export function SocialLinks({ style }) {
   const { t } = useI18n();
   const { c } = useTheme();
+  const toast = useToast();
   const { settings = {} } = useConfig();
-  const links = SOCIAL_KEYS.map((k) => ({ k, url: settings[`social_${k}_url`] })).filter((l) => l.url);
-  if (!links.length) return null;
   return (
     <Section title={t("promo.followUs")} style={style}>
       <Row gap={8} wrap>
-        {links.map(({ k, url }) => (
-          <Pressable key={k} onPress={() => Linking.openURL(url)} accessibilityRole="link" accessibilityLabel={t(`promo.social.${k}`)} testID={`social-${k}`}
-            style={({ pressed }) => [{ width: 44, height: 44, borderRadius: 22, borderWidth: 1, borderColor: c.border, backgroundColor: c.card,
-              alignItems: "center", justifyContent: "center" }, pressed && { opacity: 0.7 }]}>
-            <BrandMark name={k} size={20} />
-          </Pressable>
-        ))}
+        {SOCIAL_KEYS.map((k) => {
+          const url = settings[`social_${k}_url`];
+          const label = t(`promo.social.${k}`);
+          return (
+            <Pressable key={k} onPress={() => (url ? Linking.openURL(url) : toast(`${label} – ${t("upcoming.soon")}`))}
+              accessibilityRole={url ? "link" : "button"} accessibilityLabel={url ? label : `${label} – ${t("upcoming.soon")}`}
+              accessibilityState={{ disabled: !url }} testID={url ? `social-${k}` : `social-${k}-soon`}
+              style={({ pressed }) => [{ width: 44, height: 44, borderRadius: 22, borderWidth: 1, borderColor: c.border, backgroundColor: c.card,
+                alignItems: "center", justifyContent: "center", opacity: url ? 1 : 0.6 }, pressed && { opacity: 0.6 }]}>
+              <BrandMark name={k} size={20} />
+            </Pressable>
+          );
+        })}
       </Row>
     </Section>
   );

@@ -24,13 +24,14 @@ export function LanguageFlags() {
   );
 }
 
+// Phones: the theme toggle moves into the side menu (Header) (header too narrow); the language flags always stay visible.
 export function PrefsSwitch() {
   const { t } = useI18n();
   const { theme, toggle } = useTheme();
   return (
     <div className="flex items-center gap-1">
       <LanguageFlags />
-      <button type="button" onClick={toggle} className={ui.btnGhost}
+      <button type="button" onClick={toggle} className={`${ui.btnGhost} hidden sm:inline-flex`}
         aria-label={theme === "dark" ? t("prefs.light") : t("prefs.dark")} data-testid="theme-toggle-button">
         {theme === "dark" ? <Sun size={20} strokeWidth={1.5} /> : <Moon size={20} strokeWidth={1.5} />}
       </button>

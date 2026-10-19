@@ -79,6 +79,7 @@ const lots2 = {
     smtp_not_selected: "اختر الإرسال عبر SMTP واحفظ أولًا.", invalid_host: "اسم خادم غير صالح (مثال smtp.exemple.dz دون http://).",
   },
   admin: { tabs: { disputes: "النزاعات", gateway: "وسيلة الدفع", mail: "البريد الإلكتروني", communication: "التواصل", banners: "اللافتات الإعلانية", company: "الشركة والبيانات القانونية", reports: "البلاغات", trust: "الاعتراضات", tickets: "التذاكر", faq: "أسئلة المساعد", plans: "العروض والمصفوفة", payments: "المدفوعات" } },
+  nav: { menu: "القائمة", closeMenu: "إغلاق القائمة", explore: "استكشف", mySpace: "فضائي", account: "حسابي", admin: "الإدارة" },
   promo: {
     sponsored: "إعلان", bannerN: "اللافتة {n} من {total}", followUs: "تابعوا GoFix",
     social: { facebook: "فيسبوك", instagram: "إنستغرام", tiktok: "تيك توك", youtube: "يوتيوب", linkedin: "لينكدإن", x: "إكس (تويتر)" },

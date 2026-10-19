@@ -267,3 +267,39 @@ TEACHERS = [
     ("Nawel Ziani", [("philosophy", ["secondary"])], ["online"], 16),
     ("Farid Slimani", [("computer_science", ["secondary", "university", "competitive"])], ["online", "center"], 31),
 ]
+
+
+# --- Demo catalogue: at least N pros in every category (seed_more_pros) -------------------------------------------
+MORE_PROS_PER_CATEGORY = 3
+MORE_PROS_HOME = 4  # categories shown on the home page get one more
+MORE_FIRST = ["Abdelkader", "Ahmed", "Aicha", "Akram", "Amel", "Anis", "Asma", "Ayoub", "Billel", "Chahinez", "Chakib", "Dalila",
+              "Djamila", "Farid", "Fayçal", "Feriel", "Hamza", "Hania", "Houria", "Ilyes", "Islam", "Kamel", "Katia", "Khaled",
+              "Lyes", "Malika", "Manel", "Mohamed", "Mounir", "Nassima", "Nazim", "Nesrine", "Rafik", "Rania", "Redouane", "Ryma",
+              "Salim", "Selma", "Sihem", "Tarek", "Wassila", "Yacine", "Yasmina", "Younes", "Zakaria", "Zineb"]
+MORE_LAST = ["Abdellaoui", "Aissaoui", "Allouache", "Amara", "Bekkouche", "Belhadj", "Benamara", "Bendjedid", "Benyahia", "Bouaziz",
+             "Boukhalfa", "Boumediene", "Brahimi", "Chaouch", "Dahmani", "Djebbar", "Ghezali", "Guendouz", "Hadjadj", "Hamadi",
+             "Kaddour", "Khaldi", "Laribi", "Lounici", "Mahdi", "Mansour", "Medjahed", "Messaoudi", "Nouri", "Rezig", "Saadi",
+             "Sahraoui", "Slimani", "Tebboune", "Yahiaoui", "Zerrouki", "Zitouni"]
+MORE_WILAYAS = [16, 31, 25, 9, 19, 6, 15, 23, 35, 42, 5, 13, 26, 10, 30, 34, 2, 7, 22, 29, 39, 47, 18, 21]
+FAMILY_PITCH = {
+    "home_services": ["Intervention rapide à domicile, devis gratuit.", "Disponible 7j/7 pour les urgences.", "Travail propre, matériel fourni."],
+    "building": ["Chantiers neufs et rénovation, finitions soignées.", "Devis détaillé sous 24 h.", "Plus de 50 chantiers livrés dans la région."],
+    "auto_moto": ["Diagnostic précis et pièces de qualité.", "Intervention possible à domicile.", "Prix transparents, garantie sur la main-d'œuvre."],
+    "beauty": ["Produits professionnels, à domicile ou en salon.", "Mariages, fêtes et occasions spéciales.", "Conseils personnalisés et hygiène irréprochable."],
+    "tech": ["Dépannage sur place ou à distance.", "Réparation rapide, pièces garanties.", "Accompagnement des particuliers et des petites entreprises."],
+    "food": ["Fait maison avec des produits frais.", "Commandes pour fêtes et événements.", "Livraison possible dans la wilaya."],
+    "transport": ["Ponctuel et soigneux, véhicule assuré.", "Disponible en semaine comme le week-end.", "Tarifs clairs selon la distance."],
+    "academy": ["Méthode adaptée au rythme de chacun.", "Séances en ligne ou en présentiel.", "Suivi des progrès et exercices entre les séances."],
+    "wellness": ["Programme personnalisé selon vos objectifs.", "Séances à domicile ou en extérieur.", "Diplômé et expérimenté."],
+    "events": ["Mariages, fiançailles et événements d'entreprise.", "Matériel professionnel, rendu rapide.", "Organisation de A à Z."],
+}
+
+# --- Sponsored banners: examples shown until real advertisers are added in the back-office -------------------------------------
+DEMO_BANNERS = [
+    {"title": "Votre marque ici – annoncez sur GoFix", "advertiser": "GoFix Publicité (exemple)", "link_url": "/contact",
+     "alt": "Exemple de bannière : annoncez votre marque auprès des clients et des professionnels GoFix", "placements": ["home", "search"],
+     "order": 0, "lines": ("VOTRE MARQUE ICI", "Des milliers de clients et de pros, 58 wilayas", "Annoncez sur GoFix  ›")},
+    {"title": "Atlas Outillage – -15 % pour les pros GoFix", "advertiser": "Atlas Outillage (marque fictive, exemple)", "link_url": "/contact",
+     "alt": "Exemple de bannière d'une marque partenaire fictive : remise sur l'outillage", "placements": ["home"],
+     "order": 1, "lines": ("ATLAS OUTILLAGE", "-15 % pour les pros GoFix", "Exemple de partenariat  ›")},
+]

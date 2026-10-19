@@ -10,6 +10,9 @@ import { useI18n } from "@/i18n";
 import { marketplaceService } from "@/services/marketplaceService";
 import { ui } from "@/lib/ui";
 import { UpcomingSection } from "@/components/home/Upcoming";
+import { BannerSlot } from "@/components/promo/BannerSlot";
+import { GoFixSeries } from "@/components/promo/GoFixSeries";
+import { Highlights } from "@/components/promo/Highlights";
 
 function Section({ icon: Icon, color, title, seeAllTo, children, testId }) {
   const { t } = useI18n();
@@ -70,6 +73,8 @@ export default function AppHome() {
         <TileGrid section="services" to={(c) => `/search?category_key=${c.key}`} moreTo="/search" />
       </Section>
 
+      <BannerSlot placement="home" className="mt-7" />
+
       <Section icon={GraduationCap} color="var(--brand-electric)" title={t("appHome.academy")} seeAllTo="/academy" testId="app-home-academy">
         <TileGrid section="academy" to={(c) => (c.key === "private_tutoring" ? "/academy" : `/search?category_key=${c.key}`)} />
       </Section>
@@ -82,6 +87,8 @@ export default function AppHome() {
           <span className="block text-xs text-muted-foreground">{isProvider ? t("appHome.myActivityText") : t("appHome.talentText")}</span>
         </span>
       </Link>
+      <Highlights className="mt-8" />
+      <GoFixSeries className="mt-8" />
       <UpcomingSection />
     </div>
   );

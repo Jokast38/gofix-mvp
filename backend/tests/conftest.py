@@ -67,6 +67,9 @@ class Api:
     def patch(self, url, **kw):
         return self._req("PATCH", url, **kw)
 
+    def delete(self, url, **kw):
+        return self._req("DELETE", url, **kw)
+
 
 def login(email: str, password: str = DEMO_PASSWORD) -> Api:
     r = Api().post("/auth/login", json={"identifier": email, "password": password})

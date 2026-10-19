@@ -13,6 +13,7 @@ import { useWilayas } from "@/hooks/usePublic";
 import { useI18n, useLocalized } from "@/i18n";
 import { marketplaceService } from "@/services/marketplaceService";
 import { ui } from "@/lib/ui";
+import { BannerSlot } from "@/components/promo/BannerSlot";
 
 export function Filters({ params, set, extra }) {
   const { t } = useI18n();
@@ -126,6 +127,7 @@ export default function Search() {
           {(cats.data || []).map((c) => <option key={c.key} value={c.key}>{loc(c)}</option>)}
         </select>
       } />
+      <BannerSlot placement="search" className="mt-4" />
       {params.q && <div className="mt-4"><SmartMatch text={params.q} onIntent={onIntent} /></div>}
       {params.q && understood && <h2 className="mt-6 text-base font-extrabold" data-testid="all-results">{t("match.allResults")}</h2>}
       {data?.blurred && <div className="mt-4"><BlurNotice loggedIn={Boolean(user)} /></div>}

@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import { Skeleton } from "@/components/ui/skeleton";
 import { adminService } from "@/services/publicService";
 import { COMPANY_KEYS } from "./AdminCompany";
+import { COMMUNICATION_KEYS } from "./AdminCommunication";
 import { useI18n } from "@/i18n";
 import { errorCode } from "@/lib/format";
 import { ui } from "@/lib/ui";
@@ -64,7 +65,7 @@ export function AdminSettings({ canEdit }) {
   return (
     <div>
       <p className="text-sm text-muted-foreground mb-4">{t("admin.settings.hint")}</p>
-      <ul className="grid gap-3 md:grid-cols-2">{data.filter((s) => !COMPANY_KEYS.includes(s.key)).map((s) => <SettingRow key={s.key} s={s} canEdit={canEdit} />)}</ul>
+      <ul className="grid gap-3 md:grid-cols-2">{data.filter((s) => !COMPANY_KEYS.includes(s.key) && !COMMUNICATION_KEYS.includes(s.key)).map((s) => <SettingRow key={s.key} s={s} canEdit={canEdit} />)}</ul>
     </div>
   );
 }

@@ -4,7 +4,8 @@ set -e
 # /tmp is empty at run time on Render (the build-time folders are not kept): create Nginx's work folders here.
 mkdir -p /tmp/nginx/body /tmp/nginx/proxy /tmp/nginx/fastcgi /tmp/nginx/uwsgi /tmp/nginx/scgi
 envsubst '${PORT}' < /srv/render/nginx.conf.template > /tmp/nginx/nginx.conf
-python -m app.seed --if-empty || echo "seed failed: the API starts anyway"
+# Demo data (first start) or demo upgrade (new version): in the background, so the site answers at once.
+(python -m app.seed --if-empty || echo "seed failed: the API runs anyway") &
 uvicorn server:app --host 127.0.0.1 --port 8001 --proxy-headers --forwarded-allow-ips 127.0.0.1 &
 API_PID=$!
 nginx -c /tmp/nginx/nginx.conf -g 'daemon off;' &

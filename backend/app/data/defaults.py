@@ -65,6 +65,18 @@ DEFAULT_SETTINGS = [
     {"key": "job_auto_complete_hours", "value": 72, "public": False, "description": "RDV marqué terminé par le pro : validé automatiquement après N heures sans litige"},
     {"key": "job_dispute_window_days", "value": 7, "public": True, "description": "Délai pour ouvrir un litige après la fin d'une prestation (jours)"},
     {"key": "job_late_cancel_hours", "value": 24, "public": True, "description": "Annulation tardive (pénalise la fiabilité du pro) : moins de N heures avant le RDV"},
+    # Communication: social networks and the "Série GoFix" YouTube channel (empty = hidden on the web and in the app)
+    {"key": "social_facebook_url", "value": "", "public": True, "description": "Page Facebook"},
+    {"key": "social_instagram_url", "value": "", "public": True, "description": "Compte Instagram"},
+    {"key": "social_tiktok_url", "value": "", "public": True, "description": "Compte TikTok"},
+    {"key": "social_youtube_url", "value": "", "public": True, "description": "Chaîne YouTube (Série GoFix)"},
+    {"key": "social_linkedin_url", "value": "", "public": True, "description": "Page LinkedIn"},
+    {"key": "social_x_url", "value": "", "public": True, "description": "Compte X (Twitter)"},
+    {"key": "youtube_videos", "value": [], "public": True, "description": "Série GoFix : vidéos mises en avant [{url, title}] (12 max)"},
+    # Fixeur du mois
+    {"key": "fixer_of_month_email", "value": "", "public": False, "description": "Fixeur du mois choisi à la main (e-mail du pro ; vide = calcul automatique)"},
+    {"key": "highlights_show_identity", "value": True, "public": False,
+     "description": "Fixeur du mois / meilleurs pros : afficher nom et photo à tous les visiteurs (les coordonnées restent protégées)"},
     {"key": "data_retention_months","value": {"inactive_account": 36, "audit_logs": 12, "messages": 24, "payment_records": 120},
      "public": True, "description": "Durées de conservation"},
 ]

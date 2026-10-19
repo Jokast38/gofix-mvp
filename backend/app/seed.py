@@ -269,8 +269,8 @@ async def _history_job(rnd, client, profile, kind, *, days_ago, outcome, subject
 
 async def seed_history():
     """Realistic reputation for demo profiles: completed jobs/lessons with verified reviews (idempotent)."""
-    if await db.jobs.count_documents({"seed": True}):
-        return
+    seeded = set(await db.jobs.distinct("profile_id", {"seed": True}))
+    first_run = not seeded
     rnd = random.Random(2026)
     first = ["Yasmine", "Rachid", "Kenza", "Samir", "Lina", "Walid", "Meriem", "Hakim", "Sonia", "Bilal", "Nour", "Adel"]
     last = ["Bensaid", "Kaci", "Mebarki", "Ouali", "Haddad", "Ziane", "Belaid", "Toumi", "Saidi", "Amrani", "Cherif", "Lounis"]
@@ -280,6 +280,8 @@ async def seed_history():
         clients.append(await db.users.find_one({"_id": cid}))
     for kind, coll in (("professional", db.professional_profiles), ("teacher", db.teacher_profiles)):
         async for p in coll.find({"verification_status": {"$in": ["verified", "unverified"]}}):
+            if p["_id"] in seeded:
+                continue
             n = rnd.randint(3, 9) if p["verification_status"] == "verified" else rnd.randint(0, 2)
             subjects = [s["subject_key"] for s in p.get("subjects") or []]
             for k in range(n):
@@ -288,6 +290,8 @@ async def seed_history():
             if rnd.random() < 0.25:
                 await _history_job(rnd, rnd.choice(clients), p, kind, days_ago=rnd.randint(10, 200), outcome="cancelled",
                                    subject=subjects[0] if subjects else None)
+    if not first_run:
+        return
     # Showcase: client@ <-> pro@ already talk (seed_demo_activity): one past job to rate + one upcoming appointment.
     client = await db.users.find_one({"email": "client@gofix.dz"})
     pro_user = await db.users.find_one({"email": "pro@gofix.dz"})
@@ -305,6 +309,87 @@ async def seed_history():
         await db.jobs.insert_one(base | {"scheduled_at": tomorrow, "status": "scheduled", "confirmed_at": now, "note": "Contrôle du chauffe-eau",
                                          "history": [{"status": "proposed", "by": "provider", "reason": "", "at": now},
                                                      {"status": "scheduled", "by": "client", "reason": "", "at": now}]})
+
+
+async def seed_more_pros():
+    """Demo catalogue: every category (except private tutoring, covered by teachers) gets several pros, with varied
+    names, wilayas and pitches. Idempotent: only the missing ones are created (pro21@demo.gofix.dz, pro22@...)."""
+    rnd = random.Random(5150)
+    cats = [c async for c in db.taxonomy_categories.find({"active": True, "key": {"$ne": "private_tutoring"}}).sort("order", 1)]
+    roles = {r[0]: r[3] for r in S.ROLES}
+    n = 21
+    for cat in cats:
+        target = S.MORE_PROS_HOME if cat.get("home_section") else S.MORE_PROS_PER_CATEGORY
+        have = await db.professional_profiles.count_documents({"category_key": cat["key"]})
+        fam = cat["family_key"]
+        allowed = [k for k, fams in roles.items() if fam in fams] or ["independent"]
+        specialties = [x["key"] async for x in db.taxonomy_specialties.find({"category_key": cat["key"]})]
+        while have < target:
+            email = f"pro{n:02d}@demo.gofix.dz"
+            name = f"{rnd.choice(S.MORE_FIRST)} {rnd.choice(S.MORE_LAST)}"
+            uid = await ensure_user(email, name, _phone(400 + n), ["client", "professional"], "professional")
+            if await db.professional_profiles.find_one({"user_id": uid}):
+                n += 1
+                continue
+            pitch = rnd.sample(S.FAMILY_PITCH.get(fam, S.FAMILY_PITCH["home_services"]), 2)
+            role = "private_teacher" if fam == "academy" else rnd.choice(allowed)
+            await upsert("professional_profiles", {"user_id": uid}, {
+                "user_id": uid, "display_name": (await db.users.find_one({"_id": uid}))["full_name"], "family_key": fam,
+                "category_key": cat["key"], "role_key": role, "specialty_keys": rnd.sample(specialties, min(len(specialties), rnd.randint(1, 2))),
+                "zones": [{"wilaya_code": rnd.choice(S.MORE_WILAYAS), "commune_names": [], "radius_km": rnd.choice([5, 10, 20, 30, 50])}],
+                "bio": f"{cat['name_fr']} – {pitch[0]} {pitch[1]}", "experience_years": rnd.randint(1, 25),
+                "price_hint_da": rnd.choice([None, 1000, 1500, 2000, 2500, 3000, 4000, 5000]),
+                "verification_status": "verified" if rnd.random() < 0.8 else "unverified",
+                "free_access": {"started_at": now - timedelta(days=rnd.randint(0, 40)), "requests_received": rnd.randint(0, 6)},
+                "onboarding": {"completed": True, "step": 7}, "plan_key": "professional_free",
+                "passport": {"enabled": False, "slug": None}, "ai": {}, "seed_more": True, "updated_at": now})
+            have += 1
+            n += 1
+
+
+def _banner_image(lines, seed):
+    """Example banner (1200x400) drawn locally: brand gradient + three lines of text."""
+    from PIL import ImageDraw, ImageFont
+    img = cover(seed)
+    d = ImageDraw.Draw(img, "RGBA")
+    d.rectangle((0, 0, 1200, 400), fill=(5, 7, 15, 90))
+    # Built-in font (no accents): large text, still readable once the banner is shrunk to a phone width.
+    fonts = [ImageFont.load_default(size) for size in (88, 46, 46)]
+    y = 70
+    for text, font, fill in zip(lines, fonts, [(255, 255, 255, 255), (220, 230, 255, 255), (0, 209, 255, 255)]):
+        d.text((70, y), text, font=font, fill=fill)
+        y += 122 if font is fonts[0] else 76
+    d.rounded_rectangle((1010, 24, 1176, 64), radius=18, fill=(255, 255, 255, 40))
+    d.text((1030, 30), "EXEMPLE", font=ImageFont.load_default(24), fill=(255, 255, 255, 230))
+    return img
+
+
+async def seed_promos():
+    """Two example sponsored banners (only when no banner exists yet), so the placements can be seen in demos."""
+    if await db.ad_banners.count_documents({}):
+        return
+    from app.data.seed_media import _webp
+    storage = get_storage()
+    for i, b in enumerate(S.DEMO_BANNERS):
+        img = _banner_image(b["lines"], 900 + i)
+        keys = {"image_key": storage.save(_webp(img), "webp", folder="seed/banners"),
+                "image_thumb_key": storage.save(_webp(img.resize((600, 200))), "webp", folder="seed/banners")}
+        doc = {k: v for k, v in b.items() if k != "lines"} | keys | {
+            "active": True, "starts_at": None, "ends_at": None, "impressions": 0, "clicks": 0, "seed": True,
+            "created_at": now, "updated_at": now, "created_by": "seed"}
+        await db.ad_banners.insert_one(doc)
+
+
+DEMO_VERSION = 2  # bump when new demo steps must reach existing demo databases (Render)
+
+
+async def upgrade_demo():
+    """Existing demo database: run only the idempotent steps added since (does not reset what testers changed)."""
+    await seed_more_pros()
+    await seed_enrich()
+    await seed_history()
+    await seed_trust()
+    await seed_promos()
 
 
 async def seed_trust():
@@ -326,7 +411,15 @@ async def seed_trust():
 
 async def main(reference_only: bool = False, if_empty: bool = False):
     if if_empty and await db.users.find_one({"email": "client@gofix.dz"}):
-        print("Demo data already present: seed skipped.")  # test servers restarting (Render): keep what testers did
+        meta = await db.app_meta.find_one({"key": "demo_seed"}) or {}
+        if meta.get("version", 1) >= DEMO_VERSION:
+            print("Demo data already present: seed skipped.")  # test servers restarting (Render): keep what testers did
+            return
+        await init_indexes()
+        await ensure_defaults()
+        await upgrade_demo()
+        await db.app_meta.update_one({"key": "demo_seed"}, {"$set": {"version": DEMO_VERSION, "updated_at": now}}, upsert=True)
+        print(f"Demo data upgraded to version {DEMO_VERSION}.")
         return
     await init_indexes()
     await ensure_defaults()
@@ -337,10 +430,13 @@ async def main(reference_only: bool = False, if_empty: bool = False):
         print({c: await db[c].count_documents({}) for c in ("wilayas", "communes", "taxonomy_categories", "plans", "faq_entries")})
         return
     await seed_people()
+    await seed_more_pros()
     await seed_enrich()
     await seed_demo_activity()
     await seed_history()
     await seed_trust()
+    await seed_promos()
+    await db.app_meta.update_one({"key": "demo_seed"}, {"$set": {"version": DEMO_VERSION, "updated_at": now}}, upsert=True)
     print({c: await db[c].count_documents({}) for c in ("wilayas", "communes", "taxonomy_categories", "users",
                                                         "professional_profiles", "teacher_profiles", "plans", "faq_entries", "requests", "jobs", "reviews", "trust_events")})
 

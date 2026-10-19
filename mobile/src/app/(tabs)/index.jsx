@@ -12,6 +12,7 @@ import { alpha, BRAND, neonFor, useTheme } from "@/theme";
 import { Card, IconBtn, Row, Screen, Section, Txt, useToast } from "@/ui";
 import { LanguageFlags } from "@/ui/Flags";
 import { TourTarget, useScreenTour } from "@/components/tour";
+import { BannerSlot, GoFixSeries, Highlights } from "@/components/promo";
 
 const logo = require("../../../assets/brand/gofix-logo.png");
 // Explicit imports keep the bundle small (no "import *" of the whole icon set).
@@ -78,11 +79,14 @@ export default function Home() {
           {(services.data || []).slice(0, 8).map((cat, i) => <Tile key={cat.key} cat={cat} index={i} onPress={() => router.push(`/search?category_key=${cat.key}`)} />)}
         </TourTarget>
       </Section>
+      <BannerSlot placement="home" />
       <Section title={t("appHome.academy")} right={<Pressable onPress={() => router.push("/academy")} style={{ minHeight: 44, justifyContent: "center" }}><Txt variant="small" muted>{t("common.seeAll")} ›</Txt></Pressable>}>
         <View style={{ flexDirection: "row", flexWrap: "wrap", justifyContent: "space-between", rowGap: 10 }}>
           {(academy.data || []).slice(0, 4).map((cat, i) => <Tile key={cat.key} cat={cat} index={i + 1} onPress={() => router.push(cat.key === "private_tutoring" ? "/academy" : `/search?category_key=${cat.key}`)} />)}
         </View>
       </Section>
+
+      <Highlights />
 
       <Card glow style={{ marginTop: 22, flexDirection: "row", gap: 12, alignItems: "center" }} onPress={() => router.push(provider ? "/dashboard" : "/onboarding")} testID="talent-banner">
         <View style={{ width: 46, height: 46, borderRadius: 12, backgroundColor: alpha(BRAND.pink, 0.15), alignItems: "center", justifyContent: "center" }}><Rocket size={24} color={BRAND.pink} /></View>
@@ -92,6 +96,7 @@ export default function Home() {
         </View>
       </Card>
 
+      <GoFixSeries />
       <Section title={t("upcoming.title")}><Txt variant="small" muted style={{ marginBottom: 10 }}>{t("upcoming.subtitle")}</Txt><Upcoming /></Section>
     </Screen>
   );

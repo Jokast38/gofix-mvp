@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { Logo } from "@/components/brand/Logo";
+import { SocialLinks } from "@/components/promo/SocialLinks";
 import { useTour } from "@/components/tour/TourProvider";
 import { useAuth } from "@/hooks/AuthProvider";
 import { useI18n } from "@/i18n";
@@ -25,6 +26,7 @@ export function Footer() {
         <div>
           <Logo size="md" />
           <p className="mt-3 text-sm text-muted-foreground max-w-xs">{t("footer.tagline")}</p>
+          <SocialLinks className="mt-4" />
         </div>
         <div>
           <h2 className="text-sm font-bold mb-2">{t("footer.helpTitle")}</h2>

@@ -8,6 +8,7 @@ from app.adapters.storage import get_storage
 SPECS = {
     "photo": [("", (512, 512)), ("thumb", (128, 128))],
     "cover": [("", (1200, 400)), ("thumb", (480, 160))],
+    "banner": [("", (1200, 400)), ("thumb", (600, 200))],  # advertising banners, 3:1
 }
 
 

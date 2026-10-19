@@ -1,9 +1,10 @@
 """P3 — server-side blurring: a visitor can never get a name, phone or photo through the API."""
-from app.data.seed_data import PRO_NAMES, TEACHERS
+from app.data.seed_data import MORE_FIRST, MORE_LAST, PRO_NAMES, TEACHERS
 from tests.conftest import Api, login, run
 
 SECRET_FIELDS = ("photo_key", "photo_thumb_key", "cover_key", "cover_thumb_key", "bio", "phone", "user_id", "documents", "price_hint_da")
-NAMES = PRO_NAMES + [t[0] for t in TEACHERS]
+# Every demo name, including the generated catalogue (seed_more_pros: first name + last name).
+NAMES = PRO_NAMES + [t[0] for t in TEACHERS] + [f"{f} {l}" for f in MORE_FIRST for l in MORE_LAST]
 
 
 def _assert_blurred(item: dict):

@@ -60,6 +60,8 @@ async def init_indexes():
     await db.requests.create_index([("client_id", ASCENDING), ("created_at", DESCENDING)])
     await db.requests.create_index("recipients.provider_user_id")
     await db.reviews.create_index([("profile_id", ASCENDING), ("created_at", DESCENDING)])
+    await db.reviews.create_index([("kind", ASCENDING), ("created_at", DESCENDING)])  # Fixeur du mois
+    await db.ad_banners.create_index([("active", ASCENDING), ("placements", ASCENDING), ("order", ASCENDING)])
     await db.reports.create_index([("status", ASCENDING), ("created_at", DESCENDING)])
     await db.trust_events.create_index([("profile_id", ASCENDING), ("created_at", DESCENDING)])
     await db.trust_contests.create_index([("status", ASCENDING), ("created_at", DESCENDING)])

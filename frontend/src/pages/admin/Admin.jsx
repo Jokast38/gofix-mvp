@@ -13,6 +13,8 @@ import { AdminPayments, AdminPlans } from "./AdminPlans";
 import { AdminPaymentConfig } from "./AdminPaymentConfig";
 import { AdminCompany } from "./AdminCompany";
 import { AdminEmailConfig } from "./AdminEmailConfig";
+import { AdminCommunication } from "./AdminCommunication";
+import { AdminBanners } from "./AdminBanners";
 import { AdminFaq } from "./AdminFaq";
 import { useAuth } from "@/hooks/AuthProvider";
 import { useI18n } from "@/i18n";
@@ -32,6 +34,8 @@ const TABS = [
   { key: "payments", C: AdminPayments, roles: ["moderator", "support"], edit: [] },
   { key: "gateway", C: AdminPaymentConfig, roles: [], edit: [] },
   { key: "mail", C: AdminEmailConfig, roles: [], edit: [] },
+  { key: "communication", C: AdminCommunication, roles: [], edit: [] },
+  { key: "banners", C: AdminBanners, roles: [], edit: [] },
   { key: "company", C: AdminCompany, roles: [], edit: [] },
   { key: "taxonomy", C: AdminTaxonomy, roles: ["moderator", "support"], edit: ["moderator"] },
   { key: "flags", C: AdminFlags, roles: null, edit: [] },

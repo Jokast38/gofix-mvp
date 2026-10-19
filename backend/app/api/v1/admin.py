@@ -195,6 +195,21 @@ async def create_user(body: CreateUserIn, request: Request, admin: User = Depend
     return {"user": user.to_public(), "temporary_password": temp, "invite_sent": bool(invite_sent)}
 
 
+YOUTUBE_RX = re.compile(r"^https://(www\.|m\.)?(youtube\.com/(watch\?v=|shorts/|live/)|youtu\.be/)[\w-]{11}")
+
+
+def _clean_videos(value) -> list:
+    """Série GoFix: [{url, title}], YouTube links only, 12 max."""
+    if not isinstance(value, list) or len(value) > 12:
+        raise HTTPException(422, "invalid_value")
+    out = []
+    for v in value:
+        if not isinstance(v, dict) or not isinstance(v.get("url"), str) or not YOUTUBE_RX.match(v["url"].strip()):
+            raise HTTPException(422, "invalid_youtube_url")
+        out.append({"url": v["url"].strip(), "title": str(v.get("title") or "").strip()[:120]})
+    return out
+
+
 @router.get("/feature-flags")
 async def flags(_: User = Depends(require_admin())):
     return await db.feature_flags.find({}, {"_id": 0}).sort("key", 1).to_list(200)
@@ -225,6 +240,8 @@ async def set_setting(key: str, body: SettingIn, request: Request, admin: User =
         raise HTTPException(422, "invalid_url")
     if key.endswith("_email") and body.value and not re.fullmatch(r"[^@\s]+@[^@\s]+\.[^@\s]+", body.value):
         raise HTTPException(422, "email_invalid")
+    if key == "youtube_videos":
+        body.value = _clean_videos(body.value)
     await db.settings.update_one({"key": key}, {"$set": {"value": body.value}})
     await audit("config.setting_change", admin, "setting", key, {"old": current["value"], "new": body.value}, client_ip(request))
     return {"key": key, "value": body.value}

@@ -15,6 +15,7 @@ import { LanguageFlags } from "@/ui/Flags";
 import { AccountEditor } from "@/components/AccountEditor";
 import { APP_TOURS, TourTarget, useScreenTour, useTour } from "@/components/tour";
 import { enablePush, openSystemSettings, pushStatus, pushSupported } from "@/lib/push";
+import { SocialLinks } from "@/components/promo";
 import { Avatar, Btn, Card, Chip, confirm, Empty, Field, Input, Row, Screen, Section, Sheet, Txt, useToast } from "@/ui";
 
 /** Push notifications on this phone: status + enable (or open the system settings when blocked). */
@@ -125,6 +126,7 @@ export default function Account() {
           <LinkRow key="l" icon={FileText} label={t("footer.legalTitle")} to="/legal/mentions" />,
         ]}</Group>
         <ToursSection user={user} />
+        <SocialLinks />
         <Prefs themeName={themeName} setTheme={setTheme} />
       </Screen>
     );
@@ -183,6 +185,7 @@ export default function Account() {
         </TourTarget>
       </Section>
       <ToursSection user={user} />
+      <SocialLinks />
 
       {user.roles.length > 1 && (
         <Section title={t("account.modeTitle")}>

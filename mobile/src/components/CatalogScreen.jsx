@@ -11,6 +11,7 @@ import { BRAND, useTheme } from "@/theme";
 import { Btn, Card, Chip, Empty, IconBtn, Loading, Row, SelectField, Txt, useToast } from "@/ui";
 import { RequestSheet } from "./actions";
 import { BlurNotice, IntentChips, ProfileCard } from "./catalog";
+import { BannerSlot } from "@/components/promo";
 import { TourTarget } from "./tour";
 
 const FORMATS = ["home", "online", "center"];
@@ -107,6 +108,7 @@ export function CatalogScreen({ kind }) {
         </View>
       </View>
       </TourTarget>
+      <BannerSlot placement="search" style={{ marginTop: 4, marginBottom: 12 }} />
       <Row gap={8} wrap>
         <TourTarget id="near-me">
         <Chip icon={LocateFixed} label={locating ? t("geoloc.detecting") : t("geoloc.nearMe")} selected={Boolean(f.wilaya) && f.wilaya === nearWilaya}

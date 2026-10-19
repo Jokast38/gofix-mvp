@@ -46,6 +46,12 @@ export const publicService = {
   contact: (body) => post("/contact", body),
 };
 
+export const promoService = {
+  highlights: () => get("/highlights"),
+  banners: (placement) => get("/promos", { placement }),
+  countClick: (id) => api.post(`/promos/${id}/click`).catch(() => {}),
+};
+
 export const catalogService = {
   categories: (params) => get("/taxonomy/categories", params),
   families: () => get("/taxonomy/families"),

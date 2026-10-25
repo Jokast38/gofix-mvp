@@ -1,0 +1,330 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>GoFix – Feuille de route application mobile</title>
+<link rel="stylesheet" href="gofix-print.css">
+<style>
+  @page { @top-right { content: "GOFIX  |  Feuille de route & checklist – application mobile"; } }
+  .cover-box { padding: 10mm 12mm 9mm; }
+  .cover h1 { margin-top: 6mm; }
+  .cover .obj { margin-top: 5mm; }
+  .cover .meta { margin-top: 6mm; }
+  .cover .meta td, .cover .meta th { padding: 1.8mm 2.5mm; }
+  .check td:first-child { width: 7mm; text-align: center; font-size: 11pt; color: #8a93a6; }
+  .check td:nth-child(3) { width: 22mm; font-size: 8.2pt; }
+  .check td:nth-child(4) { width: 46mm; font-size: 8.2pt; color: #3b4458; }
+  .check td:nth-child(5) { width: 11mm; font-size: 8pt; color: #6b7487; text-align: center; }
+  .phase { display: flex; align-items: baseline; gap: 3mm; margin: 6mm 0 1mm; page-break-after: avoid; }
+  .phase .n { min-width: 9mm; height: 9mm; border-radius: 50%; background: var(--c); color: #10131c; font-weight: 800; display: flex; align-items: center; justify-content: center; }
+  .phase h2 { margin: 0; }
+  .phase .dur { font-size: 8pt; color: var(--muted); font-weight: 700; }
+  .qa { margin: 0 0 3.2mm; page-break-inside: avoid; }
+  .qa .q { font-weight: 800; margin: 0 0 .8mm; }
+  .qa .q::before { content: "Q. "; color: var(--c); }
+  .qa .a { margin: 0; padding-left: 4.5mm; border-left: 2px solid #e3e7ef; }
+  .road { width: 100%; border-collapse: collapse; font-size: 8.4pt; }
+  .road td, .road th { border: 1px solid #e3e7ef; padding: 1.6mm 2mm; vertical-align: top; }
+  .road th { text-align: left; }
+  .road td:first-child { font-weight: 800; white-space: nowrap; }
+  .gate td:first-child { width: 7mm; text-align: center; font-size: 11pt; color: #8a93a6; }
+  .who { font-size: 8.4pt; }
+</style>
+</head>
+<body>
+
+<!-- ============================== COUVERTURE ============================== -->
+<div class="cover">
+  <div class="cover-box">
+    <div class="logo-card"><div class="lbl">1. LOGO PRINCIPAL</div><img src="../../frontend/src/assets/brand/gofix-logo-original.png" alt="GoFix"></div>
+    <h1>FEUILLE DE ROUTE</h1>
+    <p class="tag">Application mobile GoFix — du code au lancement, paiements compris</p>
+    <p class="chips">DÉCISIONS &nbsp;•&nbsp; CHECKLIST &nbsp;•&nbsp; PAIEMENT SATIM &nbsp;•&nbsp; GOOGLE PLAY &nbsp;•&nbsp; APP STORE &nbsp;•&nbsp; RÉPONSES PRÉPARÉES</p>
+    <p class="subt">Un seul document pour suivre chaque étape, savoir qui la fait et comment prouver qu'elle est terminée</p>
+    <p class="ver">Version 1.0 &nbsp;•&nbsp; Octobre 2026 &nbsp;•&nbsp; Alger</p>
+  </div>
+  <div class="grad"></div>
+  <p class="obj">Objectif : une application <b>GoFix</b> publiée sur <b>Google Play</b> et l'<b>App Store</b>, reliée au serveur
+    <b>gofix-digital.dz</b>, avec les e-mails, les notifications et le <b>paiement CIB / Edahabia (SATIM)</b> en production.
+    Cochez les cases au fur et à mesure ; chaque tâche indique qui la porte, la preuve attendue et la section du <i>Guide d'installation</i> à suivre.</p>
+  <table class="meta">
+    <thead><tr><th>Rôle</th><th>Abréviation</th><th>Qui</th></tr></thead>
+    <tbody>
+      <tr><td>Direction GoFix Digital (décisions, contrats, comptes au nom de la société)</td><td>DIR</td><td>Gérant / associés</td></tr>
+      <tr><td>Chef de projet (coordination, recette, back-office)</td><td>CP</td><td>Jokast</td></tr>
+      <tr><td>Développeur mobile (Expo, builds, stores)</td><td>MOB</td><td>Équipe Algérie</td></tr>
+      <tr><td>Développeur / admin serveur (VPS Algérie Télécom)</td><td>SRV</td><td>Équipe Algérie</td></tr>
+      <tr><td>Banque et SATIM (contrat commerçant, accès, recette)</td><td>BQ</td><td>Banque de GoFix Digital</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ============================== SOMMAIRE ============================== -->
+<div class="sec" style="--c: var(--purple)">
+  <div class="sec-head"><div class="sec-letter">≡</div><div class="sec-titles"><h1>SOMMAIRE</h1><p>Lire 1 et 2 d'abord, puis suivre la checklist dans l'ordre</p></div></div>
+  <div class="toc">
+    <div class="toc-row"><div class="toc-l" style="background:var(--pink)">1</div><div class="toc-t"><b>Décisions à prendre</b><span>Ce qui bloque la publication si personne ne tranche</span></div></div>
+    <div class="toc-row"><div class="toc-l" style="background:var(--cyan)">2</div><div class="toc-t"><b>Feuille de route</b><span>8 phases, durées et délais externes, chemin critique</span></div></div>
+    <div class="toc-row"><div class="toc-l" style="background:var(--orange)">3</div><div class="toc-t"><b>Checklist détaillée</b><span>Chaque tâche : responsable, preuve attendue, référence du guide</span></div></div>
+    <div class="toc-row"><div class="toc-l" style="background:var(--purple)">4</div><div class="toc-t"><b>Paiements de bout en bout</b><span>Du contrat bancaire au premier paiement réel</span></div></div>
+    <div class="toc-row"><div class="toc-l" style="background:var(--cyan)">5</div><div class="toc-t"><b>Réponses préparées</b><span>Les questions que l'équipe posera pendant l'appel, avec les réponses</span></div></div>
+    <div class="toc-row"><div class="toc-l" style="background:var(--pink)">6</div><div class="toc-t"><b>Critères de lancement (Go / No-Go)</b><span>Ce qui doit être vrai avant d'annoncer l'ouverture</span></div></div>
+  </div>
+</div>
+
+<!-- ============================== 1. DÉCISIONS ============================== -->
+<div class="sec" style="--c: var(--pink)">
+  <div class="sec-head"><div class="sec-letter">1</div><div class="sec-titles"><h1>DÉCISIONS À PRENDRE</h1><p>À trancher par la direction avant la phase 6 (soumission aux stores)</p></div></div>
+
+  <table class="check">
+    <thead><tr><th></th><th>Décision</th><th>Qui</th><th>Options / recommandation</th><th>Avant</th></tr></thead>
+    <tbody>
+      <tr><td>☐</td><td><b>Achat d'abonnement dans l'application</b> (règles Apple 3.1.1 et Google Play sur les paiements)</td><td>DIR</td>
+        <td><b>1. Masquer l'achat dans l'app</b> et renvoyer vers le site (recommandé, le plus rapide) ; 2. achats intégrés Apple / Google (développement + commission des stores) ; 3. soumettre tel quel (risque de refus)</td><td>Ph. 6</td></tr>
+      <tr><td>☐</td><td><b>Banque et contrat commerçant CIB / Edahabia</b> (SATIM)</td><td>DIR</td><td>Choisir la banque, signer le contrat d'acceptation des paiements sur Internet, obtenir les accès de <b>test</b></td><td>Ph. 2</td></tr>
+      <tr><td>☐</td><td><b>Comptes développeur au nom de la société</b> (Google, Apple, Expo, Firebase)</td><td>DIR</td><td>Toujours au nom de GoFix Digital, jamais d'un développeur : sinon perte de l'application si la personne part</td><td>Ph. 1</td></tr>
+      <tr><td>☐</td><td><b>Relecture juridique</b> des CGU / CGV / confidentialité</td><td>DIR</td><td>Juriste ; puis cocher « Textes validés » dans le back-office (masque l'avertissement)</td><td>Ph. 7</td></tr>
+      <tr><td>☐</td><td><b>Déclaration ANPDP</b> (loi 18-07, données personnelles)</td><td>DIR</td><td>Référence à saisir dans Admin → Société (affichée dans les mentions légales)</td><td>Ph. 7</td></tr>
+      <tr><td>☐</td><td><b>Prix des abonnements</b> et contenu des offres</td><td>DIR</td><td>Modifiables dans Admin → Offres & matrice ; à figer avant les captures des stores</td><td>Ph. 5</td></tr>
+      <tr><td>☐</td><td><b>iOS au lancement ou plus tard</b></td><td>DIR</td><td>Le compte Apple organisation exige un numéro D-U-N-S (jusqu'à quelques semaines) : lancer Android d'abord est possible</td><td>Ph. 1</td></tr>
+    </tbody>
+  </table>
+  <div class="note warn"><h4>Pourquoi la décision « achat dans l'app » est la plus urgente</h4>
+    <p>Aujourd'hui, l'application ouvre la page de paiement SATIM pour acheter un abonnement. Apple et Google demandent en général leur propre système
+      de paiement pour ce type d'abonnement. L'option 1 se met en place en une demi-journée de développement : l'écran « Offres » de l'app affiche les offres et un bouton
+      « S'abonner sur gofix-digital.dz » ; un abonnement payé sur le site est reconnu immédiatement dans l'app (mêmes comptes).</p></div>
+</div>
+
+<!-- ============================== 2. FEUILLE DE ROUTE ============================== -->
+<div class="sec" style="--c: var(--cyan)">
+  <div class="sec-head"><div class="sec-letter">2</div><div class="sec-titles"><h1>FEUILLE DE ROUTE</h1><p>Durées de travail et délais des tiers (banque, Apple, Google)</p></div></div>
+
+  <table class="road">
+    <thead><tr><th>Phase</th><th>Contenu</th><th>Travail</th><th>Délai externe</th><th>Résultat</th></tr></thead>
+    <tbody>
+      <tr><td>0. Lancement</td><td>Appel de prise en main, accès GitHub, répartition des rôles</td><td>2 h</td><td>—</td><td>Équipe opérationnelle</td></tr>
+      <tr><td>1. Comptes</td><td>Expo, Google Play, Apple Developer, Firebase, banque</td><td>½ j</td><td><b>Google : quelques jours. Apple : D-U-N-S jusqu'à quelques semaines. Banque : variable</b></td><td>Comptes validés</td></tr>
+      <tr><td>2. Serveur en ligne</td><td>Site + API sur gofix-digital.dz en HTTPS, back-office configuré, e-mails</td><td>½ j</td><td>Déblocage SSH Algérie Télécom si besoin</td><td>https://gofix-digital.dz opérationnel</td></tr>
+      <tr><td>3. App de test</td><td>Installation locale, liaison Expo, build Android <i>preview</i>, tests sur téléphones</td><td>½ j</td><td>—</td><td>APK installée et fonctionnelle</td></tr>
+      <tr><td>4. Notifications</td><td>Firebase (Android), clé APNs (iOS), test de bout en bout</td><td>2 h</td><td>—</td><td>Notification reçue et ouverte</td></tr>
+      <tr><td>5. Paiement en test</td><td>Accès SATIM de test dans le back-office, paiements de test site + app</td><td>½ j</td><td>Accès test fournis par la banque</td><td>Abonnement activé après paiement test</td></tr>
+      <tr><td>6. Stores</td><td>Décision « achat dans l'app », fiches, builds production, test interne / TestFlight, soumission</td><td>1 j</td><td><b>Revue Google : quelques jours. Revue Apple : 1 à 3 jours, plus en cas de refus</b></td><td>Applications acceptées</td></tr>
+      <tr><td>7. Production</td><td>Recette SATIM, passage en production, premier paiement réel, textes légaux validés</td><td>½ j</td><td>Recette SATIM / banque</td><td>Go / No-Go signé</td></tr>
+      <tr><td>8. Lancement & suivi</td><td>Publication, annonce, liens réseaux sociaux, suivi des paiements et des retours</td><td>continu</td><td>—</td><td>Application ouverte au public</td></tr>
+    </tbody>
+  </table>
+  <div class="note"><h4>Chemin critique</h4>
+    <p>Ce sont les <b>tiers</b> qui fixent la date de lancement : compte Apple (D-U-N-S), contrat et recette SATIM, revues des stores.
+      Lancez les phases 1 et la demande à la banque <b>le premier jour</b>, en parallèle de tout le reste. Le travail technique restant tient en environ 4 jours.</p></div>
+</div>
+
+<!-- ============================== 3. CHECKLIST ============================== -->
+<div class="sec" style="--c: var(--orange)">
+  <div class="sec-head"><div class="sec-letter">3</div><div class="sec-titles"><h1>CHECKLIST DÉTAILLÉE</h1><p>Cocher seulement quand la preuve est obtenue • Réf. = section du Guide d'installation</p></div></div>
+
+  <div class="phase"><span class="n">0</span><h2>Lancement de l'équipe</h2><span class="dur">2 h</span></div>
+  <table class="check">
+    <thead><tr><th></th><th>Tâche</th><th>Qui</th><th>Preuve attendue</th><th>Réf.</th></tr></thead>
+    <tbody>
+      <tr><td>☐</td><td>Ajouter les développeurs au dépôt GitHub <code>Jokast38/gofix-mvp</code></td><td>CP</td><td>Chacun peut cloner le dépôt</td><td>—</td></tr>
+      <tr><td>☐</td><td>Installer Node.js 20 et Git sur les postes ; Expo Go sur les téléphones</td><td>MOB</td><td><code>node -v</code> affiche v20</td><td>A</td></tr>
+      <tr><td>☐</td><td>Lire le Guide d'installation (sections A, C, E) et ce document</td><td>MOB SRV</td><td>Questions notées pour l'appel</td><td>—</td></tr>
+      <tr><td>☐</td><td>Mettre en place un gestionnaire de mots de passe partagé (aucun mot de passe par e-mail / chat)</td><td>CP</td><td>Coffre partagé créé</td><td>A</td></tr>
+      <tr><td>☐</td><td>Appel de prise en main : tour du code, installation locale en direct</td><td>CP MOB</td><td>L'app tourne dans Expo Go chez chacun</td><td>B</td></tr>
+    </tbody>
+  </table>
+
+  <div class="phase"><span class="n">1</span><h2>Comptes et contrats</h2><span class="dur">½ j + délais tiers</span></div>
+  <table class="check">
+    <thead><tr><th></th><th>Tâche</th><th>Qui</th><th>Preuve attendue</th><th>Réf.</th></tr></thead>
+    <tbody>
+      <tr><td>☐</td><td>Compte Expo + organisation <b>gofix-digital</b> ; inviter les développeurs</td><td>DIR MOB</td><td>Organisation visible sur expo.dev</td><td>E.1</td></tr>
+      <tr><td>☐</td><td>Compte <b>Google Play Console</b> organisation (vérification société)</td><td>DIR</td><td>Console accessible, compte vérifié</td><td>E.1</td></tr>
+      <tr><td>☐</td><td>Demande du numéro <b>D-U-N-S</b>, puis <b>Apple Developer Program</b> organisation</td><td>DIR</td><td>Accès à App Store Connect</td><td>E.1</td></tr>
+      <tr><td>☐</td><td>Projet <b>Firebase</b> « GoFix » (notifications Android)</td><td>MOB</td><td>Projet créé au nom de la société</td><td>E.3b</td></tr>
+      <tr><td>☐</td><td>Demande à la banque : contrat commerçant e-paiement CIB / Edahabia + <b>accès SATIM de test</b></td><td>DIR</td><td>URL, identifiant, mot de passe, Terminal ID de test reçus</td><td>D.2</td></tr>
+      <tr><td>☐</td><td>Boîte <code>no-reply@gofix-digital.dz</code> dans Admail + paramètres SMTP d'Algérie Télécom</td><td>DIR SRV</td><td>Serveur et port SMTP connus</td><td>D.1</td></tr>
+    </tbody>
+  </table>
+
+  <div class="phase"><span class="n">2</span><h2>Serveur en ligne (pré-requis de l'app)</h2><span class="dur">½ j</span></div>
+  <table class="check">
+    <thead><tr><th></th><th>Tâche</th><th>Qui</th><th>Preuve attendue</th><th>Réf.</th></tr></thead>
+    <tbody>
+      <tr><td>☐</td><td>Connexion SSH au VPS (débloquer le port 22 auprès d'Algérie Télécom si besoin)</td><td>SRV</td><td><code>ssh root@IP</code> fonctionne</td><td>A, C.1</td></tr>
+      <tr><td>☐</td><td>Déploiement de GoFix (9 étapes) et HTTPS via aaPanel</td><td>SRV</td><td>https://gofix-digital.dz affiche GoFix avec le cadenas</td><td>C</td></tr>
+      <tr><td>☐</td><td>Vérifier l'API publique : <code>https://gofix-digital.dz/api/health</code></td><td>SRV</td><td><code>"status":"ok","db":true</code></td><td>C</td></tr>
+      <tr><td>☐</td><td>Créer les comptes de l'équipe : Admin → Utilisateurs → Créer un compte</td><td>CP</td><td>Chacun se connecte avec son compte personnel</td><td>—</td></tr>
+      <tr><td>☐</td><td>Admin → Société & mentions légales : RC, NIF, NIS, adresse, contacts</td><td>CP</td><td>Plus aucun « [à compléter] » dans les mentions légales</td><td>C</td></tr>
+      <tr><td>☐</td><td>Admin → E-mails : serveur SMTP, adresses, puis « Envoyer le test »</td><td>SRV</td><td>E-mail de test reçu (vérifier les indésirables)</td><td>D.1</td></tr>
+      <tr><td>☐</td><td>Admin → Communication : liens réseaux sociaux et vidéos de la Série GoFix (dès qu'ils existent)</td><td>CP</td><td>Logos actifs en bas du site et dans l'app</td><td>—</td></tr>
+    </tbody>
+  </table>
+
+  <div class="phase"><span class="n">3</span><h2>Application de test (Android)</h2><span class="dur">½ j</span></div>
+  <table class="check">
+    <thead><tr><th></th><th>Tâche</th><th>Qui</th><th>Preuve attendue</th><th>Réf.</th></tr></thead>
+    <tbody>
+      <tr><td>☐</td><td><code>git clone</code> → <code>cd mobile</code> → <code>npm install</code> → <code>npx expo start</code></td><td>MOB</td><td>L'app s'ouvre dans Expo Go</td><td>B</td></tr>
+      <tr><td>☐</td><td><code>npx eas-cli@latest login</code> puis <code>npx eas-cli@latest init</code> (organisation gofix-digital)</td><td>MOB</td><td>Identifiant de projet ajouté dans <code>app.json</code> (à committer)</td><td>E.3</td></tr>
+      <tr><td>☐</td><td><code>npx eas-cli@latest build -p android --profile preview</code></td><td>MOB</td><td>Lien de téléchargement de l'APK sur expo.dev</td><td>E.3</td></tr>
+      <tr><td>☐</td><td>Installer l'APK sur au moins 2 téléphones Android</td><td>MOB CP</td><td>Icône GoFix sur l'écran d'accueil</td><td>E.3</td></tr>
+      <tr><td>☐</td><td>Parcours : inscription, connexion, recherche, fiche pro, message, demande, favoris, profil + photo, passage en arabe</td><td>CP</td><td>Aucun écran bloquant ; fiche de bugs vide ou triée</td><td>F.3</td></tr>
+    </tbody>
+  </table>
+
+  <div class="phase"><span class="n">4</span><h2>Notifications push</h2><span class="dur">2 h</span></div>
+  <table class="check">
+    <thead><tr><th></th><th>Tâche</th><th>Qui</th><th>Preuve attendue</th><th>Réf.</th></tr></thead>
+    <tbody>
+      <tr><td>☐</td><td>Firebase : application Android <code>dz.gofix.app</code>, télécharger <code>google-services.json</code> dans <code>mobile/</code>, l'ajouter dans <code>app.json</code></td><td>MOB</td><td>Fichier présent et référencé</td><td>E.3b</td></tr>
+      <tr><td>☐</td><td>Clé de compte de service Firebase envoyée à Expo : <code>npx eas-cli@latest credentials</code> → Android → FCM V1</td><td>MOB</td><td>Clé visible dans les identifiants Expo</td><td>E.3b</td></tr>
+      <tr><td>☐</td><td>iOS : accepter la création de la clé APNs proposée par EAS lors du build</td><td>MOB</td><td>Clé APNs listée dans Expo</td><td>E.3b</td></tr>
+      <tr><td>☐</td><td>Rebuild <i>preview</i>, accepter les notifications, envoyer un message depuis un autre compte</td><td>MOB CP</td><td>Notification reçue ; la toucher ouvre la conversation</td><td>E.3b</td></tr>
+    </tbody>
+  </table>
+
+  <div class="phase"><span class="n">5</span><h2>Paiement en environnement de test</h2><span class="dur">½ j</span></div>
+  <table class="check">
+    <thead><tr><th></th><th>Tâche</th><th>Qui</th><th>Preuve attendue</th><th>Réf.</th></tr></thead>
+    <tbody>
+      <tr><td>☐</td><td>Admin → Moyen de paiement : SATIM, environnement <b>test</b>, URL, identifiant, mot de passe, Terminal ID → Enregistrer</td><td>CP SRV</td><td>Statut « SATIM – environnement de test »</td><td>D.2</td></tr>
+      <tr><td>☐</td><td>« Tester la connexion »</td><td>SRV</td><td>« Connexion réussie »</td><td>D.2</td></tr>
+      <tr><td>☐</td><td>Transmettre à la banque l'<b>URL de retour</b> affichée dans l'écran (…/api/v1/billing/callback/satim)</td><td>CP</td><td>Confirmée par la banque / SATIM</td><td>D.2</td></tr>
+      <tr><td>☐</td><td>Paiement de test sur le <b>site</b> avec une carte de test de la banque</td><td>CP</td><td>Abonnement actif + facture PDF téléchargeable</td><td>F.2</td></tr>
+      <tr><td>☐</td><td>Paiement de test dans l'<b>app</b> (si l'achat dans l'app est conservé) : page SATIM puis retour dans l'app</td><td>CP</td><td>Écran « Paiement confirmé » dans l'app</td><td>F.3</td></tr>
+      <tr><td>☐</td><td>Paiement <b>refusé</b> (carte de test refusée ou annulation)</td><td>CP</td><td>Message d'échec, aucun abonnement activé</td><td>F.2</td></tr>
+      <tr><td>☐</td><td>Admin → Paiements : vérifier les commandes (payée, échouée) et le journal d'audit</td><td>CP</td><td>Les deux commandes apparaissent avec le bon statut</td><td>—</td></tr>
+    </tbody>
+  </table>
+
+  <div class="phase"><span class="n">6</span><h2>Publication sur les stores</h2><span class="dur">1 j + revues</span></div>
+  <table class="check">
+    <thead><tr><th></th><th>Tâche</th><th>Qui</th><th>Preuve attendue</th><th>Réf.</th></tr></thead>
+    <tbody>
+      <tr><td>☐</td><td>Décision « achat dans l'app » appliquée (section 1)</td><td>DIR MOB</td><td>Build conforme à l'option choisie</td><td>E</td></tr>
+      <tr><td>☐</td><td>Fiches : nom, sous-titre, descriptions FR / AR, icône, captures FR / AR, catégorie, e-mail de contact</td><td>CP</td><td>Fiches complètes dans les deux consoles</td><td>E.4</td></tr>
+      <tr><td>☐</td><td>Politique de confidentialité : <code>https://gofix-digital.dz/legal/privacy</code></td><td>CP</td><td>Lien accepté par les consoles</td><td>E.4</td></tr>
+      <tr><td>☐</td><td>Questionnaires : sécurité des données (Google), « App Privacy » (Apple), classification du contenu</td><td>CP MOB</td><td>Questionnaires validés</td><td>E</td></tr>
+      <tr><td>☐</td><td><b>Comptes de démonstration pour les testeurs Apple / Google</b> (un client, un pro) créés en production</td><td>CP</td><td>Identifiants saisis dans les notes de revue</td><td>E</td></tr>
+      <tr><td>☐</td><td><code>npx eas-cli@latest build -p all --profile production</code></td><td>MOB</td><td>AAB (Android) et IPA (iOS) disponibles</td><td>E.3</td></tr>
+      <tr><td>☐</td><td>Google Play : piste <b>test interne</b>, installation par l'équipe</td><td>MOB</td><td>App installée depuis Google Play</td><td>E</td></tr>
+      <tr><td>☐</td><td>iOS : <code>npx eas-cli@latest submit -p ios</code> → <b>TestFlight</b>, installation par l'équipe</td><td>MOB</td><td>App installée via TestFlight</td><td>E</td></tr>
+      <tr><td>☐</td><td>Soumission en production sur les deux stores</td><td>MOB</td><td>Statut « En cours d'examen »</td><td>E</td></tr>
+      <tr><td>☐</td><td>Applications acceptées</td><td>MOB</td><td>Statut « Publiée » / « Prête à être distribuée »</td><td>E</td></tr>
+    </tbody>
+  </table>
+
+  <div class="phase"><span class="n">7</span><h2>Passage en production</h2><span class="dur">½ j + recette SATIM</span></div>
+  <table class="check">
+    <thead><tr><th></th><th>Tâche</th><th>Qui</th><th>Preuve attendue</th><th>Réf.</th></tr></thead>
+    <tbody>
+      <tr><td>☐</td><td>Recette SATIM / banque réussie (cas demandés par la banque)</td><td>BQ CP</td><td>Accord écrit de passage en production</td><td>D.2</td></tr>
+      <tr><td>☐</td><td>Admin → Moyen de paiement : accès de <b>production</b>, environnement « production », tester la connexion</td><td>CP</td><td>« Connexion réussie » en production</td><td>D.2</td></tr>
+      <tr><td>☐</td><td><b>Premier paiement réel</b> avec une vraie carte (petit montant), puis vérification sur le relevé</td><td>DIR CP</td><td>Abonnement actif, facture, montant reçu sur le compte</td><td>F.2</td></tr>
+      <tr><td>☐</td><td>Textes légaux relus ; Admin → Paramètres : <code>legal_reviewed</code> activé</td><td>DIR CP</td><td>Avertissement « en cours de validation » disparu</td><td>—</td></tr>
+      <tr><td>☐</td><td>Liens App Store / Google Play saisis dans Admin → Paramètres</td><td>CP</td><td>Boutons « Télécharger » actifs sur le site</td><td>E</td></tr>
+      <tr><td>☐</td><td>Sauvegarde automatique de la base vérifiée (restauration testée une fois)</td><td>SRV</td><td>Fichier de sauvegarde du jour + restauration réussie</td><td>G</td></tr>
+      <tr><td>☐</td><td>Changer tous les mots de passe ayant circulé par e-mail (SSH, aaPanel, Admail, SATIM)</td><td>DIR SRV</td><td>Nouveaux mots de passe dans le coffre partagé</td><td>A</td></tr>
+    </tbody>
+  </table>
+
+  <div class="phase"><span class="n">8</span><h2>Lancement et suivi</h2><span class="dur">continu</span></div>
+  <table class="check">
+    <thead><tr><th></th><th>Tâche</th><th>Qui</th><th>Preuve attendue</th><th>Réf.</th></tr></thead>
+    <tbody>
+      <tr><td>☐</td><td>Go / No-Go (section 6) validé et signé</td><td>DIR CP</td><td>Toutes les cases de la section 6 cochées</td><td>—</td></tr>
+      <tr><td>☐</td><td>Annonce : réseaux sociaux, Série GoFix, bannière d'accueil (Admin → Bannières pub)</td><td>DIR CP</td><td>Publications en ligne</td><td>—</td></tr>
+      <tr><td>☐</td><td>Suivi quotidien la 1<sup>re</sup> semaine : Admin → Paiements, Tickets, Signalements, Validation des pros</td><td>CP</td><td>Aucun paiement bloqué, tickets traités sous 48 h</td><td>—</td></tr>
+      <tr><td>☐</td><td>Valider les premiers professionnels (pièces justificatives) pour alimenter le catalogue</td><td>CP</td><td>Catalogue réel visible dans l'app</td><td>—</td></tr>
+      <tr><td>☐</td><td>Procédure de mise à jour connue : augmenter la version, rebuild, soumettre</td><td>MOB</td><td>Une mise à jour publiée de bout en bout</td><td>G</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ============================== 4. PAIEMENTS ============================== -->
+<div class="sec" style="--c: var(--purple)">
+  <div class="sec-head"><div class="sec-letter">4</div><div class="sec-titles"><h1>PAIEMENTS DE BOUT EN BOUT</h1><p>Ce qui existe déjà, et ce qu'il reste à obtenir</p></div></div>
+
+  <h2>Comment fonctionne un paiement</h2>
+  <div class="diagram"><div class="row">
+    <div class="box" style="--c:var(--cyan)"><b>1. Commande</b>L'utilisateur choisit une offre ; le serveur crée une commande</div>
+    <div class="box" style="--c:var(--purple)"><b>2. Page SATIM</b>Carte CIB / Edahabia saisie sur la page sécurisée de la SATIM (jamais chez GoFix)</div>
+    <div class="box" style="--c:var(--pink)"><b>3. Retour</b>La SATIM renvoie vers l'URL de retour ; l'app est rouverte par le lien gofix://</div>
+    <div class="box" style="--c:var(--orange)"><b>4. Vérification</b>Le serveur redemande le statut à la SATIM avant toute activation</div>
+    <div class="box" style="--c:var(--green)"><b>5. Activation</b>Abonnement actif, notification, facture PDF</div>
+  </div></div>
+
+  <table class="check">
+    <thead><tr><th></th><th>Élément</th><th>État</th><th>Détail</th><th></th></tr></thead>
+    <tbody>
+      <tr><td>✓</td><td>Paiement SATIM sur le site et dans l'app</td><td><span class="pill p-ok">Prêt</span></td><td>Page SATIM hébergée, retour dans l'app, vérification serveur</td><td></td></tr>
+      <tr><td>✓</td><td>Réglage depuis le back-office</td><td><span class="pill p-ok">Prêt</span></td><td>Mot de passe chiffré, test de connexion sans débit</td><td></td></tr>
+      <tr><td>✓</td><td>Factures PDF et historique des commandes</td><td><span class="pill p-ok">Prêt</span></td><td>Avec l'identité de la société saisie dans Admin → Société</td><td></td></tr>
+      <tr><td>✓</td><td>Protection contre le double paiement / double activation</td><td><span class="pill p-ok">Prêt</span></td><td>Activation atomique, rappels SATIM limités</td><td></td></tr>
+      <tr><td>☐</td><td>Contrat commerçant et accès SATIM</td><td><span class="pill p-todo">Banque</span></td><td>Test puis production, après recette</td><td></td></tr>
+      <tr><td>☐</td><td>Décision « achat dans l'app »</td><td><span class="pill p-todo">Direction</span></td><td>Voir section 1</td><td></td></tr>
+      <tr><td>☐</td><td>Remboursements</td><td><span class="pill p-no">Hors app</span></td><td>Pas de bouton de remboursement dans GoFix : ils se font depuis l'espace commerçant de la banque</td><td></td></tr>
+    </tbody>
+  </table>
+  <div class="note danger"><h4>À ne jamais faire</h4>
+    <ul><li>Activer le paiement « simulé » en production : le serveur le refuse, et il ne faut pas contourner ce blocage.</li>
+      <li>Transmettre les accès SATIM par e-mail ou les écrire dans le code ou le fichier <code>.env</code> d'un poste : ils se saisissent uniquement dans le back-office.</li></ul></div>
+</div>
+
+<!-- ============================== 5. RÉPONSES PRÉPARÉES ============================== -->
+<div class="sec" style="--c: var(--cyan)">
+  <div class="sec-head"><div class="sec-letter">5</div><div class="sec-titles"><h1>RÉPONSES PRÉPARÉES</h1><p>Questions probables de l'équipe pendant l'appel</p></div></div>
+
+  <h2>Code et installation</h2>
+  <div class="qa"><p class="q">Où est le code de l'application ?</p><p class="a">Dans le dépôt GitHub <code>gofix-mvp</code>, dossier <code>mobile/</code> (l'ancien dépôt <code>gofix-v1</code> n'est plus utilisé). Écrans : <code>src/app</code> (une route = un fichier) ; appels au serveur : <code>src/api</code> ; composants : <code>src/components</code> ; thème et éléments d'interface : <code>src/theme.js</code>, <code>src/ui</code>.</p></div>
+  <div class="qa"><p class="q">Quelle technologie ?</p><p class="a">React Native avec Expo (SDK 57) et expo-router. Une seule base de code pour Android et iOS. Pas besoin de Mac : les builds iOS se font dans le cloud d'Expo (EAS).</p></div>
+  <div class="qa"><p class="q">Comment lancer l'app sur mon téléphone ?</p><p class="a"><code>cd mobile</code>, <code>npm install</code>, <code>npx expo start</code>, puis scanner le QR code avec Expo Go (même Wi-Fi que le PC). En développement, l'app utilise automatiquement le serveur lancé sur le PC ; pour viser un serveur en ligne : <code>EXPO_PUBLIC_API_URL=https://gofix-digital.dz npx expo start</code>.</p></div>
+  <div class="qa"><p class="q">À quel serveur se connecte l'app installée ?</p><p class="a">À <code>https://gofix-digital.dz</code>, réglé dans <code>eas.json</code> pour les builds <i>preview</i> et <i>production</i>. Le serveur doit donc être en ligne en HTTPS avant de construire l'application.</p></div>
+  <div class="qa"><p class="q">Comment modifier un texte ou une traduction ?</p><p class="a">Les textes sont partagés avec le site : modifier <code>frontend/src/i18n/fr*.js</code> et <code>ar*.js</code>, puis lancer <code>npm run i18n:sync</code> dans <code>mobile/</code>. Ne pas modifier directement <code>mobile/src/i18n/shared</code>.</p></div>
+  <div class="qa"><p class="q">Pourquoi l'app redémarre quand on passe en arabe ?</p><p class="a">L'arabe se lit de droite à gauche : le téléphone doit recharger l'application pour inverser la mise en page. Dans Expo Go, un message demande de recharger manuellement ; dans l'app installée, le rechargement est automatique.</p></div>
+
+  <h2>Builds et stores</h2>
+  <div class="qa"><p class="q">Quelle différence entre les profils <i>preview</i> et <i>production</i> ?</p><p class="a"><i>preview</i> produit un APK Android à installer directement sur les téléphones de test. <i>production</i> produit les fichiers pour les stores (AAB pour Google Play, IPA pour l'App Store) et augmente automatiquement le numéro de build.</p></div>
+  <div class="qa"><p class="q">Qui garde les clés de signature ?</p><p class="a">EAS (Expo), sur le compte de l'organisation gofix-digital. <b>Ne jamais les supprimer</b> : sans la clé Android, plus aucune mise à jour n'est possible sur Google Play.</p></div>
+  <div class="qa"><p class="q">Comment publier une mise à jour ?</p><p class="a">Augmenter <code>version</code> dans <code>app.json</code> (ex. 1.0.0 → 1.0.1), lancer le build <i>production</i>, puis <code>eas submit</code>. Les mises à jour « à distance » sans passer par les stores (EAS Update) ne sont pas configurées pour l'instant : chaque mise à jour passe par une revue des stores.</p></div>
+  <div class="qa"><p class="q">Les liens réseaux sociaux, bannières et vidéos demandent-ils une nouvelle version ?</p><p class="a">Non. Ils se règlent dans le back-office (Communication, Bannières pub) et apparaissent dans l'app en quelques minutes. Seuls les changements de code ou de traductions demandent une nouvelle version.</p></div>
+  <div class="qa"><p class="q">Que donner aux testeurs d'Apple et de Google ?</p><p class="a">Deux comptes créés en production depuis Admin → Utilisateurs (un client, un professionnel), avec leurs identifiants dans les notes de revue. Les comptes de démonstration <code>@gofix.dz</code> n'existent pas en production.</p></div>
+  <div class="qa"><p class="q">Pourquoi l'app pourrait-elle être refusée ?</p><p class="a">Principalement pour l'achat d'abonnement sans le système de paiement du store (voir section 1). Autres causes fréquentes : compte de test qui ne fonctionne pas, politique de confidentialité inaccessible, captures d'écran qui ne correspondent pas à l'app.</p></div>
+
+  <h2>Fonctionnalités</h2>
+  <div class="qa"><p class="q">Les notifications ne marchent pas dans Expo Go, est-ce un bug ?</p><p class="a">Non : Expo Go ne reçoit pas les notifications distantes sur Android. Il faut tester avec le build <i>preview</i> après avoir configuré Firebase (phase 4).</p></div>
+  <div class="qa"><p class="q">Les notifications sont-elles en temps réel ?</p><p class="a">Oui pour les messages, les rendez-vous et les réponses aux demandes : le serveur les envoie immédiatement via le service push d'Expo. Elles peuvent être coupées globalement dans le back-office (flag <code>push_notifications</code>).</p></div>
+  <div class="qa"><p class="q">Que fait l'app de la position de l'utilisateur ?</p><p class="a">Elle n'est demandée que lorsque l'utilisateur touche « Détecter ma wilaya » ou « Près de moi », reste approximative, et n'est jamais enregistrée par GoFix. La localisation précise et en arrière-plan sont bloquées dans la configuration Android.</p></div>
+  <div class="qa"><p class="q">Où sont stockées les sessions sur le téléphone ?</p><p class="a">Dans le stockage sécurisé du système (SecureStore : Keychain sur iOS, Keystore sur Android), jamais en clair.</p></div>
+  <div class="qa"><p class="q">Comment se passe le paiement dans l'app ?</p><p class="a">L'app ouvre la page SATIM dans un navigateur sécurisé ; après paiement, la SATIM renvoie vers le serveur, qui rouvre l'app par le lien <code>gofix://payment/result</code>. L'écran de résultat redemande toujours le statut au serveur : un paiement n'est jamais validé par l'app elle-même.</p></div>
+  <div class="qa"><p class="q">Et si l'utilisateur ferme l'app pendant le paiement ?</p><p class="a">Le serveur reçoit quand même le retour de la SATIM et active l'abonnement. À la réouverture, Abonnement & factures affiche le bon statut. Une commande non payée expire après 30 minutes (réglable).</p></div>
+
+  <h2>Sécurité et audit</h2>
+  <div class="qa"><p class="q"><code>npm audit</code> signale des vulnérabilités, faut-il corriger ?</p><p class="a">Elles concernent les outils de build d'Expo (Metro, CLI, plugins), pas le code livré dans l'app, sauf une (<code>decode-uri-component</code>, risque très faible). <b>Ne pas lancer <code>npm audit fix --force</code></b> : il rétrograde Expo et casse l'app. Elles disparaîtront avec la mise à jour vers Expo SDK 58.</p></div>
+  <div class="qa"><p class="q">Comment vérifier que le projet est sain ?</p><p class="a"><code>npx expo-doctor</code> doit afficher « 21/21 checks passed ». Après une mise à jour d'Expo : <code>npx expo install --fix</code>.</p></div>
+</div>
+
+<!-- ============================== 6. GO / NO-GO ============================== -->
+<div class="sec" style="--c: var(--pink)">
+  <div class="sec-head"><div class="sec-letter">6</div><div class="sec-titles"><h1>CRITÈRES DE LANCEMENT</h1><p>Tout doit être coché avant d'annoncer l'ouverture au public</p></div></div>
+  <table class="check gate">
+    <thead><tr><th></th><th>Critère</th><th>Vérifié par</th><th>Date</th><th></th></tr></thead>
+    <tbody>
+      <tr><td>☐</td><td>Site et API en ligne en HTTPS, sauvegarde automatique active</td><td></td><td></td><td></td></tr>
+      <tr><td>☐</td><td>E-mails reçus (mot de passe oublié, invitation d'un collaborateur)</td><td></td><td></td><td></td></tr>
+      <tr><td>☐</td><td>Applications publiées sur Google Play (et App Store si retenu)</td><td></td><td></td><td></td></tr>
+      <tr><td>☐</td><td>Notifications reçues sur Android et iOS</td><td></td><td></td><td></td></tr>
+      <tr><td>☐</td><td>Paiement réel réussi, facture conforme, montant reçu sur le compte</td><td></td><td></td><td></td></tr>
+      <tr><td>☐</td><td>Paiement refusé correctement géré (aucun abonnement activé)</td><td></td><td></td><td></td></tr>
+      <tr><td>☐</td><td>Mentions légales complètes, textes relus par un juriste, référence ANPDP saisie</td><td></td><td></td><td></td></tr>
+      <tr><td>☐</td><td>Premiers professionnels validés et visibles dans le catalogue</td><td></td><td></td><td></td></tr>
+      <tr><td>☐</td><td>Comptes de l'équipe personnels (aucun compte partagé), mots de passe changés</td><td></td><td></td><td></td></tr>
+      <tr><td>☐</td><td>Une personne désignée pour le suivi quotidien (paiements, tickets, signalements)</td><td></td><td></td><td></td></tr>
+    </tbody>
+  </table>
+  <p class="who">Décision de lancement : ☐ GO &nbsp;&nbsp; ☐ NO-GO &nbsp;&nbsp;— Signé : ............................................ &nbsp; Date : ....../....../2026</p>
+</div>
+
+</body>
+</html>

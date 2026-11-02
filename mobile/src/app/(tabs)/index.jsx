@@ -3,7 +3,7 @@ import { Pressable, TextInput, View } from "react-native";
 import { router } from "expo-router";
 import { Image } from "expo-image";
 import { useQuery } from "@tanstack/react-query";
-import { Bell, BookOpen, Cake, Camera, Car, ChefHat, Droplets, Globe, Lock, Mic, Package, Rocket, Scissors, Search, ShoppingBasket, Target, Wrench, Zap } from "lucide-react-native";
+import { Bell, BookOpen, Cake, Camera, Car, ChefHat, Droplets, Globe, Lock, LogIn, Mic, Package, Rocket, Scissors, Search, ShoppingBasket, Target, Wrench, Zap } from "lucide-react-native";
 import { catalogService, socialService } from "@/api/services";
 import { Upcoming } from "@/components/catalog";
 import { isProvider, useAuth } from "@/hooks/auth";
@@ -57,8 +57,9 @@ export default function Home() {
         {user ? (
           <IconBtn onPress={() => router.push("/notifications")} label={t("notif.title")} badge={notif.data?.unread}><Bell size={22} color={c.text} /></IconBtn>
         ) : (
-          <Pressable onPress={() => router.push("/login")} style={{ minHeight: 44, paddingHorizontal: 16, borderRadius: 999, backgroundColor: c.primary, justifyContent: "center" }}>
-            <Txt weight={700} color={c.onPrimary}>{t("nav.login")}</Txt>
+          <Pressable onPress={() => router.push("/login")} accessibilityRole="button" accessibilityLabel={t("nav.login")} testID="home-login"
+            style={{ width: 44, height: 44, borderRadius: 999, backgroundColor: c.primary, alignItems: "center", justifyContent: "center" }}>
+            <LogIn size={20} color={c.onPrimary} />
           </Pressable>
         )}
       </Row>

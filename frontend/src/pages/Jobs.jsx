@@ -5,7 +5,7 @@ import { ArrowLeft, MessageCircle } from "lucide-react";
 import { PageHeader, PageSkeleton } from "@/components/common/PageSkeleton";
 import { JobCard, JobsEmpty } from "@/components/jobs/Jobs";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useI18n } from "@/i18n";
+import { LANGUAGES, useI18n } from "@/i18n";
 import { ui } from "@/lib/ui";
 import { jobService } from "@/services/marketplaceService";
 
@@ -34,7 +34,7 @@ export function JobsList({ role }) {
 
 export function JobDetail() {
   const { id } = useParams();
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
   const { data, isLoading, error } = useQuery({ queryKey: ["jobs", "one", id], queryFn: () => jobService.get(id) });
   if (isLoading) return <PageSkeleton />;
   if (error || !data) return <div className={`${ui.container} py-16 text-center`}><p className="font-bold">{t("notFound.title")}</p></div>;
@@ -50,7 +50,7 @@ export function JobDetail() {
             {data.history.map((h, i) => (
               <li key={i} className="flex justify-between gap-3">
                 <span>{t(`jobs.status.${h.status}`, {})}{h.reason ? ` — ${h.reason}` : ""}</span>
-                <span className="text-xs text-muted-foreground whitespace-nowrap">{t(`jobs.by.${h.by}`)} · {new Date(h.at).toLocaleDateString("fr-FR", { timeZone: "Africa/Algiers" })}</span>
+                <span className="text-xs text-muted-foreground whitespace-nowrap">{t(`jobs.by.${h.by}`)} · {new Date(h.at).toLocaleDateString(LANGUAGES[lang].locale, { timeZone: "Africa/Algiers" })}</span>
               </li>
             ))}
           </ol>

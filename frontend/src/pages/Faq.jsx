@@ -1,11 +1,12 @@
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { PageHeader, PageSkeleton } from "@/components/common/PageSkeleton";
 import { useFaq } from "@/hooks/usePublic";
-import { useI18n } from "@/i18n";
+import { useI18n, useLocalized } from "@/i18n";
 import { ui } from "@/lib/ui";
 
 export default function Faq() {
   const { t, lang } = useI18n();
+  const loc = useLocalized();
   const { data, isLoading, isError, refetch } = useFaq(lang);
   if (isLoading) return <PageSkeleton />;
 
@@ -23,10 +24,10 @@ export default function Faq() {
             {entries.map((e, i) => (
               <AccordionItem key={e.question_fr} value={`${cat}-${i}`} className="last:border-0">
                 <AccordionTrigger className="text-start font-bold min-h-[52px]" data-testid={`faq-q-${cat}-${i}`}>
-                  {(lang === "ar" && e.question_ar) || e.question_fr}
+                  {loc(e, "question")}
                 </AccordionTrigger>
-                <AccordionContent className="text-muted-foreground leading-relaxed" lang={lang === "ar" && e.answer_ar ? "ar" : "fr"}>
-                  {(lang === "ar" && e.answer_ar) || e.answer_fr}
+                <AccordionContent className="text-muted-foreground leading-relaxed" lang={e[`answer_${lang}`] ? lang : "fr"}>
+                  {loc(e, "answer")}
                 </AccordionContent>
               </AccordionItem>
             ))}

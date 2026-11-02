@@ -166,7 +166,7 @@ const ar = {
     tabs: { dashboard: "لوحة القيادة", users: "المستخدمون", validation: "التحقق", taxonomy: "التصنيف", flags: "الميزات", settings: "الإعدادات", audit: "سجل التدقيق" },
     taxonomy: { hint: "العائلات والفئات والأوضاع والتخصصات والمواد والمستويات: أضف، أعد التسمية، فعّل أو عطّل.",
       kinds: { families: "العائلات", categories: "الفئات", roles: "الأوضاع", specialties: "التخصصات", subjects: "المواد", levels: "المستويات" },
-      nameFr: "Nom (FR)", nameAr: "الاسم (AR)", parent: "الأصل…", add: "إضافة", delete: "حذف", confirmDelete: "حذف هذا العنصر نهائيًا؟" },
+      nameFr: "Nom (FR)", nameAr: "الاسم (AR)", nameEn: "Name (EN)", parent: "الأصل…", add: "إضافة", delete: "حذف", confirmDelete: "حذف هذا العنصر نهائيًا؟" },
     validation: { hint: "ملفات المهنيين والأساتذة التي يجب التحقق منها قبل النشر.", empty: "لا توجد ملفات بهذه الحالة.",
       approve: "قبول", reject: "رفض", reasonPh: "السبب / ملاحظة (اختياري)" },
     stats: { users_total: "المستخدمون النشطون", clients: "الزبائن", professionals: "المهنيون", teachers: "الأساتذة",

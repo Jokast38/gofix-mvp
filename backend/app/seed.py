@@ -14,6 +14,7 @@ from app.core.config import settings
 from app.core.db import db, init_indexes
 from app.core.security import hash_password
 from app.data import seed_data as S
+from app.data import seed_en as EN
 from app.data.seed_media import avatar, cover, save_set
 from app.services import trust
 from app.services.config_store import ensure_defaults
@@ -69,6 +70,26 @@ async def seed_plans_faq():
         await upsert("faq_entries", {"question_fr": q_fr}, {"category": cat, "question_fr": q_fr, "question_ar": q_ar,
                                                              "answer_fr": a_fr, "answer_ar": None, "variants": variants,
                                                              "lang": "fr", "order": i, "active": True})
+
+
+async def seed_english():
+    """English texts of the reference data: only where the field is empty, so that the back office keeps the last word."""
+    empty = {"$in": [None, "", []]}
+    for code, name in EN.WILAYAS.items():
+        await db.wilayas.update_one({"code": code, "name_en": empty}, {"$set": {"name_en": name}})
+    for (code, fr), name in EN.COMMUNES.items():
+        await db.communes.update_many({"wilaya_code": code, "name_fr": fr, "name_en": empty}, {"$set": {"name_en": name}})
+    for coll, names in (("taxonomy_families", EN.FAMILIES), ("taxonomy_categories", EN.CATEGORIES), ("taxonomy_roles", EN.ROLES),
+                        ("taxonomy_specialties", EN.SPECIALTIES), ("academy_subjects", EN.SUBJECTS), ("academy_levels", EN.LEVELS)):
+        for key, name in names.items():
+            await db[coll].update_one({"key": key, "name_en": empty}, {"$set": {"name_en": name}})
+    for key, (name, perks) in EN.PLANS.items():
+        await db.plans.update_one({"key": key, "name_en": empty}, {"$set": {"name_en": name}})
+        await db.plans.update_one({"key": key, "perks_en": empty}, {"$set": {"perks_en": perks}})
+    for q_fr, (question, answer, variants) in EN.FAQ.items():
+        await db.faq_entries.update_one({"question_fr": q_fr, "question_en": empty}, {"$set": {"question_en": question}})
+        await db.faq_entries.update_one({"question_fr": q_fr, "answer_en": empty}, {"$set": {"answer_en": answer}})
+        await db.faq_entries.update_one({"question_fr": q_fr, "variants_en": empty}, {"$set": {"variants_en": variants}})
 
 
 async def ensure_user(email, full_name, phone, roles, mode, admin_role=None, **extra):
@@ -380,7 +401,7 @@ async def seed_promos():
         await db.ad_banners.insert_one(doc)
 
 
-DEMO_VERSION = 2  # bump when new demo steps must reach existing demo databases (Render)
+DEMO_VERSION = 3  # bump when new demo steps must reach existing demo databases (Render)
 
 
 async def upgrade_demo():
@@ -390,6 +411,7 @@ async def upgrade_demo():
     await seed_history()
     await seed_trust()
     await seed_promos()
+    await seed_english()
 
 
 async def seed_trust():
@@ -426,6 +448,7 @@ async def main(reference_only: bool = False, if_empty: bool = False):
     await seed_geo()
     await seed_taxonomy()
     await seed_plans_faq()
+    await seed_english()
     if reference_only:
         print({c: await db[c].count_documents({}) for c in ("wilayas", "communes", "taxonomy_categories", "plans", "faq_entries")})
         return

@@ -13,7 +13,7 @@ from app.core.ratelimit import hit
 from app.models.user import User
 from app.services import trust
 from app.services.audit import audit
-from app.services.notify import notify
+from app.services.notify import notify_key
 
 router = APIRouter(prefix="/onboarding", tags=["onboarding"])
 
@@ -214,6 +214,6 @@ async def submit(body: SubmitIn, request: Request, user: User = Depends(get_curr
     await audit(f"onboarding.{body.kind}_submitted", user, body.kind, str(res.inserted_id), {}, client_ip(request))
     await track_step(user.id, body.kind, TOTAL_STEPS + 1)
     await trust.recompute(body.kind, res.inserted_id, "profile_created", "onboarding")
-    await notify(uid, "profile_submitted", "Candidature reçue", "Votre fiche est en cours de validation (sous 48 h).", "/dashboard", channels=("inapp",))
+    await notify_key(uid, "profile_submitted", "profile_submitted", "/dashboard", channels=("inapp",))
     return {"id": str(res.inserted_id), "verification_status": "pending",
             "user": User.from_mongo(await db.users.find_one({"_id": uid})).to_public()}

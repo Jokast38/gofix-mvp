@@ -1,5 +1,7 @@
 import { Pressable, View } from "react-native";
 import Svg, { Path } from "react-native-svg";
+import { userService } from "@/api/services";
+import { useAuth } from "@/hooks/auth";
 import { useI18n } from "@/i18n";
 import { alpha, BRAND, useTheme } from "@/theme";
 import { Txt } from "./index";
@@ -24,18 +26,37 @@ export function FlagDZ({ width = 30, height = 20 }) {
   );
 }
 
-const LANGS = [{ code: "fr", label: "Français", Flag: FlagFR }, { code: "ar", label: "العربية", Flag: FlagDZ }];
+export function FlagGB({ width = 30, height = 20 }) {
+  return (
+    <Svg width={width} height={height} viewBox="0 0 60 40">
+      <Path fill="#012169" d="M0 0h60v40H0z" />
+      <Path stroke="#fff" strokeWidth={8} d="M0 0l60 40M60 0L0 40" />
+      <Path stroke="#C8102E" strokeWidth={3} d="M0 0l60 40M60 0L0 40" />
+      <Path fill="#fff" d="M23 0h14v40H23zM0 13h60v14H0z" />
+      <Path fill="#C8102E" d="M26 0h8v40h-8zM0 16h60v8H0z" />
+    </Svg>
+  );
+}
 
-/** Language switch with the French and Algerian flags; `labels` shows the language name under each flag. */
+const LANGS = [{ code: "fr", label: "Français", Flag: FlagFR }, { code: "ar", label: "العربية", Flag: FlagDZ }, { code: "en", label: "English", Flag: FlagGB }];
+
+/** Language switch, one flag per language; `labels` shows the language name under each flag. Logged-in users: the choice is also
+ * saved on the account, because e-mails, SMS and notifications are written on the server in that language. */
 export function LanguageFlags({ labels = false, compact = false, onBeforeChange }) {
   const { c } = useTheme();
   const { lang, setLang, t } = useI18n();
+  const { user, setUser } = useAuth();
+  const pick = (code) => {
+    onBeforeChange?.(code);
+    if (user && user.preferred_language !== code) userService.update({ preferred_language: code }).then(setUser).catch(() => {});
+    setLang(code);
+  };
   return (
     <View accessibilityRole="radiogroup" accessibilityLabel={t("prefs.language")} style={{ flexDirection: "row", gap: compact ? 4 : 10 }}>
       {LANGS.map(({ code, label, Flag }) => {
         const active = lang === code;
         return (
-          <Pressable key={code} onPress={() => { if (!active) { onBeforeChange?.(code); setLang(code); } }} accessibilityRole="radio"
+          <Pressable key={code} onPress={() => { if (!active) pick(code); }} accessibilityRole="radio"
             accessibilityState={{ checked: active }} accessibilityLabel={label} testID={`lang-${code}`}
             style={{ alignItems: "center", justifyContent: "center", gap: 4, minWidth: compact ? 44 : 56, minHeight: compact ? 44 : 48, paddingHorizontal: compact ? 6 : 10, paddingVertical: 6, borderRadius: compact ? 12 : 14,
               borderWidth: 2, borderColor: active ? BRAND.electric : c.border, backgroundColor: active ? alpha(BRAND.electric, 0.12) : "transparent", opacity: active ? 1 : 0.55 }}>

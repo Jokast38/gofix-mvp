@@ -1,0 +1,7 @@
+{
+  "ios": {
+    "NSPhotoLibraryUsageDescription": "GoFix uses your photos for your profile photo, your cover image and your supporting documents.",
+    "NSCameraUsageDescription": "GoFix uses the camera for your profile photo and your supporting documents.",
+    "NSLocationWhenInUseUsageDescription": "GoFix uses your location, only if you ask it to, to suggest your wilaya. It is not saved."
+  }
+}

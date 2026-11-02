@@ -207,7 +207,7 @@ const lots2 = {
       intro: { title: "Bienvenue sur GoFix 👋", text: "En moins d'une minute, voyons comment trouver un professionnel ou un professeur de confiance près de chez vous." },
       search: { title: "Décrivez simplement votre besoin", text: "Écrivez comme vous parlez : « fuite à Kouba aujourd'hui », « prof de maths 3AS en ligne ». AI MATCH comprend la demande et classe les meilleurs profils." },
       universes: { title: "Services ou soutien scolaire", text: "Choisissez votre univers : artisans et professionnels du quotidien, ou professeurs à domicile, en ligne ou en centre." },
-      language: { title: "Français ou arabe", text: "Changez de langue à tout moment avec les drapeaux : tout le site passe en arabe, de droite à gauche." },
+      language: { title: "Français, arabe ou anglais", text: "Changez de langue à tout moment avec les drapeaux : tout le site suit, et l'arabe s'affiche de droite à gauche." },
       assistant: { title: "Une question ?", text: "L'assistant répond aux questions fréquentes et peut vous mettre en relation avec un conseiller." },
       register: { title: "Créez votre compte gratuit", text: "Pour contacter un professionnel, publier une demande ou proposer vos services, inscrivez-vous en une minute." },
       end: { title: "Vous êtes prêt !", text: "Retrouvez les visites guidées à tout moment en bas de page ou dans « Mon compte »." },
@@ -263,7 +263,7 @@ const lots2 = {
     } },
     appWelcome: { name: "Découvrir l'application", steps: {
       intro: { title: "Bienvenue sur GoFix 👋", text: "Voyons en quelques secondes comment trouver le bon professionnel ou le bon professeur." },
-      language: { title: "Français ou arabe", text: "Touchez un drapeau pour changer de langue." },
+      language: { title: "Français, arabe ou anglais", text: "Touchez un drapeau pour changer de langue." },
       search: { title: "Décrivez votre besoin", text: "Écrivez comme vous parlez : AI MATCH comprend et vous propose les meilleurs profils." },
       tiles: { title: "Parcourez par métier", text: "Touchez un métier pour voir les professionnels disponibles." },
       tabbar: { title: "Navigation", text: "En bas : Accueil, Chercher, Publier, Messages et Compte." },

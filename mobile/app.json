@@ -8,10 +8,14 @@
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
     "backgroundColor": "#070911",
+    "locales": {
+      "en": "./locales/en.json"
+    },
     "ios": {
       "bundleIdentifier": "dz.gofix.app",
       "supportsTablet": true,
       "infoPlist": {
+        "CFBundleAllowMixedLocalizations": true,
         "NSPhotoLibraryUsageDescription": "GoFix utilise vos photos pour votre photo de profil, votre image de couverture et vos justificatifs.",
         "NSCameraUsageDescription": "GoFix utilise l'appareil photo pour votre photo de profil et vos justificatifs.",
         "NSLocationWhenInUseUsageDescription": "GoFix utilise votre position, uniquement si vous le demandez, pour proposer votre wilaya. Elle n'est pas enregistrée."

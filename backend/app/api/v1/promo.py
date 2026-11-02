@@ -48,7 +48,7 @@ async def _month_ranking(start: datetime, end: datetime) -> list[dict]:
 
 async def _cards(profiles: list[dict], identity: bool, month_stats: dict | None = None) -> list[dict]:
     cats = {c["key"]: c async for c in db.taxonomy_categories.find({"key": {"$in": [p.get("category_key") for p in profiles]}})}
-    wil = {w["code"]: w async for w in db.wilayas.find({}, {"_id": 0, "code": 1, "name_fr": 1, "name_ar": 1})}
+    wil = {w["code"]: w async for w in db.wilayas.find({}, {"_id": 0, "code": 1, "name_fr": 1, "name_ar": 1, "name_en": 1})}
     out = []
     for p in profiles:
         c = cats.get(p.get("category_key"), {})
@@ -58,8 +58,8 @@ async def _cards(profiles: list[dict], identity: bool, month_stats: dict | None 
             "id": str(p["_id"]), "kind": "professional", "verification_status": p.get("verification_status"),
             "display_name": p.get("display_name") if identity else None,
             "photo_key": p.get("photo_key") if identity else None, "photo_thumb_key": p.get("photo_thumb_key") if identity else None,
-            "category": {"key": c.get("key"), "name_fr": c.get("name_fr"), "name_ar": c.get("name_ar"), "icon": c.get("icon")},
-            "wilaya": {"code": code, "name_fr": wil.get(code, {}).get("name_fr"), "name_ar": wil.get(code, {}).get("name_ar")} if code else None,
+            "category": {"key": c.get("key"), "name_fr": c.get("name_fr"), "name_ar": c.get("name_ar"), "name_en": c.get("name_en"), "icon": c.get("icon")},
+            "wilaya": {"code": code, "name_fr": wil.get(code, {}).get("name_fr"), "name_ar": wil.get(code, {}).get("name_ar"), "name_en": wil.get(code, {}).get("name_en")} if code else None,
             "rating_avg": p.get("rating_avg") or 0, "rating_count": p.get("rating_count") or 0,
             "month": {"count": stats["n"], "avg": round(stats["total"] / stats["n"], 1)} if stats else None,
         })

@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import { PageHeader } from "@/components/common/PageSkeleton";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/hooks/AuthProvider";
-import { useI18n } from "@/i18n";
+import { useI18n, useLocalized } from "@/i18n";
 import { errorCode, formatDA, formatDate } from "@/lib/format";
 import { ui } from "@/lib/ui";
 import { billingService } from "@/services/marketplaceService";
@@ -22,6 +22,7 @@ function defaultAudience(user) {
 
 export default function Pricing() {
   const { t, te, lang } = useI18n();
+  const loc = useLocalized();
   const { user } = useAuth();
   const navigate = useNavigate();
   const [sp] = useSearchParams();
@@ -61,13 +62,13 @@ export default function Pricing() {
             const featured = p.key === highlight || p.tier === "premium";
             return (
               <article key={p.key} className={`gf-card p-6 flex flex-col ${featured ? "gf-gradient-border" : ""}`} data-testid={`plan-${p.key}`}>
-                <h2 className="text-xl font-extrabold">{lang === "ar" ? p.name_ar || p.name_fr : p.name_fr}</h2>
+                <h2 className="text-xl font-extrabold">{loc(p)}</h2>
                 <p className="mt-3 text-3xl font-extrabold">
                   {p.tier === "free" ? t("pricing.free") : p.price_da ? formatDA(p.price_da) : <span className="text-lg text-muted-foreground">{t("pricing.tbd")}</span>}
                   {p.tier !== "free" && p.price_da ? <span className="text-sm font-semibold text-muted-foreground"> {t("pricing.per", { days: p.duration_days })}</span> : null}
                 </p>
                 <ul className="mt-4 space-y-2 text-sm flex-1">
-                  {(p.perks_fr || []).map((perk) => <li key={perk} className="flex gap-2"><Check size={16} className="text-brand-electric shrink-0 mt-0.5" />{perk}</li>)}
+                  {(p[`perks_${lang}`]?.length ? p[`perks_${lang}`] : p.perks_fr || []).map((perk) => <li key={perk} className="flex gap-2"><Check size={16} className="text-brand-electric shrink-0 mt-0.5" />{perk}</li>)}
                 </ul>
                 {active ? (
                   <p className="mt-5 rounded-full border border-brand-electric/50 px-4 py-2.5 text-center text-sm font-bold text-brand-electric" data-testid={`plan-active-${p.key}`}>

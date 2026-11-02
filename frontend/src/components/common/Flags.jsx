@@ -19,4 +19,16 @@ export function FlagDZ({ className = "" }) {
   );
 }
 
-export const FLAGS = { fr: FlagFR, ar: FlagDZ };
+export function FlagGB({ className = "" }) {
+  return (
+    <svg viewBox="0 0 60 40" className={className} aria-hidden="true" focusable="false">
+      <path fill="#012169" d="M0 0h60v40H0z" />
+      <path stroke="#fff" strokeWidth="8" d="M0 0l60 40M60 0L0 40" />
+      <path stroke="#C8102E" strokeWidth="3" d="M0 0l60 40M60 0L0 40" />
+      <path fill="#fff" d="M23 0h14v40H23zM0 13h60v14H0z" />
+      <path fill="#C8102E" d="M26 0h8v40h-8zM0 16h60v8H0z" />
+    </svg>
+  );
+}
+
+export const FLAGS = { fr: FlagFR, ar: FlagDZ, en: FlagGB };

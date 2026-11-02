@@ -19,7 +19,7 @@ export const COMPANY_KEYS = [...COMPANY_GROUPS.flatMap((g) => g.fields), "legal_
 
 /** Super-admin: company identity and legal notices (RC, NIF, address, contacts...). Empty fields show "[à compléter]". */
 export function AdminCompany({ canEdit }) {
-  const { t, te } = useI18n();
+  const { t, te, td } = useI18n();
   const qc = useQueryClient();
   const { data = [], isLoading } = useQuery({ queryKey: ["admin-settings"], queryFn: adminService.settings });
   const byKey = useMemo(() => Object.fromEntries(data.map((s) => [s.key, s])), [data]);
@@ -56,7 +56,7 @@ export function AdminCompany({ canEdit }) {
           <div className="grid gap-4 md:grid-cols-2">
             {g.fields.filter((k) => byKey[k]).map((k) => (
               <label key={k} className={k === "company_address" ? "md:col-span-2" : ""}>
-                <span className={ui.label}>{byKey[k].description}</span>
+                <span className={ui.label}>{td(byKey[k])}</span>
                 <input value={form[k] ?? ""} onChange={(e) => setForm((f) => ({ ...f, [k]: e.target.value }))} disabled={!canEdit}
                   dir={/(email|phone|rc|nif|nis)$/.test(k) ? "ltr" : undefined} className={ui.input} data-testid={`company-${k}`} />
               </label>

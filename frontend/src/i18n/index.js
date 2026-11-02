@@ -1,12 +1,16 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import frBase from "./fr";
 import arBase from "./ar";
+import enBase from "./en";
 import frLots from "./fr.lots";
 import arLots from "./ar.lots";
+import enLots from "./en.lots";
 import frLots2 from "./fr.lots2";
 import arLots2 from "./ar.lots2";
+import enLots2 from "./en.lots2";
 import frLegal from "./fr.legal";
 import arLegal from "./ar.legal";
+import enLegal from "./en.legal";
 
 function deepMerge(base, extra) {
   const out = { ...base };
@@ -18,11 +22,13 @@ function deepMerge(base, extra) {
 
 const fr = [frLots, frLots2, frLegal].reduce(deepMerge, frBase);
 const ar = [arLots, arLots2, arLegal].reduce(deepMerge, arBase);
+const en = [enLots, enLots2, enLegal].reduce(deepMerge, enBase);
 
-// Add "en" / "tz" here later: { dict, dir, label }.
+// Add "tz" here later: { dict, dir, label, short, locale }.
 export const LANGUAGES = {
-  fr: { dict: fr, dir: "ltr", label: "Français", short: "FR" },
-  ar: { dict: ar, dir: "rtl", label: "العربية", short: "ع" },
+  fr: { dict: fr, dir: "ltr", label: "Français", short: "FR", locale: "fr-FR" },
+  ar: { dict: ar, dir: "rtl", label: "العربية", short: "ع", locale: "ar-DZ" },
+  en: { dict: en, dir: "ltr", label: "English", short: "EN", locale: "en-GB" },
 };
 const DEFAULT_LANG = "fr";
 const KEY = "gofix_lang";
@@ -68,7 +74,10 @@ export function I18nProvider({ children }) {
     [t],
   );
 
-  const value = useMemo(() => ({ lang, setLang, t, te, dir: LANGUAGES[lang].dir }), [lang, setLang, t, te]);
+  // Description of a feature flag or setting: written in French by the server, translated in the "adminDesc" dictionary.
+  const td = useCallback((item) => lookup(LANGUAGES[lang].dict, `adminDesc.${item.key}`) ?? item.description, [lang]);
+
+  const value = useMemo(() => ({ lang, setLang, t, te, td, dir: LANGUAGES[lang].dir }), [lang, setLang, t, te, td]);
   return <I18nContext.Provider value={value}>{children}</I18nContext.Provider>;
 }
 

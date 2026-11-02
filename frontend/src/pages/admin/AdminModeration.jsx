@@ -112,17 +112,18 @@ export function CategoryRequests({ canEdit }) {
       <h3 className="font-bold mb-3">{t("adminx.categoryRequests")}</h3>
       <ul className="grid gap-3">
         {data.map((c) => {
-          const f = form[c.id] || { key: "", name_fr: c.name, name_ar: "" };
+          const f = form[c.id] || { key: "", name_fr: c.name, name_ar: "", name_en: "" };
           const setF = (patch) => setForm({ ...form, [c.id]: { ...f, ...patch } });
           return (
             <li key={c.id} className="rounded-xl border border-border p-3">
               <p className="font-bold">{c.name} <span className="text-xs font-normal text-muted-foreground">· {c.family_key} · {c.user?.full_name}</span></p>
               {c.description && <p className="text-sm">{c.description}</p>}
               {canEdit && (
-                <div className="mt-2 grid gap-2 sm:grid-cols-[1fr_1fr_1fr_auto_auto]">
+                <div className="mt-2 grid gap-2 sm:grid-cols-[1fr_1fr_1fr_1fr_auto_auto]">
                   <input value={f.key} onChange={(e) => setF({ key: e.target.value })} placeholder="key_categorie" dir="ltr" className={`${ui.input} min-h-[40px] font-mono text-sm`} />
                   <input value={f.name_fr} onChange={(e) => setF({ name_fr: e.target.value })} placeholder={t("admin.taxonomy.nameFr")} className={`${ui.input} min-h-[40px]`} />
                   <input value={f.name_ar} onChange={(e) => setF({ name_ar: e.target.value })} placeholder={t("admin.taxonomy.nameAr")} dir="rtl" className={`${ui.input} min-h-[40px]`} />
+                  <input value={f.name_en} onChange={(e) => setF({ name_en: e.target.value })} placeholder={t("admin.taxonomy.nameEn")} dir="ltr" className={`${ui.input} min-h-[40px]`} />
                   <button type="button" onClick={() => act(() => adminOpsService.decideCategory(c.id, { status: "rejected" }))} className={`${ui.btnOutline} min-h-[40px]`}>{t("admin.validation.reject")}</button>
                   <button type="button" onClick={() => act(() => adminOpsService.decideCategory(c.id, { status: "approved", ...f }))} className={`${ui.btnPrimary} min-h-[40px]`}>{t("admin.validation.approve")}</button>
                 </div>

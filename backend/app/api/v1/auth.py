@@ -16,6 +16,7 @@ from app.core.phone import normalize_dz_phone
 from app.core.ratelimit import hit
 from app.core.security import (create_access_token, create_refresh_token, decode_token, hash_password, sha256,
                                verify_password)
+from app.data.messages import lang_of, message
 from app.models.user import Consent, Guardian, User
 from app.services.audit import audit
 from app.services.config_store import get_setting, is_enabled
@@ -50,7 +51,7 @@ class RegisterIn(BaseModel):
     phone: str
     password: str = Field(min_length=8, max_length=128)
     account_type: Literal["client", "student", "professional", "teacher"] = "client"
-    preferred_language: Literal["fr", "ar"] = "fr"
+    preferred_language: Literal["fr", "ar", "en"] = "fr"
     accept_terms: bool
     accept_privacy: bool
     birth_year: Optional[int] = Field(default=None, ge=1920, le=2030)
@@ -212,7 +213,7 @@ async def otp_request(body: OtpRequestIn, request: Request):
     await db.otp_codes.delete_many({"phone": body.phone, "purpose": body.purpose})
     await db.otp_codes.insert_one({"phone": body.phone, "purpose": body.purpose, "code_hash": sha256(code),
                                    "attempts": 0, "created_at": now, "expires_at": now + timedelta(seconds=ttl)})
-    await get_sms_adapter().send(body.phone, f"GOFIX : votre code est {code}. Valable {ttl // 60} min.")
+    await get_sms_adapter().send(body.phone, message("otp_code", lang_of(request), code=code, minutes=ttl // 60)[1])
     return {"sent": True, "expires_in": ttl}
 
 
@@ -250,7 +251,7 @@ async def forgot(body: ForgotIn, request: Request):
         await db.password_reset_tokens.insert_one({"token_hash": sha256(token), "user_id": doc["_id"], "used": False,
                                                    "created_at": now, "expires_at": now + timedelta(hours=1)})
         link = f"{settings.frontend_url}/reset-password?token={token}"
-        await get_email_adapter().send(doc["email"], "GOFIX – Réinitialisation du mot de passe", link)
+        await get_email_adapter().send(doc["email"], *message("password_reset", doc.get("preferred_language"), link=link))
     return {"sent": True}
 
 

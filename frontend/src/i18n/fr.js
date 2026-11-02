@@ -166,7 +166,7 @@ const fr = {
     tabs: { dashboard: "Tableau de bord", users: "Utilisateurs", validation: "Validation", taxonomy: "Taxonomie", flags: "Feature flags", settings: "Paramètres", audit: "Journal d'audit" },
     taxonomy: { hint: "Familles, catégories, statuts, spécialités, matières et niveaux : ajoutez, renommez, activez ou désactivez. Les changements sont visibles immédiatement dans l'app.",
       kinds: { families: "Familles", categories: "Catégories", roles: "Statuts", specialties: "Spécialités", subjects: "Matières", levels: "Niveaux" },
-      nameFr: "Nom (FR)", nameAr: "الاسم (AR)", parent: "Parent…", add: "Ajouter", delete: "Supprimer", confirmDelete: "Supprimer définitivement cet élément ?" },
+      nameFr: "Nom (FR)", nameAr: "الاسم (AR)", nameEn: "Name (EN)", parent: "Parent…", add: "Ajouter", delete: "Supprimer", confirmDelete: "Supprimer définitivement cet élément ?" },
     validation: { hint: "Fiches professionnelles et professeurs à valider avant publication.", empty: "Aucune fiche dans cet état.",
       approve: "Valider", reject: "Refuser", reasonPh: "Motif / remarque (facultatif)" },
     stats: { users_total: "Utilisateurs actifs", clients: "Clients", professionals: "Professionnels", teachers: "Professeurs",

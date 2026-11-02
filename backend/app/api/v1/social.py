@@ -10,7 +10,7 @@ from app.core.db import db
 from app.core.deps import get_current_user
 from app.models.user import User
 from app.services.access_policy import apply_policy, resolve_access
-from app.services.notify import notify
+from app.services.notify import notify_key
 from app.services.visibility import PUBLIC_PROFILE
 
 router = APIRouter(tags=["social"])
@@ -140,7 +140,7 @@ async def _send(conv_id, sender: ObjectId, text: str, recipient: ObjectId, sende
     now = _now()
     await db.messages.insert_one({"conversation_id": conv_id, "sender_id": sender, "body": text, "created_at": now, "read_at": None})
     await db.conversations.update_one({"_id": conv_id}, {"$set": {"updated_at": now, "last_message": {"body": text[:120], "sender_id": sender, "at": now}}})
-    await notify(recipient, "message", f"Nouveau message de {sender_name}", text[:140], f"/messages/{conv_id}", channels=("inapp", "push"))
+    await notify_key(recipient, "message", "message_new", f"/messages/{conv_id}", channels=("inapp", "push"), name=sender_name, text=text[:140])
 
 
 @router.get("/conversations")

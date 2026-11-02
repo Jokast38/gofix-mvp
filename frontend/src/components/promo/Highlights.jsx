@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { BadgeCheck, Crown, MapPin, Medal, Star, Trophy } from "lucide-react";
 import { Avatar } from "@/components/catalog/Cards";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useI18n, useLocalized } from "@/i18n";
+import { LANGUAGES, useI18n, useLocalized } from "@/i18n";
 import { neonFor } from "@/lib/icons";
 import { promoService } from "@/services/promoService";
 
@@ -14,7 +14,7 @@ const ITEM = "w-[82%] shrink-0 snap-start sm:w-auto";
 function monthLabel(period, lang) {
   const [y, m] = (period || "").split("-").map(Number);
   if (!y || !m) return "";
-  return new Intl.DateTimeFormat(lang === "ar" ? "ar-DZ" : "fr-FR", { month: "long", year: "numeric" }).format(new Date(Date.UTC(y, m - 1, 15)));
+  return new Intl.DateTimeFormat(LANGUAGES[lang].locale, { month: "long", year: "numeric" }).format(new Date(Date.UTC(y, m - 1, 15)));
 }
 
 function Stars({ avg, count, label }) {

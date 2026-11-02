@@ -7,7 +7,7 @@ import { useI18n } from "@/i18n";
 import { errorCode } from "@/lib/format";
 
 export function AdminFlags({ canEdit }) {
-  const { t, te } = useI18n();
+  const { t, te, td } = useI18n();
   const qc = useQueryClient();
   const { data = [], isLoading } = useQuery({ queryKey: ["admin-flags"], queryFn: adminService.flags });
 
@@ -31,7 +31,7 @@ export function AdminFlags({ canEdit }) {
           <li key={f.key} className="gf-card p-4 flex items-center justify-between gap-4" data-testid={`admin-flag-${f.key}`}>
             <div className="min-w-0">
               <p className="font-mono text-sm font-bold" dir="ltr">{f.key}</p>
-              <p className="text-xs text-muted-foreground">{f.description}</p>
+              <p className="text-xs text-muted-foreground">{td(f)}</p>
               <span className={`mt-1 inline-block text-[11px] font-bold ${f.mvp ? "text-brand-electric" : "text-brand-orange"}`}>
                 {f.mvp ? t("admin.flags.mvp") : t("admin.flags.future")}
               </span>

@@ -8,7 +8,7 @@ import { Check, CreditCard, ShieldCheck } from "lucide-react-native";
 import { errorCode } from "@/api/client";
 import { billingService } from "@/api/services";
 import { isProvider, useAuth } from "@/hooks/auth";
-import { useI18n } from "@/i18n";
+import { useI18n, useLocalized } from "@/i18n";
 import { formatDA, formatDate } from "@/lib/format";
 import { BRAND } from "@/theme";
 import { Btn, Card, Chip, Loading, Row, Screen, TopBar, Txt, useToast } from "@/ui";
@@ -17,6 +17,7 @@ const AUDIENCES = ["client", "professional", "student"];
 
 export default function Pricing() {
   const { t, te, lang } = useI18n();
+  const loc = useLocalized();
   const toast = useToast();
   const { user } = useAuth();
   const params = useLocalSearchParams();
@@ -53,10 +54,10 @@ export default function Pricing() {
         const paid = p.tier !== "free" && p.price_da;
         return (
           <Card key={p.key} glow={p.tier === "premium" || p.key === params.plan} style={{ marginBottom: 12, gap: 8 }} testID={`plan-${p.key}`}>
-            <Txt variant="h2">{lang === "ar" ? p.name_ar || p.name_fr : p.name_fr}</Txt>
+            <Txt variant="h2">{loc(p)}</Txt>
             <Txt variant="h1">{p.tier === "free" ? t("pricing.free") : p.price_da ? formatDA(p.price_da) : t("pricing.tbd")}
               {paid ? <Txt variant="small" muted> {t("pricing.per", { days: p.duration_days })}</Txt> : null}</Txt>
-            {(p.perks_fr || []).map((perk) => <Row key={perk} gap={8} style={{ alignItems: "flex-start" }}><Check size={16} color={BRAND.electric} /><Txt variant="small" style={{ flex: 1 }}>{perk}</Txt></Row>)}
+            {(p[`perks_${lang}`]?.length ? p[`perks_${lang}`] : p.perks_fr || []).map((perk) => <Row key={perk} gap={8} style={{ alignItems: "flex-start" }}><Check size={16} color={BRAND.electric} /><Txt variant="small" style={{ flex: 1 }}>{perk}</Txt></Row>)}
             {active && <Txt variant="small" weight={700} color={BRAND.electric}>{t("pricing.activeUntil", { date: formatDate(active.ends_at) })}</Txt>}
             {paid ? <Btn variant={p.tier === "premium" ? "gradient" : "primary"} icon={CreditCard} title={active ? t("pricing.renew") : t("pricing.choose")}
               loading={busy === p.key} disabled={Boolean(busy)} onPress={() => buy(p)} testID={`buy-${p.key}`} /> : null}

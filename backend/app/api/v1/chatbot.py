@@ -25,7 +25,7 @@ SYSTEM = ("Tu es l'assistant de GoFix (Algérie). Réponds UNIQUEMENT à partir 
 
 class AskIn(BaseModel):
     message: str = Field(min_length=1, max_length=500)
-    lang: Literal["fr", "ar"] = "fr"
+    lang: Literal["fr", "ar", "en"] = "fr"
 
 
 class HandoffIn(BaseModel):
@@ -52,7 +52,7 @@ async def _rephrase(question: str, hits: list[dict], lang: str) -> str | None:
         return None
     snippets = "\n\n".join(f"Q : {e['question_fr']}\nR : {e['answer_fr']}" for e in hits)
     try:
-        out = await llm.complete(SYSTEM.format(lang="arabe" if lang == "ar" else "français"),
+        out = await llm.complete(SYSTEM.format(lang={"ar": "arabe", "en": "anglais"}.get(lang, "français")),
                                  f"Extraits FAQ :\n{snippets}\n\nQuestion de l'utilisateur : {question}")
     except Exception:
         log.exception("llm_failed")
@@ -83,7 +83,7 @@ async def ask(body: AskIn, request: Request, user: User | None = Depends(get_opt
 
 
 @router.get("/faq/{faq_id}")
-async def faq_entry(faq_id: str, lang: Literal["fr", "ar"] = "fr"):
+async def faq_entry(faq_id: str, lang: Literal["fr", "ar", "en"] = "fr"):
     try:
         e = await db.faq_entries.find_one({"_id": ObjectId(faq_id), "active": True})
     except Exception:

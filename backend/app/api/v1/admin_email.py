@@ -9,6 +9,7 @@ from pydantic import BaseModel, Field
 from app.adapters.email import SmtpEmailAdapter
 from app.core.deps import client_ip, require_admin
 from app.core.ratelimit import hit
+from app.data.messages import lang_of, message
 from app.models.user import User
 from app.services import email_config
 from app.services.audit import audit
@@ -83,9 +84,7 @@ async def test_config(body: TestIn, request: Request, admin: User = Depends(requ
         raise HTTPException(422, "smtp_incomplete")
     result = {"ok": True, "stage": "sent", "message": ""}
     try:
-        await SmtpEmailAdapter(cfg["smtp"]).send(to, "GoFix – E-mail de test",
-                                                 "Ceci est un e-mail de test envoyé depuis le back-office GoFix.\n"
-                                                 "Si vous le recevez, l'envoi des e-mails de la plateforme fonctionne.")
+        await SmtpEmailAdapter(cfg["smtp"]).send(to, *message("mail_test", lang_of(request)))
     except smtplib.SMTPAuthenticationError as exc:
         result = {"ok": False, "stage": "auth", "message": f"{exc.smtp_code}"}
     except smtplib.SMTPRecipientsRefused:

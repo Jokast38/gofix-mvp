@@ -6,7 +6,9 @@ from difflib import SequenceMatcher
 STOP = set("""a au aux avec ce ces c est cest d de des du elle en et il ils je j l la le les leur lui ma me mes moi mon ne nos notre nous on ou
 par pas pour qu que quel quelle quelles quels qui sa se ses son sont sur ta te tes toi ton tu un une vos votre vous y suis est etre
 comment pourquoi quoi faire fait peut peux puis veux voudrais dois il y a ai as avez bonjour svp merci est-ce ca cela
-في من على الى إلى عن ما هل كيف لماذا هو هي أنا انا""".split())
+في من على الى إلى عن ما هل كيف لماذا هو هي أنا انا
+the an is are am do does did can could should would will my your it its to of in on at for and or with what how why where when i me we you have has
+this that there please hello hi""".split())
 
 
 def norm(s: str) -> str:
@@ -49,7 +51,7 @@ def score_text(query: str, text: str) -> float:
 def search(query: str, entries: list[dict]) -> list[tuple[float, dict]]:
     scored = []
     for e in entries:
-        texts = [e.get("question_fr"), e.get("question_ar"), *(e.get("variants") or [])]
+        texts = [e.get("question_fr"), e.get("question_ar"), e.get("question_en"), *(e.get("variants") or []), *(e.get("variants_en") or [])]
         s = max((score_text(query, x) for x in texts if x), default=0.0)
         scored.append((s, e))
     return sorted(scored, key=lambda x: -x[0])

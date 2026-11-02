@@ -1,4 +1,4 @@
-"""AI MATCH step 1 — RequestIntent: free text (FR / AR / darija) -> structured need, by deterministic rules.
+"""AI MATCH step 1 — RequestIntent: free text (FR / AR / darija / EN) -> structured need, by deterministic rules.
 No generative model is required (GF1-001 / GF1-005); an LLM can later enrich this behind the same schema."""
 import re
 import time
@@ -34,26 +34,26 @@ async def _vocab() -> dict:
     """Taxonomy-driven vocabulary (cached): names from the DB + synonyms from the lexicon."""
     if "v" in _CACHE and time.monotonic() - _CACHE["at"] < CACHE_TTL_S:
         return _CACHE["v"]
-    cats = await db.taxonomy_categories.find({"active": {"$ne": False}}, {"_id": 0, "key": 1, "name_fr": 1, "name_ar": 1, "family_key": 1}).to_list(500)
-    subjects = await db.academy_subjects.find({"active": {"$ne": False}}, {"_id": 0, "key": 1, "name_fr": 1, "name_ar": 1}).to_list(100)
+    cats = await db.taxonomy_categories.find({"active": {"$ne": False}}, {"_id": 0, "key": 1, "name_fr": 1, "name_ar": 1, "name_en": 1, "family_key": 1}).to_list(500)
+    subjects = await db.academy_subjects.find({"active": {"$ne": False}}, {"_id": 0, "key": 1, "name_fr": 1, "name_ar": 1, "name_en": 1}).to_list(100)
     wilayas = await db.wilayas.find({}, {"_id": 0}).to_list(100)
     communes = await db.communes.find({}, {"_id": 0}).to_list(5000)
     cat_terms = {}
     for c in cats:
         if c.get("family_key") == "academy":
             continue
-        names = [c.get("name_fr", ""), c.get("name_ar", "")] + [x.strip() for x in (c.get("name_fr") or "").split("/")]
+        names = [c.get("name_fr", ""), c.get("name_ar", ""), c.get("name_en", "")] + [x.strip() for n in ("name_fr", "name_en") for x in (c.get(n) or "").split("/")]
         cat_terms[c["key"]] = [n for n in names if n] + L.CATEGORY_SYNONYMS.get(c["key"], [])
-    subj_terms = {s["key"]: [s.get("name_fr", ""), s.get("name_ar", "")] + L.SUBJECT_SYNONYMS.get(s["key"], []) for s in subjects}
+    subj_terms = {s["key"]: [s.get("name_fr", ""), s.get("name_ar", ""), s.get("name_en", "")] + L.SUBJECT_SYNONYMS.get(s["key"], []) for s in subjects}
     places = []  # (normalized name, wilaya_code, commune or None)
     for w in wilayas:
-        for n in (w.get("name_fr"), w.get("name_ar")):
+        for n in (w.get("name_fr"), w.get("name_ar"), w.get("name_en")):
             if n:
                 places.append((norm(n), w["code"], None))
     for c in communes:
         if c.get("is_capital"):
             continue
-        for n in (c.get("name_fr"), c.get("name_ar")):
+        for n in (c.get("name_fr"), c.get("name_ar"), c.get("name_en")):
             if n:
                 places.append((norm(n), c["wilaya_code"], c["name_fr"]))
     places.sort(key=lambda x: -len(x[0]))  # longest first: "Bab Ezzouar" before "Bab"

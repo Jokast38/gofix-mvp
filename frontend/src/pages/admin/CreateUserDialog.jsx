@@ -122,6 +122,7 @@ export function CreateUserDialog({ open, onClose }) {
                 <select id="cu-lang" value={form.preferred_language} onChange={set("preferred_language")} className={ui.input} data-testid="create-user-language">
                   <option value="fr">Français</option>
                   <option value="ar">العربية</option>
+                  <option value="en">English</option>
                 </select>
               </div>
             </div>

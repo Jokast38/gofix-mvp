@@ -108,7 +108,7 @@ function monthLabel(period, lang) {
   const [y, m] = (period || "").split("-").map(Number);
   if (!y || !m) return "";
   try {
-    return new Intl.DateTimeFormat(lang === "ar" ? "ar-DZ" : "fr-FR", { month: "long", year: "numeric" }).format(new Date(Date.UTC(y, m - 1, 15)));
+    return new Intl.DateTimeFormat({ ar: "ar-DZ", en: "en-GB" }[lang] || "fr-FR", { month: "long", year: "numeric" }).format(new Date(Date.UTC(y, m - 1, 15)));
   } catch {
     return `${String(m).padStart(2, "0")}/${y}`;
   }

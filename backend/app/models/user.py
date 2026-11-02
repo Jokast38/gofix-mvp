@@ -31,7 +31,7 @@ class User(BaseDocument):
     active_mode: Role = "client"
     admin_role: Optional[AdminRole] = None
     status: Literal["active", "suspended", "deleted"] = "active"
-    preferred_language: Literal["fr", "ar"] = "fr"
+    preferred_language: Literal["fr", "ar", "en"] = "fr"
     theme: Literal["dark", "light"] = "dark"
     week_start: Literal["saturday", "sunday"] = "saturday"
     wilaya_code: Optional[int] = None

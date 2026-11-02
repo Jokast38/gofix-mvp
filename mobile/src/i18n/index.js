@@ -6,13 +6,17 @@ import { prefs } from "@/api/storage";
 import { session } from "@/api/client";
 import frBase from "./shared/fr";
 import arBase from "./shared/ar";
+import enBase from "./shared/en";
 import frLots from "./shared/fr.lots";
 import arLots from "./shared/ar.lots";
+import enLots from "./shared/en.lots";
 import frLots2 from "./shared/fr.lots2";
 import arLots2 from "./shared/ar.lots2";
+import enLots2 from "./shared/en.lots2";
 import frLegal from "./shared/fr.legal";
 import arLegal from "./shared/ar.legal";
-import { mobileAr, mobileFr } from "./mobile";
+import enLegal from "./shared/en.legal";
+import { mobileAr, mobileEn, mobileFr } from "./mobile";
 
 function deepMerge(base, extra) {
   const out = { ...base };
@@ -25,6 +29,7 @@ function deepMerge(base, extra) {
 const DICTS = {
   fr: [frBase, frLots, frLots2, frLegal, mobileFr].reduce(deepMerge),
   ar: [arBase, arLots, arLots2, arLegal, mobileAr].reduce(deepMerge),
+  en: [enBase, enLots, enLots2, enLegal, mobileEn].reduce(deepMerge),
 };
 const KEY = "gofix_lang";
 const I18nCtx = createContext(null);

@@ -37,7 +37,7 @@ async def public_config():
     flags = await db.feature_flags.find({}, {"_id": 0, "key": 1, "enabled": 1}).to_list(200)
     sets = await db.settings.find({"public": True}, {"_id": 0, "key": 1, "value": 1}).to_list(200)
     return {"flags": {f["key"]: f["enabled"] for f in flags}, "settings": {s["key"]: s["value"] for s in sets},
-            "languages": ["fr", "ar"], "currency": "DZD", "timezone": "Africa/Algiers"}
+            "languages": ["fr", "ar", "en"], "currency": "DZD", "timezone": "Africa/Algiers"}
 
 
 @router.post("/consents/cookies", status_code=201)
@@ -60,6 +60,6 @@ async def contact(body: ContactIn, request: Request, user: User | None = Depends
 
 
 @router.get("/faq")
-async def faq(lang: Literal["fr", "ar"] = "fr"):
+async def faq(lang: Literal["fr", "ar", "en"] = "fr"):
     docs = await db.faq_entries.find({"active": True}, {"variants": 0}).sort([("category", 1), ("order", 1)]).to_list(500)
     return [{k: v for k, v in d.items() if k != "_id"} | {"id": str(d["_id"])} for d in docs]

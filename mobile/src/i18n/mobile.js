@@ -24,6 +24,31 @@ export const mobileFr = {
   },
 };
 
+export const mobileEn = {
+  auth: { forgot: "Forgot your password?", forgotSent: "If an account exists, a reset link has been sent by e-mail (valid for 1 hour)." },
+  match: { placeholder: "E.g. leak in Kouba today" },
+  tabs: { home: "Home", search: "Search", messages: "Messages", publish: "Post", pro: "Pro space", account: "Account" },
+  mobile: {
+    offline: "Offline – the data shown may not be up to date.", retry: "Try again", pullToRefresh: "Pull to refresh",
+    pickPhoto: "Choose a photo", pickFile: "Choose a file", more: "More", menu: "Menu", openWeb: "Open on the website",
+    adminOnWeb: "The back office is available on the web version (computer or tablet).", select: "Choose…", searchIn: "Search…",
+    day: "Day", time: "Time", today: "Today", tomorrow: "Tomorrow", invoiceShared: "Invoice ready to share.",
+    exportShared: "Export ready to share.", languageReload: "The app restarts to apply Arabic (right to left).", restartManual: "Close and reopen the app to finish changing the display direction.", reloadExpoGo: "Language saved. In Expo Go, reload the app (shake the phone → Reload) to apply the display direction (right to left or left to right).",
+    paymentBrowser: "The secure payment page opens in your browser.", paymentCancelled: "Payment interrupted: no amount was charged.",
+    version: "Version {v}", apiServer: "Server: {url}", notifications: "Notifications", assistant: "Assistant",
+  },
+  notifPush: {
+    title: "Turn on notifications?", enable: "Turn on notifications", later: "Later",
+    text: "Be told right away, even when the app is closed:",
+    items: ["A professional or teacher replies to your request", "A new message arrives", "An appointment is proposed, confirmed or coming up"],
+    note: "You can turn them off at any time in your phone's settings.",
+    enabled: "Notifications turned on.", deniedHelp: "Notifications are blocked for GoFix. Open your phone's settings to allow them.",
+    openSettings: "Open settings", rowTitle: "Notifications on this phone",
+    status: { granted: "On", denied: "Blocked", undetermined: "Off", unsupported: "Unavailable on this device" },
+    tokenLater: "Permission saved. Delivery will work in the app installed from the store.",
+  },
+};
+
 export const mobileAr = {
   auth: { forgot: "نسيت كلمة المرور؟", forgotSent: "إذا كان الحساب موجودًا فقد أُرسل رابط إعادة التعيين بالبريد (صالح ساعة)." },
   match: { placeholder: "مثال: تسرّب ماء في القبة اليوم" },

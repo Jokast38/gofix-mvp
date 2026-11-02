@@ -20,7 +20,7 @@ function parse(raw, sample) {
 }
 
 function SettingRow({ s, canEdit }) {
-  const { t, te } = useI18n();
+  const { t, te, td } = useI18n();
   const qc = useQueryClient();
   const initial = typeof s.value === "object" ? JSON.stringify(s.value) : String(s.value);
   const [raw, setRaw] = useState(initial);
@@ -41,7 +41,7 @@ function SettingRow({ s, canEdit }) {
   return (
     <li className="gf-card p-4" data-testid={`admin-setting-${s.key}`}>
       <p className="font-mono text-sm font-bold" dir="ltr">{s.key}</p>
-      <p className="text-xs text-muted-foreground mb-3">{s.description}</p>
+      <p className="text-xs text-muted-foreground mb-3">{td(s)}</p>
       <div className="flex gap-2">
         {s.options ? (
           <select value={raw} onChange={(e) => setRaw(e.target.value)} disabled={!canEdit} className={ui.input} data-testid={`admin-setting-input-${s.key}`}>

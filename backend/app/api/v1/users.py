@@ -21,7 +21,7 @@ router = APIRouter(prefix="/users", tags=["users"])
 class ProfileUpdate(BaseModel):
     full_name: Optional[str] = Field(default=None, min_length=2, max_length=80)
     email: Optional[EmailStr] = None
-    preferred_language: Optional[Literal["fr", "ar"]] = None
+    preferred_language: Optional[Literal["fr", "ar", "en"]] = None
     theme: Optional[Literal["dark", "light"]] = None
     week_start: Optional[Literal["saturday", "sunday"]] = None
     wilaya_code: Optional[int] = Field(default=None, ge=1, le=58)

@@ -6,6 +6,7 @@ from app.adapters.email import get_email_adapter
 from app.adapters.sms import get_sms_adapter
 from app.core.db import db
 from app.core.logging import get_logger
+from app.data.messages import message
 from app.services.push import push_to_user
 
 log = get_logger("notify")
@@ -31,3 +32,14 @@ async def notify(user_id, type_: str, title: str, body: str, link: str | None = 
             await get_sms_adapter().send(user["phone"], f"GoFix : {title}. {body}"[:160])
     except Exception:
         log.exception("notify_failed", extra={"ctx": {"user_id": str(uid), "type": type_}})
+
+
+async def user_lang(user_id) -> str | None:
+    user = await db.users.find_one({"_id": ObjectId(str(user_id))}, {"preferred_language": 1})
+    return (user or {}).get("preferred_language")
+
+
+async def notify_key(user_id, type_: str, key: str, link: str | None = None, channels=("inapp", "push", "email", "sms"), **values):
+    """notify() with a text of data/messages.py, written in the language chosen by the recipient."""
+    title, body = message(key, await user_lang(user_id), **values)
+    await notify(user_id, type_, title, body, link, channels)

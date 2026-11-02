@@ -39,7 +39,7 @@ class CreateUserIn(BaseModel):
     phone: Optional[str] = Field(default=None, max_length=20)
     admin_role: Optional[Literal["super_admin", "moderator", "support"]] = None  # staff only
     account_type: Literal["client", "student", "professional", "teacher"] = "client"  # client only
-    preferred_language: Literal["fr", "ar"] = "fr"
+    preferred_language: Literal["fr", "ar", "en"] = "fr"
     send_invite: bool = True
 
 
@@ -53,10 +53,15 @@ INVITE_TEXT = {
            "مرحبًا {name}،\n\nتم إنشاء حساب GoFix لك ({email}){what}.\n"
            "اختر كلمة المرور عبر هذا الرابط (صالح {hours} ساعة):\n{link}\n\n"
            "إذا انتهت صلاحية الرابط، استعمل «نسيت كلمة المرور» في صفحة الدخول.\n\nفريق GoFix"),
+    "en": ("GoFix – Your account has been created",
+           "Hello {name},\n\nA GoFix account has been created for you ({email}){what}.\n"
+           "Choose your password with this link (valid for {hours} hours):\n{link}\n\n"
+           "If the link has expired, use \"Forgot your password?\" on the login page.\n\nThe GoFix team"),
 }
 STAFF_LABEL = {"fr": {"super_admin": " en tant que super-administrateur", "moderator": " en tant que modérateur",
                       "support": " en tant qu'agent support"},
-               "ar": {"super_admin": " بصفة مشرف عام", "moderator": " بصفة مشرف محتوى", "support": " بصفة عون دعم"}}
+               "ar": {"super_admin": " بصفة مشرف عام", "moderator": " بصفة مشرف محتوى", "support": " بصفة عون دعم"},
+               "en": {"super_admin": " as a super-administrator", "moderator": " as a moderator", "support": " as a support agent"}}
 
 
 def _temp_password() -> str:

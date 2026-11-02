@@ -16,7 +16,7 @@ from app.models.user import User
 from app.services import trust
 from app.services.access_policy import FIELD_MAP
 from app.services.audit import audit
-from app.services.notify import notify
+from app.services.notify import notify_key
 from app.services.visibility import set_profiles_suspended
 
 router = APIRouter(prefix="/admin", tags=["admin-ops"])
@@ -120,10 +120,12 @@ class FaqIn(BaseModel):
     category: str = Field(min_length=2, max_length=40)
     question_fr: str = Field(min_length=5, max_length=200)
     question_ar: str = Field(default="", max_length=200)
+    question_en: str = Field(default="", max_length=200)
     answer_fr: str = Field(min_length=5, max_length=2000)
     answer_ar: str = Field(default="", max_length=2000)
+    answer_en: str = Field(default="", max_length=2000)
     variants: list[str] = Field(default_factory=list, max_length=30)
-    lang: Literal["fr", "ar"] = "fr"
+    lang: Literal["fr", "ar", "en"] = "fr"
     order: int = 0
     active: bool = True
 
@@ -132,10 +134,12 @@ class FaqPatch(BaseModel):
     category: Optional[str] = Field(default=None, min_length=2, max_length=40)
     question_fr: Optional[str] = Field(default=None, min_length=5, max_length=200)
     question_ar: Optional[str] = Field(default=None, max_length=200)
+    question_en: Optional[str] = Field(default=None, max_length=200)
     answer_fr: Optional[str] = Field(default=None, min_length=5, max_length=2000)
     answer_ar: Optional[str] = Field(default=None, max_length=2000)
+    answer_en: Optional[str] = Field(default=None, max_length=2000)
     variants: Optional[list[str]] = Field(default=None, max_length=30)
-    lang: Optional[Literal["fr", "ar"]] = None
+    lang: Optional[Literal["fr", "ar", "en"]] = None
     order: Optional[int] = None
     active: Optional[bool] = None
 
@@ -190,7 +194,9 @@ async def unanswered(days: int = 30, _: User = Depends(require_admin("support"))
 class PlanPatch(BaseModel):
     name_fr: Optional[str] = Field(default=None, min_length=2, max_length=60)
     name_ar: Optional[str] = Field(default=None, max_length=60)
+    name_en: Optional[str] = Field(default=None, max_length=60)
     perks_fr: Optional[list[str]] = Field(default=None, max_length=12)
+    perks_en: Optional[list[str]] = Field(default=None, max_length=12)
     duration_days: Optional[int] = Field(default=None, ge=1, le=730)
     price_da: Optional[int] = Field(default=None, ge=0, le=10_000_000)
     active: Optional[bool] = None
@@ -334,8 +340,7 @@ async def decide_contest(cid: str, body: ContestDecision, request: Request, admi
     if body.status == "accepted":
         await trust.recompute(c["kind"], c["profile_id"], "contest_review", "moderation", {"contest_id": cid})
     await audit(f"trust.contest_{body.status}", admin, c["kind"], str(c["profile_id"]), {"note": body.note}, client_ip(request))
-    await notify(c["user_id"], "trust_contest", "Réponse à votre contestation",
-                 f"Décision : {'acceptée' if body.status == 'accepted' else 'refusée'}. {body.note}", "/dashboard")
+    await notify_key(c["user_id"], "trust_contest", f"contest_{'accepted' if body.status == 'accepted' else 'rejected'}", "/dashboard", note=body.note)
     return {"ok": True}
 
 
@@ -345,6 +350,7 @@ class CategoryDecision(BaseModel):
     key: Optional[str] = None
     name_fr: Optional[str] = Field(default=None, min_length=2, max_length=80)
     name_ar: str = Field(default="", max_length=80)
+    name_en: str = Field(default="", max_length=80)
     family_key: Optional[str] = None
     note: str = Field(default="", max_length=300)
 
@@ -368,13 +374,13 @@ async def decide_category(cid: str, body: CategoryDecision, request: Request, ad
             raise HTTPException(422, "key_invalid")
         family = body.family_key or cr["family_key"]
         if not await db.taxonomy_categories.find_one({"key": key}):
-            await db.taxonomy_categories.insert_one({"key": key, "family_key": family, "name_fr": body.name_fr or cr["name"], "name_ar": body.name_ar,
+            await db.taxonomy_categories.insert_one({"key": key, "family_key": family, "name_fr": body.name_fr or cr["name"], "name_ar": body.name_ar, "name_en": body.name_en,
                                                      "icon": "wrench", "order": 999, "active": True, "required_documents": ["id_card"], "created_at": _now()})
         await db.professional_profiles.update_many({"category_request_id": cr["_id"]}, {"$set": {"category_key": key, "family_key": family}})
     await db.category_requests.update_one({"_id": cr["_id"]}, {"$set": {"status": body.status, "category_key": key, "note": body.note, "decided_at": _now()}})
     await audit(f"taxonomy.category_request_{body.status}", admin, "category_request", cid, {"key": key}, client_ip(request))
-    await notify(cr["user_id"], "category_request", "Votre demande de catégorie",
-                 f"« {cr['name']} » a été {'ajoutée au catalogue' if body.status == 'approved' else 'refusée'}. {body.note}", "/dashboard")
+    await notify_key(cr["user_id"], "category_request", f"category_{'approved' if body.status == 'approved' else 'rejected'}", "/dashboard",
+                     name=cr["name"], note=body.note)
     return {"ok": True, "category_key": key}
 
 

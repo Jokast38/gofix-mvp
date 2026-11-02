@@ -9,13 +9,14 @@ from pydantic import BaseModel, Field
 from app.core.db import db
 from app.core.deps import client_ip, get_current_user
 from app.core.ratelimit import hit
+from app.data.messages import message
 from app.models.user import User
 from app.services import trust
 from app.services.access_policy import resolve_access
 from app.services.config_store import get_setting
 from app.services.free_access import provider_access
 from app.services.matching import MatchContext, get_matching_service
-from app.services.notify import notify
+from app.services.notify import notify_key, user_lang
 from app.services.visibility import PUBLIC_PROFILE as PUBLIC_STATUS
 
 router = APIRouter(tags=["requests"])
@@ -135,11 +136,9 @@ async def create_request(body: RequestIn, request: Request, user: User = Depends
                                          for r in recipients])
     for r in recipients:
         if r["locked"]:
-            await notify(r["provider_user_id"], "request_locked", "Nouvelle demande en attente",
-                         "Vous avez reçu une demande. Votre accès gratuit est épuisé : abonnez-vous pour la consulter.", "/pricing")
+            await notify_key(r["provider_user_id"], "request_locked", "request_locked", "/pricing")
         else:
-            await notify(r["provider_user_id"], "request", "Nouvelle demande", f"{_short_name(user.full_name)} : {body.message[:120]}",
-                         "/dashboard")
+            await notify_key(r["provider_user_id"], "request", "request_new", "/dashboard", name=_short_name(user.full_name), message=body.message[:120])
     return {"id": str(rid), "mode": mode, "recipients": len(recipients)}
 
 
@@ -212,17 +211,15 @@ async def respond(rid: str, body: RespondIn, request: Request, user: User = Depe
             "client_id": r["client_id"], "provider_user_id": me, "profile_id": rec["profile_id"], "kind": r["kind"],
             "provider_display_name": rec["display_name"], "request_id": r["_id"], "created_at": now, "updated_at": now,
             "last_message": None})).inserted_id
-        for sender, text in ((r["client_id"], r["message"]), (me, body.reply.strip() or "Demande acceptée. Discutons des détails ici.")):
+        for sender, text in ((r["client_id"], r["message"]), (me, body.reply.strip() or message("request_default_reply", await user_lang(r["client_id"]))[1])):
             await db.messages.insert_one({"conversation_id": conv_id, "sender_id": sender, "body": text, "created_at": now, "read_at": None})
         await db.conversations.update_one({"_id": conv_id}, {"$set": {"updated_at": now, "last_message": {"body": text[:120], "sender_id": me, "at": now}}})
         upd["recipients.$[r].conversation_id"] = conv_id
     await db.requests.update_one({"_id": r["_id"]}, {"$set": upd}, array_filters=[{"r.provider_user_id": me}])
     if body.action == "accept":
-        await notify(r["client_id"], "request_accepted", f"{rec['display_name']} a accepté votre demande",
-                     "Vous pouvez maintenant échanger dans la messagerie.", f"/messages/{conv_id}")
+        await notify_key(r["client_id"], "request_accepted", "request_accepted", f"/messages/{conv_id}", name=rec["display_name"])
     else:
-        await notify(r["client_id"], "request_refused", f"{rec['display_name']} n'est pas disponible",
-                     "Votre demande a été déclinée. Les autres destinataires peuvent encore répondre.", "/requests", channels=("inapp", "push"))
+        await notify_key(r["client_id"], "request_refused", "request_refused", "/requests", channels=("inapp", "push"), name=rec["display_name"])
     await trust.recompute(r["kind"], rec["profile_id"], "request_answered", "requests", {"request_id": str(r["_id"])})
     return {"status": "accepted" if body.action == "accept" else "refused", "conversation_id": str(conv_id) if conv_id else None}
 

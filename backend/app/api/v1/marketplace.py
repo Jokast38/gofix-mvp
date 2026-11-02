@@ -10,6 +10,7 @@ from fastapi.responses import Response
 from app.adapters.storage import get_storage
 from app.core.db import db
 from app.core.deps import get_optional_user
+from app.data.messages import lang_of
 from app.models.user import User
 from app.services.access_policy import Access, apply_policy, consume_view, resolve_access, views_used
 from app.services.config_store import get_setting, is_enabled
@@ -31,10 +32,6 @@ def _page(page: int, page_size: int):
     return max(page, 1), page_size
 
 
-def _lang(request: Request) -> str:
-    return "ar" if (request.headers.get("Accept-Language") or "").lower().startswith("ar") else "fr"
-
-
 async def _names(coll: str, keys: set) -> dict:
     docs = await db[coll].find({"key": {"$in": [k for k in keys if k]}}, {"_id": 0}).to_list(500)
     return {d["key"]: d for d in docs}
@@ -46,7 +43,7 @@ async def _wilayas() -> dict:
 
 def _zones_view(item: dict, wil: dict):
     item["wilayas"] = [{"code": z["wilaya_code"], "communes": z.get("commune_names"),
-                        **{k: wil.get(z["wilaya_code"], {}).get(k) for k in ("name_fr", "name_ar")}} for z in item.get("zones", [])]
+                        **{k: wil.get(z["wilaya_code"], {}).get(k) for k in ("name_fr", "name_ar", "name_en")}} for z in item.get("zones", [])]
 
 
 async def _enrich_pros(items: list) -> list:
@@ -54,7 +51,7 @@ async def _enrich_pros(items: list) -> list:
     wil = await _wilayas()
     for p in items:
         c = cats.get(p.get("category_key"), {})
-        p["category"] = {"key": c.get("key"), "name_fr": c.get("name_fr"), "name_ar": c.get("name_ar"), "icon": c.get("icon")}
+        p["category"] = {"key": c.get("key"), "name_fr": c.get("name_fr"), "name_ar": c.get("name_ar"), "name_en": c.get("name_en"), "icon": c.get("icon")}
         _zones_view(p, wil)
     return items
 
@@ -66,8 +63,9 @@ async def _enrich_teachers(items: list) -> list:
     for t in items:
         t["subjects_full"] = [{"key": s["subject_key"], "name_fr": subj.get(s["subject_key"], {}).get("name_fr"),
                                "name_ar": subj.get(s["subject_key"], {}).get("name_ar"),
+                               "name_en": subj.get(s["subject_key"], {}).get("name_en"),
                                "rating": (t.get("ratings_by_subject") or {}).get(s["subject_key"]),
-                               "levels": [{"key": l, "name_fr": lvl.get(l, {}).get("name_fr"), "name_ar": lvl.get(l, {}).get("name_ar")} for l in s.get("level_keys", [])]}
+                               "levels": [{"key": l, "name_fr": lvl.get(l, {}).get("name_fr"), "name_ar": lvl.get(l, {}).get("name_ar"), "name_en": lvl.get(l, {}).get("name_en")} for l in s.get("level_keys", [])]}
                               for s in t.get("subjects", [])]
         _zones_view(t, wil)
     return items
@@ -129,10 +127,10 @@ async def list_pros(request: Request, q: str = "", family_key: str = "", categor
     if wilaya:
         query["zones.wilaya_code"] = wilaya
     if q:
-        cat_keys = [c["key"] for c in await db.taxonomy_categories.find({"$or": [{"name_fr": _rx(q)}, {"name_ar": _rx(q)}]}, {"key": 1}).to_list(100)]
+        cat_keys = [c["key"] for c in await db.taxonomy_categories.find({"$or": [{"name_fr": _rx(q)}, {"name_ar": _rx(q)}, {"name_en": _rx(q)}]}, {"key": 1}).to_list(100)]
         query["$or"] = [{"display_name": _rx(q)}, {"bio": _rx(q)}, {"category_key": {"$in": cat_keys}}]
     acc = await resolve_access(user, "professional")
-    ctx = MatchContext("professional", category_key=category_key or None, wilaya=wilaya, commune=commune or None, lang=_lang(request))
+    ctx = MatchContext("professional", category_key=category_key or None, wilaya=wilaya, commune=commune or None, lang=lang_of(request))
     return await _search("professional", query, ctx, acc, page, page_size, user)
 
 
@@ -152,11 +150,11 @@ async def list_teachers(request: Request, q: str = "", subject_key: str = "", le
     if wilaya:
         query["$and"] = [{"$or": [{"zones.wilaya_code": wilaya}, {"formats": "online"}]}] if format != "home" else [{"zones.wilaya_code": wilaya}]
     if q:
-        keys = [s["key"] for s in await db.academy_subjects.find({"$or": [{"name_fr": _rx(q)}, {"name_ar": _rx(q)}]}, {"key": 1}).to_list(50)]
+        keys = [s["key"] for s in await db.academy_subjects.find({"$or": [{"name_fr": _rx(q)}, {"name_ar": _rx(q)}, {"name_en": _rx(q)}]}, {"key": 1}).to_list(50)]
         query["$or"] = [{"display_name": _rx(q)}, {"bio": _rx(q)}, {"subjects.subject_key": {"$in": keys}}]
     acc = await resolve_access(user, "teacher")
     ctx = MatchContext("teacher", subject_key=subject_key or None, level_key=level_key or None, wilaya=wilaya,
-                       format=format or None, lang=_lang(request))
+                       format=format or None, lang=lang_of(request))
     return await _search("teacher", query, ctx, acc, page, page_size, user)
 
 
@@ -194,7 +192,7 @@ async def get_pro(pid: str, user: User | None = Depends(get_optional_user)):
     item = (await _enrich_pros([item]))[0]
     if not item["blurred"]:
         specs = await _names("taxonomy_specialties", set(doc.get("specialty_keys") or []))
-        item["specialties"] = [{"key": k, "name_fr": v["name_fr"], "name_ar": v["name_ar"]} for k, v in specs.items()]
+        item["specialties"] = [{"key": k, "name_fr": v["name_fr"], "name_ar": v["name_ar"], "name_en": v.get("name_en")} for k, v in specs.items()]
         item["role"] = await db.taxonomy_roles.find_one({"key": doc.get("role_key")}, {"_id": 0})
     return item
 

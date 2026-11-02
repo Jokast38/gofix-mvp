@@ -9,7 +9,7 @@ import { errorCode, formatDateTime } from "@/lib/format";
 import { ui } from "@/lib/ui";
 import { adminOpsService } from "@/services/marketplaceService";
 
-const EMPTY = { category: "general", question_fr: "", question_ar: "", answer_fr: "", answer_ar: "", variants: "", lang: "fr", active: true };
+const EMPTY = { category: "general", question_fr: "", question_ar: "", question_en: "", answer_fr: "", answer_ar: "", answer_en: "", variants: "", lang: "fr", active: true };
 
 function Editor({ initial, onDone }) {
   const { t, te } = useI18n();
@@ -18,7 +18,7 @@ function Editor({ initial, onDone }) {
   const set = (patch) => setF({ ...f, ...patch });
   const save = async (e) => {
     e.preventDefault();
-    const body = { category: f.category, question_fr: f.question_fr, question_ar: f.question_ar || "", answer_fr: f.answer_fr, answer_ar: f.answer_ar || "",
+    const body = { category: f.category, question_fr: f.question_fr, question_ar: f.question_ar || "", question_en: f.question_en || "", answer_fr: f.answer_fr, answer_ar: f.answer_ar || "", answer_en: f.answer_en || "",
       variants: f.variants.split("\n").map((x) => x.trim()).filter(Boolean), lang: f.lang, active: f.active };
     try {
       if (initial?.id) await adminOpsService.patchFaq(initial.id, body);
@@ -33,13 +33,15 @@ function Editor({ initial, onDone }) {
     <form onSubmit={save} className="gf-card p-4 space-y-2" data-testid="faq-editor">
       <div className="grid gap-2 sm:grid-cols-3">
         <input required value={f.category} onChange={(e) => set({ category: e.target.value })} placeholder={t("adminx.faq.category")} className={`${ui.input} min-h-[40px]`} />
-        <select value={f.lang} onChange={(e) => set({ lang: e.target.value })} className={`${ui.input} min-h-[40px]`} aria-label={t("prefs.language")}><option value="fr">FR</option><option value="ar">AR</option></select>
+        <select value={f.lang} onChange={(e) => set({ lang: e.target.value })} className={`${ui.input} min-h-[40px]`} aria-label={t("prefs.language")}><option value="fr">FR</option><option value="ar">AR</option><option value="en">EN</option></select>
         <label className="flex items-center gap-2 text-sm"><Switch checked={f.active} onCheckedChange={(v) => set({ active: v })} />{t("adminx.active")}</label>
       </div>
       <input required minLength={5} value={f.question_fr} onChange={(e) => set({ question_fr: e.target.value })} placeholder={t("adminx.faq.questionFr")} className={`${ui.input} min-h-[40px]`} data-testid="faq-question-fr" />
       <input value={f.question_ar} onChange={(e) => set({ question_ar: e.target.value })} placeholder={t("adminx.faq.questionAr")} dir="rtl" className={`${ui.input} min-h-[40px]`} />
+      <input value={f.question_en} onChange={(e) => set({ question_en: e.target.value })} placeholder={t("adminx.faq.questionEn")} dir="ltr" className={`${ui.input} min-h-[40px]`} />
       <textarea required minLength={5} rows={3} value={f.answer_fr} onChange={(e) => set({ answer_fr: e.target.value })} placeholder={t("adminx.faq.answerFr")} className={`${ui.input} py-2`} data-testid="faq-answer-fr" />
       <textarea rows={2} value={f.answer_ar} onChange={(e) => set({ answer_ar: e.target.value })} placeholder={t("adminx.faq.answerAr")} dir="rtl" className={`${ui.input} py-2`} />
+      <textarea rows={2} value={f.answer_en} onChange={(e) => set({ answer_en: e.target.value })} placeholder={t("adminx.faq.answerEn")} dir="ltr" className={`${ui.input} py-2`} />
       <textarea rows={3} value={f.variants} onChange={(e) => set({ variants: e.target.value })} placeholder={t("adminx.faq.variants")} className={`${ui.input} py-2 text-sm`} />
       <div className="flex gap-2">
         <button type="submit" className={`${ui.btnPrimary} min-h-[40px]`} data-testid="faq-save">{t("common.save")}</button>
@@ -99,6 +101,7 @@ export function AdminFaq({ canEdit }) {
                   <p className="text-xs text-brand-electric font-bold">{e.category} · {e.lang}</p>
                   <p className="font-bold">{e.question_fr}</p>
                   {e.question_ar && <p className="text-sm" dir="rtl">{e.question_ar}</p>}
+                  {e.question_en && <p className="text-sm" dir="ltr">{e.question_en}</p>}
                   <p className="text-sm text-muted-foreground line-clamp-2">{e.answer_fr}</p>
                   {e.variants?.length > 0 && <p className="text-[11px] text-muted-foreground mt-1">{e.variants.join(" · ")}</p>}
                 </div>

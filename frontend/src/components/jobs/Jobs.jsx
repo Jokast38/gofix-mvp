@@ -4,7 +4,7 @@ import { CalendarCheck, CalendarClock, CalendarPlus, CheckCircle2, Loader2, Scal
 import { toast } from "sonner";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Field } from "@/components/common/PageSkeleton";
-import { useI18n, useLocalized } from "@/i18n";
+import { LANGUAGES, useI18n, useLocalized } from "@/i18n";
 import { errorCode, formatDA, formatDate, formatTime } from "@/lib/format";
 import { ui } from "@/lib/ui";
 import { jobService, marketplaceService } from "@/services/marketplaceService";
@@ -135,7 +135,7 @@ function ReviewJobDialog({ job, open, onOpenChange, onDone }) {
 
 /** One appointment with the actions the server allows for my role (never computed client-side). */
 export function JobCard({ job, compact = false }) {
-  const { t, te } = useI18n();
+  const { t, te, lang } = useI18n();
   const qc = useQueryClient();
   const [dialog, setDialog] = useState(null);
   const [busy, setBusy] = useState(null);
@@ -153,8 +153,8 @@ export function JobCard({ job, compact = false }) {
     <div className={`gf-card ${compact ? "p-3" : "p-4"}`} data-testid={`job-${job.id}`}>
       <div className="flex items-start gap-3">
         <span className="grid place-items-center h-12 w-12 shrink-0 rounded-xl bg-secondary text-center leading-none">
-          <span><span className="block text-base font-extrabold">{d.toLocaleDateString("fr-FR", { day: "2-digit", timeZone: "Africa/Algiers" })}</span>
-            <span className="block text-[10px] uppercase text-muted-foreground">{d.toLocaleDateString("fr-FR", { month: "short", timeZone: "Africa/Algiers" })}</span></span>
+          <span><span className="block text-base font-extrabold">{d.toLocaleDateString(LANGUAGES[lang].locale, { day: "2-digit", timeZone: "Africa/Algiers" })}</span>
+            <span className="block text-[10px] uppercase text-muted-foreground">{d.toLocaleDateString(LANGUAGES[lang].locale, { month: "short", timeZone: "Africa/Algiers" })}</span></span>
         </span>
         <div className="min-w-0 flex-1">
           <div className="flex items-center justify-between gap-2">

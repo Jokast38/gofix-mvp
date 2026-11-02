@@ -15,7 +15,7 @@ from app.models.user import User
 from app.services.audit import audit
 from app.services.free_access import provider_access
 from app.services.images import store_image
-from app.services.notify import notify
+from app.services.notify import notify_key
 
 router = APIRouter(tags=["provider"])
 
@@ -185,5 +185,5 @@ async def contest(body: ContestIn, request: Request, user: User = Depends(get_cu
            "score_at_contest": p.get("trust_score"), "message": body.message.strip(), "status": "open", "created_at": _now()}
     res = await db.trust_contests.insert_one(doc)
     await audit("trust.contest_opened", user, kind, str(p["_id"]), {"contest_id": str(res.inserted_id)}, client_ip(request))
-    await notify(user.id, "trust_contest", "Contestation reçue", "Notre équipe examine votre demande sous 72 h.", "/dashboard", channels=("inapp",))
+    await notify_key(user.id, "trust_contest", "contest_received", "/dashboard", channels=("inapp",))
     return {"id": str(res.inserted_id)}

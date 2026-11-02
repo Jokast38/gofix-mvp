@@ -11,6 +11,7 @@ from app.core.db import db
 from app.core.deps import client_ip, get_optional_user
 from app.core.logging import get_logger
 from app.core.ratelimit import hit
+from app.data.messages import lang_of
 from app.models.user import User
 from app.services import intent as intent_svc
 from app.services.access_policy import apply_policy, resolve_access
@@ -20,10 +21,6 @@ from app.services.visibility import PUBLIC_PROFILE
 
 router = APIRouter(prefix="/match", tags=["ai-match"])
 log = get_logger("match")
-
-
-def _lang(request: Request) -> str:
-    return "ar" if (request.headers.get("Accept-Language") or "").lower().startswith("ar") else "fr"
 
 
 class ParseIn(BaseModel):
@@ -83,7 +80,7 @@ async def recommend(body: RecommendIn, request: Request, user: User | None = Dep
                        level_key=body.level_key or i.get("level_key"), grade=i.get("grade"), wilaya=body.wilaya_code or i.get("wilaya_code"),
                        commune=body.commune or i.get("commune"), format=body.format or i.get("mode"),
                        weekday=body.weekday or (i.get("when") or {}).get("weekday"), slot=body.slot or (i.get("when") or {}).get("slot"),
-                       urgency="high" if body.urgency == "high" or i.get("urgency") == "high" else "normal", lang=_lang(request))
+                       urgency="high" if body.urgency == "high" or i.get("urgency") == "high" else "normal", lang=lang_of(request))
     missing = list(i.get("missing") or [])
     q: dict = dict(PUBLIC_PROFILE)
     if kind == "professional":

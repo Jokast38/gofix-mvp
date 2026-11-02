@@ -12,11 +12,11 @@ function PlanRow({ p, canEdit }) {
   const { t, te } = useI18n();
   const qc = useQueryClient();
   const [f, setF] = useState({});
-  useEffect(() => setF({ name_fr: p.name_fr, name_ar: p.name_ar || "", price_da: p.price_da ?? "", duration_days: p.duration_days, perks: (p.perks_fr || []).join("\n"), active: p.active }), [p]);
+  useEffect(() => setF({ name_fr: p.name_fr, name_ar: p.name_ar || "", name_en: p.name_en || "", price_da: p.price_da ?? "", duration_days: p.duration_days, perks: (p.perks_fr || []).join("\n"), perks_en: (p.perks_en || []).join("\n"), active: p.active }), [p]);
   const save = async () => {
     try {
-      await adminOpsService.patchPlan(p.key, { name_fr: f.name_fr, name_ar: f.name_ar, duration_days: Number(f.duration_days), active: f.active,
-        perks_fr: f.perks.split("\n").map((x) => x.trim()).filter(Boolean), ...(f.price_da === "" ? {} : { price_da: Number(f.price_da) }) });
+      await adminOpsService.patchPlan(p.key, { name_fr: f.name_fr, name_ar: f.name_ar, name_en: f.name_en, duration_days: Number(f.duration_days), active: f.active,
+        perks_fr: f.perks.split("\n").map((x) => x.trim()).filter(Boolean), perks_en: f.perks_en.split("\n").map((x) => x.trim()).filter(Boolean), ...(f.price_da === "" ? {} : { price_da: Number(f.price_da) }) });
       qc.invalidateQueries({ queryKey: ["admin-plans"] });
       qc.invalidateQueries({ queryKey: ["plans"] });
       toast.success(t("admin.saved"));
@@ -31,10 +31,12 @@ function PlanRow({ p, canEdit }) {
       <div className="grid grid-cols-2 gap-2">
         <input value={f.name_fr || ""} disabled={!canEdit} onChange={(e) => setF({ ...f, name_fr: e.target.value })} className={`${ui.input} min-h-[40px]`} aria-label={t("admin.taxonomy.nameFr")} />
         <input value={f.name_ar || ""} disabled={!canEdit} onChange={(e) => setF({ ...f, name_ar: e.target.value })} dir="rtl" className={`${ui.input} min-h-[40px]`} aria-label={t("admin.taxonomy.nameAr")} />
+        <input value={f.name_en || ""} disabled={!canEdit} onChange={(e) => setF({ ...f, name_en: e.target.value })} dir="ltr" placeholder={t("admin.taxonomy.nameEn")} className={`${ui.input} min-h-[40px] col-span-2`} aria-label={t("admin.taxonomy.nameEn")} />
         <label className="text-xs">{t("adminx.price")}<input type="number" min={0} value={f.price_da} disabled={!canEdit || p.tier === "free"} onChange={(e) => setF({ ...f, price_da: e.target.value })} className={`${ui.input} min-h-[40px]`} /></label>
         <label className="text-xs">{t("adminx.duration")}<input type="number" min={1} value={f.duration_days || ""} disabled={!canEdit} onChange={(e) => setF({ ...f, duration_days: e.target.value })} className={`${ui.input} min-h-[40px]`} /></label>
       </div>
       <textarea rows={3} value={f.perks || ""} disabled={!canEdit} onChange={(e) => setF({ ...f, perks: e.target.value })} className={`${ui.input} py-2 text-sm`} aria-label={t("adminx.perks")} />
+      <textarea rows={3} value={f.perks_en || ""} disabled={!canEdit} onChange={(e) => setF({ ...f, perks_en: e.target.value })} dir="ltr" placeholder={t("adminx.perksEn")} className={`${ui.input} py-2 text-sm`} aria-label={t("adminx.perksEn")} />
       {canEdit && <button type="button" onClick={save} className={`${ui.btnPrimary} min-h-[40px]`}>{t("common.save")}</button>}
     </li>
   );

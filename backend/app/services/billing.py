@@ -10,7 +10,7 @@ from app.core.logging import get_logger
 from app.models.user import User
 from app.services.audit import audit
 from app.services.entitlements import active_subscription
-from app.services.notify import notify
+from app.services.notify import notify_key
 
 log = get_logger("billing")
 FINAL = ("paid", "failed", "cancelled")
@@ -49,8 +49,7 @@ async def _activate(order: dict, ip: str | None):
                                                                         "invoice_number": inv_number, "updated_at": now}})
     await audit("subscription.activated", user, "order", order["order_number"],
                 {"invoice": inv_number, "plan": order["plan_key"], "ends_at": ends.isoformat()}, ip)
-    await notify(uid, "payment", f"Paiement confirmé – {order['plan_name']}",
-                 f"Votre abonnement {order['plan_name']} est actif jusqu'au {ends:%d/%m/%Y}. Facture {inv_number}.", "/account/billing")
+    await notify_key(uid, "payment", "payment_confirmed", "/account/billing", plan=order["plan_name"], date=f"{ends:%d/%m/%Y}", invoice=inv_number)
 
 
 async def settle(order: dict, status: str, ip: str | None = None, source: str = "confirm") -> dict:

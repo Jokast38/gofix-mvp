@@ -12,7 +12,7 @@ from app.core.deps import client_ip, require_admin
 from app.models.user import User
 from app.services import trust
 from app.services.audit import audit
-from app.services.notify import notify
+from app.services.notify import notify_key
 
 router = APIRouter(prefix="/admin", tags=["admin-taxonomy"])
 
@@ -26,6 +26,7 @@ class TaxIn(BaseModel):
     key: str = Field(min_length=2, max_length=40)
     name_fr: str = Field(min_length=2, max_length=80)
     name_ar: str = Field(default="", max_length=80)
+    name_en: str = Field(default="", max_length=80)
     icon: Optional[str] = Field(default=None, max_length=40)
     family_key: Optional[str] = None
     category_key: Optional[str] = None
@@ -37,6 +38,7 @@ class TaxIn(BaseModel):
 class TaxPatch(BaseModel):
     name_fr: Optional[str] = Field(default=None, min_length=2, max_length=80)
     name_ar: Optional[str] = Field(default=None, max_length=80)
+    name_en: Optional[str] = Field(default=None, max_length=80)
     icon: Optional[str] = Field(default=None, max_length=40)
     family_key: Optional[str] = None
     category_key: Optional[str] = None
@@ -149,10 +151,10 @@ async def set_verification(kind: Literal["professional", "teacher"], pid: str, b
     prof = await _coll(kind).find_one({"_id": _oid(pid)}, {"user_id": 1, "display_name": 1})
     if prof:
         if body.status == "verified":
-            title, text = "Votre fiche est validée", f"Félicitations {prof['display_name']} ! Votre fiche GoFix est vérifiée et publiée dans le catalogue."
+            key, values = "profile_verified", {"name": prof["display_name"]}
         elif body.status == "rejected":
-            title, text = "Votre fiche n'a pas été validée", f"Votre fiche GoFix a été refusée. Motif : {body.reason or 'non précisé'}. Contactez le support."
+            key, values = ("profile_rejected", {"reason": body.reason}) if body.reason else ("profile_rejected_noreason", {})
         else:
-            title, text = "Fiche remise en attente", "Votre fiche est de nouveau en cours d'examen."
-        await notify(prof["user_id"], f"profile_{body.status}", title, text, "/account")
+            key, values = "profile_pending", {}
+        await notify_key(prof["user_id"], f"profile_{body.status}", key, "/account", **values)
     return {"ok": True, "verification_status": body.status}

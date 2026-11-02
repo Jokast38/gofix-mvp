@@ -3,7 +3,6 @@ proposed -> scheduled -> completed | cancelled ; disputed -> completed | failed 
 Only a completed job unlocks a *verified* review; every transition feeds the Trust Score."""
 from datetime import datetime, timedelta, timezone
 from typing import Literal, Optional
-from zoneinfo import ZoneInfo
 
 from bson import ObjectId
 from bson.errors import InvalidId
@@ -17,14 +16,11 @@ from app.models.user import User
 from app.services import trust
 from app.services.audit import audit
 from app.services.config_store import get_setting
-from app.services.notify import notify
+from app.services.notify import notify_key
 
 router = APIRouter(tags=["jobs"])
-TZ = ZoneInfo("Africa/Algiers")
 
 
-def _fmt(dt: datetime) -> str:
-    return dt.astimezone(TZ).strftime("%d/%m/%Y à %H:%M")
 OPEN = ("proposed", "scheduled")
 
 
@@ -131,9 +127,9 @@ async def _transition(job: dict, status: str, by: str, extra: dict | None = None
     return await db.jobs.find_one({"_id": job["_id"]})
 
 
-async def _notify_other(job: dict, role: str, title: str, body: str):
+async def _notify_other(job: dict, role: str, key: str, **values):
     target = job["provider_user_id"] if role == "client" else job["client_id"]
-    await notify(target, "job", title, body, f"/jobs/{job['_id']}", channels=("inapp", "push"))
+    await notify_key(target, "job", key, f"/jobs/{job['_id']}", channels=("inapp", "push"), **values)
 
 
 @router.post("/jobs", status_code=201)
@@ -160,7 +156,7 @@ async def propose(body: JobIn, user: User = Depends(get_current_user)):
            "price_da": body.price_da, "status": "proposed", "proposed_by": role, "reviewed": False,
            "history": [{"status": "proposed", "by": role, "reason": "", "at": now}], "created_at": now, "updated_at": now}
     doc["_id"] = (await db.jobs.insert_one(doc)).inserted_id
-    await _notify_other(doc, role, "Rendez-vous proposé", f"Le {_fmt(body.scheduled_at)}. Confirmez-le dans GoFix.")
+    await _notify_other(doc, role, "job_proposed", at=body.scheduled_at)
     return await _view(doc, role)
 
 
@@ -188,7 +184,7 @@ async def confirm(jid: str, user: User = Depends(get_current_user)):
     if job["status"] != "proposed" or job["proposed_by"] == role:
         raise HTTPException(409, "invalid_transition")
     job = await _transition(job, "scheduled", role, {"confirmed_at": _now()})
-    await _notify_other(job, role, "Rendez-vous confirmé", f"Le {_fmt(job['scheduled_at'])}.")
+    await _notify_other(job, role, "job_confirmed", at=job["scheduled_at"])
     return await _view(job, role)
 
 
@@ -199,7 +195,7 @@ async def cancel(jid: str, body: ReasonIn, user: User = Depends(get_current_user
         raise HTTPException(409, "invalid_transition")
     late = job["status"] == "scheduled" and job["scheduled_at"] - _now() < timedelta(hours=await get_setting("job_late_cancel_hours"))
     job = await _transition(job, "cancelled", role, {"cancelled_by": role, "cancel_reason": body.reason, "late_cancel": late}, body.reason)
-    await _notify_other(job, role, "Rendez-vous annulé", body.reason[:140])
+    await _notify_other(job, role, "job_cancelled", reason=body.reason[:140])
     if role == "provider" and job.get("confirmed_at"):
         await trust.recompute(job["kind"], job["profile_id"], "job_cancelled_by_provider", "jobs", {"job_id": jid, "late": late},
                               source_type="behavioral", evidence_id=jid)
@@ -217,7 +213,7 @@ async def complete(jid: str, user: User = Depends(get_current_user)):
         await db.jobs.update_one({"_id": job["_id"]}, {"$set": {"provider_done_at": _now(), "updated_at": _now()},
                                                        "$push": {"history": {"status": "provider_done", "by": role, "reason": "", "at": _now()}}})
         job = await db.jobs.find_one({"_id": job["_id"]})
-        await _notify_other(job, role, "Prestation terminée ?", "Confirmez que la prestation a bien eu lieu, puis laissez un avis.")
+        await _notify_other(job, role, "job_done_check")
         return await _view(job, role)
     if "complete" not in acts:
         raise HTTPException(409, "invalid_transition")
@@ -229,8 +225,7 @@ async def complete_job(job: dict, by: str) -> dict:
     job = await _transition(job, "completed", by, {"completed_at": _now()})
     await trust.recompute(job["kind"], job["profile_id"], "job_completed", "jobs", {"job_id": str(job["_id"])},
                           source_type="behavioral", evidence_id=str(job["_id"]))
-    await notify(job["client_id"], "job_completed", "Prestation terminée", "Donnez votre avis : il aide toute la communauté.",
-                 f"/jobs/{job['_id']}", channels=("inapp", "push"))
+    await notify_key(job["client_id"], "job_completed", "job_completed", f"/jobs/{job['_id']}", channels=("inapp", "push"))
     return job
 
 
@@ -242,7 +237,7 @@ async def dispute(jid: str, body: ReasonIn, request: Request, user: User = Depen
     job = await _transition(job, "disputed", role, {"dispute": {"opened_by": role, "reason": body.reason, "status": "open", "opened_at": _now()}},
                             body.reason)
     await audit("jobs.dispute_opened", user, "job", jid, {"role": role}, client_ip(request))
-    await _notify_other(job, role, "Litige ouvert", "L'équipe GoFix examine la situation et revient vers vous.")
+    await _notify_other(job, role, "dispute_opened")
     return await _view(job, role)
 
 
@@ -275,7 +270,7 @@ async def review(jid: str, body: ReviewIn, user: User = Depends(get_current_user
     await trust.recompute(job["kind"], p["_id"], "review_received", "reviews", {"job_id": jid, "rating": body.rating},
                           source_type="behavioral", evidence_id=jid)
     await trust.flag_review_anomaly(job["kind"], p["_id"])
-    await notify(job["provider_user_id"], "review", "Nouvel avis vérifié", f"Note : {body.rating}/5", "/dashboard", channels=("inapp", "push"))
+    await notify_key(job["provider_user_id"], "review", "review_new", "/dashboard", channels=("inapp", "push"), rating=body.rating)
     return {"ok": True, "rating_avg": avg, "rating_count": count}
 
 
@@ -303,7 +298,7 @@ async def resolve_dispute(jid: str, body: DisputeDecision, request: Request, adm
                           source_type="moderation", evidence_id=jid)
     await audit("jobs.dispute_resolved", admin, "job", jid, {"resolution": body.resolution, "note": body.note}, client_ip(request))
     for uid in (job["client_id"], job["provider_user_id"]):
-        await notify(uid, "dispute", "Décision sur le litige", body.note[:140], f"/jobs/{jid}")
+        await notify_key(uid, "dispute", "dispute_decided", f"/jobs/{jid}", note=body.note[:140])
     return {"ok": True, "status": status}
 
 
@@ -324,6 +319,6 @@ async def remind_upcoming(now: datetime | None = None) -> int:
     async for job in db.jobs.find({"status": "scheduled", "reminded": {"$ne": True}, "scheduled_at": {"$gt": now, "$lte": now + timedelta(hours=24)}}):
         await db.jobs.update_one({"_id": job["_id"]}, {"$set": {"reminded": True}})
         for uid in (job["client_id"], job["provider_user_id"]):
-            await notify(uid, "job_reminder", "Rendez-vous demain", f"Le {_fmt(job['scheduled_at'])}.", f"/jobs/{job['_id']}", channels=("inapp", "push"))
+            await notify_key(uid, "job_reminder", "job_reminder", f"/jobs/{job['_id']}", channels=("inapp", "push"), at=job["scheduled_at"])
         n += 1
     return n

@@ -3,7 +3,8 @@ const OFFSET_MS = 3600 * 1000;
 const pad = (n) => String(n).padStart(2, "0");
 const algiers = (d) => new Date(new Date(d).getTime() + OFFSET_MS);
 
-export const formatDA = (n) => (n == null ? null : `${String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, " ")} DA`);
+// Isolated left-to-right (U+2066 … U+2069) so "2 500 DA" is not reordered into "DA 500 2" inside Arabic text.
+export const formatDA = (n) => (n == null ? null : `\u2066${String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, " ")} DA\u2069`);
 export const formatDate = (d) => { if (!d) return ""; const x = algiers(d); return `${pad(x.getUTCDate())}/${pad(x.getUTCMonth() + 1)}/${x.getUTCFullYear()}`; };
 export const formatTime = (d) => { if (!d) return ""; const x = algiers(d); return `${pad(x.getUTCHours())}:${pad(x.getUTCMinutes())}`; };
 export const formatDateTime = (d) => (d ? `${formatDate(d)} ${formatTime(d)}` : "");

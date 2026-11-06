@@ -334,10 +334,10 @@ const lots2 = {
     ratingHint: "Verified reviews count: 5/5 from a single review does not beat 4.8/5 from 40 reviews.",
     noPosition: "Location unavailable: distances are measured from the capital of the chosen wilaya.",
     baseTitle: "Your starting point for \"Near me\"",
-    baseHint: "Clients only see a distance rounded to the kilometre, never your address or this point.",
+    baseHint: "Set it from your workshop or usual starting point. Clients only see a distance rounded to the kilometre, never your address or this point.",
     source_gps: "Set from your location", source_commune: "Centre of your commune", source_wilaya: "Capital of your wilaya",
     none: "Add a service area to appear in \"Near me\".",
-    useHere: "I'm at my workshop: use my location", reset: "Back to the centre of my area", saved: "Starting point saved.",
+    useHere: "Use my current location", reset: "Back to the centre of my area", saved: "Starting point saved.",
   },
 };
 

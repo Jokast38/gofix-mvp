@@ -301,10 +301,10 @@ const lots2 = {
     ratingHint: "Les avis vérifiés comptent : un 5/5 sur un seul avis ne passe pas devant un 4,8/5 sur 40 avis.",
     noPosition: "Position indisponible : les distances partent du chef-lieu de la wilaya choisie.",
     baseTitle: "Votre point de départ pour « Près de moi »",
-    baseHint: "Les clients voient seulement une distance arrondie au kilomètre, jamais votre adresse ni ce point.",
+    baseHint: "Placez-le depuis votre atelier ou votre point de départ habituel. Les clients voient seulement une distance arrondie au kilomètre, jamais votre adresse ni ce point.",
     source_gps: "Placé depuis votre position", source_commune: "Centre de votre commune", source_wilaya: "Chef-lieu de votre wilaya",
     none: "Ajoutez une zone d'intervention pour apparaître dans « Près de moi ».",
-    useHere: "Je suis à mon atelier : utiliser ma position", reset: "Revenir au centre de ma zone", saved: "Point de départ enregistré.",
+    useHere: "Utiliser ma position actuelle", reset: "Revenir au centre de ma zone", saved: "Point de départ enregistré.",
   },
 };
 

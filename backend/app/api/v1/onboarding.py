@@ -11,7 +11,7 @@ from app.core.db import db
 from app.core.deps import client_ip, get_current_user
 from app.core.ratelimit import hit
 from app.models.user import User
-from app.services import trust
+from app.services import geo, trust
 from app.services.audit import audit
 from app.services.notify import notify_key
 
@@ -209,6 +209,7 @@ async def submit(body: SubmitIn, request: Request, user: User = Depends(get_curr
                  "teaching_languages": d.get("teaching_languages") or ["fr", "ar"],
                  "price_hint_da_hour": d.get("price_hint_da_hour"), "ratings_by_subject": {}}
     res = await _coll(body.kind).insert_one(base)
+    await geo.refresh_location(_coll(body.kind).name, base | {"_id": res.inserted_id})
     await db.users.update_one({"_id": uid}, {"$addToSet": {"roles": body.kind}, "$set": {"active_mode": body.kind, "updated_at": now}})
     await db.onboarding_drafts.delete_one({"_id": draft["_id"]})
     await audit(f"onboarding.{body.kind}_submitted", user, body.kind, str(res.inserted_id), {}, client_ip(request))

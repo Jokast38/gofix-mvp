@@ -141,6 +141,7 @@ export function ProfileCard({ item, index = 0, selectable, selected, onSelect })
         <Row gap={4} style={{ marginTop: 8 }}>
           <MapPin size={12} color={c.muted} />
           <Txt variant="tiny" muted numberOfLines={1} style={{ flex: 1 }}>
+            {item.distance_km != null && <Txt variant="tiny" weight={800} accessibilityLabel={t("nearby.kmAria", { km: item.distance_km })}>{`${t("nearby.km", { km: item.distance_km })} · `}</Txt>}
             {teacher && item.formats?.length ? `${item.formats.map((f) => t(`onboarding.formats.${f}`)).join(" · ")} · ` : ""}{(item.wilayas || []).map((w) => loc(w)).join(", ")}
           </Txt>
         </Row>

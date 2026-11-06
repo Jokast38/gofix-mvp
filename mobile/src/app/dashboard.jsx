@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { View } from "react-native";
 import { Redirect, router } from "expo-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Check, Clock, Inbox, Lock, MessageCircle, Rocket, ShieldCheck, X } from "lucide-react-native";
+import { Check, Clock, Inbox, LocateFixed, Lock, MessageCircle, RotateCcw, Rocket, ShieldCheck, X } from "lucide-react-native";
 import { errorCode } from "@/api/client";
 import { catalogService, providerService, requestService } from "@/api/services";
 import { TrustBadge, TrustSubscores, Upcoming } from "@/components/catalog";
@@ -10,6 +10,7 @@ import { AvailabilityEditor, DocRow, MediaEditor, pickDocument, pickImage, Zones
 import { JobsList } from "@/components/JobsList";
 import { useI18n, useLocalized } from "@/i18n";
 import { formatDate, formatDateTime } from "@/lib/format";
+import { getPosition } from "@/lib/location";
 import { alpha, BRAND, useTheme } from "@/theme";
 import { Btn, Card, Chip, Empty, Field, Input, Loading, Pill, Row, Screen, Section, TopBar, Txt, useToast } from "@/ui";
 import { TourTarget, useScreenTour } from "@/components/tour";
@@ -93,6 +94,35 @@ function Inboxes() {
   ));
 }
 
+/** Starting point used by the clients' "Near me" sort: the centre of the zone by default, or the provider's own position. */
+function BasePoint({ location, onDone }) {
+  const { t, te } = useI18n();
+  const toast = useToast();
+  const [busy, setBusy] = useState(null);
+  const run = async (key, action) => {
+    setBusy(key);
+    try { await action(); toast(t("nearby.saved")); onDone(); } catch (err) { toast(te(errorCode(err)), "error"); } finally { setBusy(null); }
+  };
+  const useHere = async () => {
+    setBusy("here");
+    const pos = await getPosition({ precise: true });
+    if (pos.error) { setBusy(null); return toast(te(pos.error), "error"); }
+    return run("here", () => providerService.setLocation(pos.lat, pos.lng));
+  };
+  return (
+    <Card style={{ gap: 8 }}>
+      <Txt variant="h3">{t("nearby.baseTitle")}</Txt>
+      <Txt weight={700} testID="base-point-source">{location ? t(`nearby.source_${location.source}`) : t("nearby.none")}</Txt>
+      <Txt variant="tiny" muted>{t("nearby.baseHint")}</Txt>
+      <Btn small variant="outline" icon={LocateFixed} title={t("nearby.useHere")} loading={busy === "here"} disabled={Boolean(busy)} onPress={useHere} testID="base-point-here" />
+      {location?.source === "gps" && (
+        <Btn small variant="outline" icon={RotateCcw} title={t("nearby.reset")} loading={busy === "reset"} disabled={Boolean(busy)}
+          onPress={() => run("reset", providerService.resetLocation)} testID="base-point-reset" />
+      )}
+    </Card>
+  );
+}
+
 function ProfileEditor({ kind, profile }) {
   const { t, te } = useI18n();
   const toast = useToast();
@@ -133,6 +163,7 @@ function ProfileEditor({ kind, profile }) {
         <Field label={t(`onboarding.${kind}.price`)} hint={t("onboarding.priceHint")}><Input value={d.price} onChangeText={(v) => setD({ ...d, price: v.replace(/\D/g, "") })} keyboardType="number-pad" ltr /></Field>
       </Card>
       <Card><Txt variant="h3" style={{ marginBottom: 10 }}>{t("onboarding.s4Title")}</Txt><ZonesEditor zones={d.zones || []} onChange={(z) => setD({ ...d, zones: z })} /></Card>
+      <BasePoint location={profile.location} onDone={refresh} />
       <Card><Txt variant="h3" style={{ marginBottom: 10 }}>{t("onboarding.availability")}</Txt><AvailabilityEditor slots={d.slots || []} onChange={(s) => setD({ ...d, slots: s })} /></Card>
       <Btn variant="gradient" title={t("common.save")} loading={busy === "save"} onPress={save} testID="profile-save" />
       <Card style={{ gap: 8 }}>

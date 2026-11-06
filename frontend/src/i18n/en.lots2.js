@@ -75,6 +75,7 @@ const lots2 = {
     token_invalid: "This link is no longer valid (already used or expired). Request a new one.", draft_too_large: "Draft too large.",
     insufficient_admin_role: "Super-administrator only.",
     phone_taken: "This number is already used by another account.", push_token_invalid: "Device not recognized for notifications.",
+    position_required: "Turn on your location or choose a wilaya to see the nearest ones.",
     outside_algeria: "Your location seems to be outside Algeria: choose your wilaya from the list.",
     location_denied: "Location access denied: choose your wilaya from the list.", location_unavailable: "Location unavailable for the moment.",
     cannot_message_self: "You cannot write to yourself.", invalid_key: "Invalid key: lowercase letters, digits and \"_\" only.",
@@ -271,7 +272,7 @@ const lots2 = {
     } },
     appSearch: { name: "Search", steps: {
       input: { title: "Smart search", text: "Describe the need, the place and the time, then confirm." },
-      nearMe: { title: "Near me", text: "Optional: use your location to filter on your wilaya." },
+      nearMe: { title: "Near me", text: "Optional: sort results from the nearest to you, or from the best rated. Your location is not stored." },
       filters: { title: "Filters", text: "Wilaya and trade or subject." },
     } },
     appAccount: { name: "My account", steps: {
@@ -323,6 +324,19 @@ const lots2 = {
     social_linkedin_url: "LinkedIn page", social_x_url: "X (Twitter) account", youtube_videos: "GoFix Series: featured videos [{url, title}] (12 max)",
     fixer_of_month_email: "Fixer of the month chosen by hand (the pro's e-mail; empty = automatic calculation)",
     highlights_show_identity: "Fixer of the month / best pros: show name and photo to all visitors (contact details stay protected)", data_retention_months: "Retention periods",
+  },
+  nearby: {
+    label: "Sort results", relevance: "Relevance", rating: "Best rated", distance: "Near me", locating: "Locating…",
+    km: "≈ {km} km", kmAria: "About {km} km from you",
+    fromYou: "From nearest to farthest from your location (it is not stored).",
+    fromWilaya: "From nearest to farthest from the capital of the chosen wilaya.",
+    ratingHint: "Verified reviews count: 5/5 from a single review does not beat 4.8/5 from 40 reviews.",
+    noPosition: "Location unavailable: distances are measured from the capital of the chosen wilaya.",
+    baseTitle: "Your starting point for \"Near me\"",
+    baseHint: "Clients only see a distance rounded to the kilometre, never your address or this point.",
+    source_gps: "Set from your location", source_commune: "Centre of your commune", source_wilaya: "Capital of your wilaya",
+    none: "Add a service area to appear in \"Near me\".",
+    useHere: "I'm at my workshop: use my location", reset: "Back to the centre of my area", saved: "Starting point saved.",
   },
 };
 

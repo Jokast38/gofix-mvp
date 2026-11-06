@@ -48,6 +48,8 @@ async def init_indexes():
     await db.professional_profiles.create_index([("category_key", ASCENDING), ("zones.wilaya_code", ASCENDING)])
     await db.professional_profiles.create_index("verification_status")
     await db.teacher_profiles.create_index("user_id", unique=True)
+    for coll in (db.professional_profiles, db.teacher_profiles):
+        await coll.create_index([("location", "2dsphere")])
     await db.teacher_profiles.create_index("subjects.subject_id")
     await db.unlock_matrix.create_index([("audience", ASCENDING), ("plan_key", ASCENDING)], unique=True)
     await db.audit_logs.create_index([("created_at", DESCENDING)])

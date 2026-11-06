@@ -96,6 +96,12 @@ function CardShell({ to, index, testId, children, cover, selectable, selected, o
   );
 }
 
+function Distance({ km }) {
+  const { t } = useI18n();
+  if (km == null) return null;
+  return <span className="font-bold text-foreground" aria-label={t("nearby.kmAria", { km })} data-testid="card-distance"><bdi dir="ltr">{t("nearby.km", { km })}</bdi> · </span>;
+}
+
 export function ProCard({ p, index = 0 }) {
   const { t } = useI18n();
   const loc = useLocalized();
@@ -113,7 +119,7 @@ export function ProCard({ p, index = 0 }) {
           <p className="text-xs font-semibold truncate" style={{ color }}>{loc(p.category)}</p>
         </div>
       </div>
-      <p className="mt-2 flex items-center gap-1 text-xs text-muted-foreground truncate"><MapPin size={12} aria-hidden="true" />{p.wilayas?.map((w) => loc(w)).join(", ")}</p>
+      <p className="mt-2 flex items-center gap-1 text-xs text-muted-foreground truncate"><MapPin size={12} aria-hidden="true" /><Distance km={p.distance_km} />{p.wilayas?.map((w) => loc(w)).join(", ")}</p>
       <div className="mt-1.5 flex items-center justify-between gap-2">
         <span className="flex items-center gap-2"><Rating avg={p.rating_avg} count={p.rating_count} bucket={p.rating_bucket} /><TrustBadge status={p.trust_status} score={p.trust_score} compact /></span>
         {p.price_hint_da != null && <span className="text-xs font-bold">{t("catalog.from")} <bdi dir="ltr">{formatDA(p.price_hint_da)}</bdi></span>}
@@ -140,7 +146,7 @@ export function TeacherCard({ tch, index = 0, selectable, selected, onSelect }) 
           <p className="text-xs font-semibold truncate" style={{ color }}>{tch.subjects_full?.map((s) => loc(s)).join(" · ")}</p>
         </div>
       </div>
-      <p className="mt-2 text-xs text-muted-foreground truncate">{(tch.formats || []).map((f) => t(`onboarding.formats.${f}`)).join(" · ")}{tch.wilayas?.length ? ` · ${tch.wilayas.map((w) => loc(w)).join(", ")}` : ""}</p>
+      <p className="mt-2 text-xs text-muted-foreground truncate"><Distance km={tch.distance_km} />{(tch.formats || []).map((f) => t(`onboarding.formats.${f}`)).join(" · ")}{tch.wilayas?.length ? ` · ${tch.wilayas.map((w) => loc(w)).join(", ")}` : ""}</p>
       <div className="mt-1.5 flex items-center justify-between gap-2">
         <span className="flex items-center gap-2"><Rating avg={tch.rating_avg} count={tch.rating_count} bucket={tch.rating_bucket} /><TrustBadge status={tch.trust_status} score={tch.trust_score} compact /></span>
         {tch.price_hint_da_hour != null && <span className="text-xs font-bold"><bdi dir="ltr">{formatDA(tch.price_hint_da_hour)}</bdi> / {t("catalog.hour")}</span>}

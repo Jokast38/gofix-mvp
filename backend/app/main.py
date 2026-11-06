@@ -15,6 +15,7 @@ from app.core.safety import is_production, production_problems
 from app.core.security import hash_password, verify_password
 from app.services import payment_config, scheduler
 from app.services.config_store import ensure_defaults
+from app.services.geo import backfill_locations
 
 setup_logging()
 log = get_logger("gofix")
@@ -103,6 +104,7 @@ async def startup():
         raise RuntimeError("Unsafe production configuration: " + "; ".join(errors))
     await init_indexes()
     await ensure_defaults()
+    await backfill_locations()
     if is_production():
         pay = await payment_config.effective()
         if pay["provider"] != "satim" or not payment_config.satim_complete(pay):

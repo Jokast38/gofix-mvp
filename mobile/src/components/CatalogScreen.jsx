@@ -2,11 +2,11 @@ import { useEffect, useMemo, useState } from "react";
 import { FlatList, TextInput, View } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
-import { Camera, LocateFixed, Mic, Search, SearchX, Send, Sparkles, X } from "lucide-react-native";
+import { Camera, LocateFixed, Mic, Search, SearchX, Send, Sparkles, Star, X } from "lucide-react-native";
 import { catalogService, matchService } from "@/api/services";
 import { useAuth, useConfig, useWilayas } from "@/hooks/auth";
 import { useI18n, useLocalized } from "@/i18n";
-import { detectWilaya } from "@/lib/location";
+import { getPosition } from "@/lib/location";
 import { BRAND, useTheme } from "@/theme";
 import { Btn, Card, Chip, Empty, IconBtn, Loading, Row, SelectField, Txt, useToast } from "@/ui";
 import { RequestSheet } from "./actions";
@@ -33,19 +33,23 @@ export function CatalogScreen({ kind }) {
   const [sheet, setSheet] = useState(null);
   const { data: wilayas = [] } = useWilayas();
   const [locating, setLocating] = useState(false);
-  const [nearWilaya, setNearWilaya] = useState(null);
-  // Optional: the position is only turned into a wilaya filter (never stored).
-  const nearMe = async () => {
-    if (locating) return;
+  const [sortKey, setSortKey] = useState("relevance");
+  // Optional: the position (rounded to ~1 km) only sorts this search from the nearest; it stays in memory, never stored.
+  const [pos, setPos] = useState(null);
+  const chooseSort = async (next) => {
+    if (next !== "distance") return setSortKey(next);
+    if (locating) return undefined;
     setLocating(true);
-    const res = await detectWilaya();
+    const res = await getPosition();
     setLocating(false);
-    if (res.wilaya) {
-      setNearWilaya(res.wilaya.code);
-      setF((x) => ({ ...x, wilaya: res.wilaya.code }));
-      toast(t("geoloc.found", { name: loc(res.wilaya) }));
-    } else toast(te(res.error), "error");
+    if (res.error) {
+      if (!f.wilaya) return toast(te(res.error), "error");
+      toast(t("nearby.noPosition"));
+    } else setPos(res);
+    return setSortKey("distance");
   };
+  // "Near me" needs a reference point: the position, else the chosen wilaya. Without either it falls back to relevance.
+  const sort = sortKey === "distance" && !pos && !f.wilaya ? "relevance" : sortKey;
   const cats = useQuery({ queryKey: ["cats-all"], queryFn: () => catalogService.categories(), staleTime: 300_000, enabled: !teacher });
   const subjects = useQuery({ queryKey: ["subjects"], queryFn: catalogService.subjects, staleTime: 300_000, enabled: teacher });
   const levels = useQuery({ queryKey: ["levels"], queryFn: catalogService.levels, staleTime: 300_000, enabled: teacher });
@@ -65,8 +69,9 @@ export function CatalogScreen({ kind }) {
     const base = teacher
       ? { subject_key: f.subject_key || (understood ? intent.subject_key : ""), level_key: f.level_key || intent?.level_key || "", format: f.format || intent?.mode || "" }
       : { category_key: f.category_key || (understood ? intent.category_key : "") };
-    return { ...base, wilaya: f.wilaya || intent?.wilaya_code || "", q: text && !understood ? text : "", page_size: 12 };
-  }, [f, intent, understood, text, teacher]);
+    return { ...base, wilaya: f.wilaya || intent?.wilaya_code || "", q: text && !understood ? text : "", page_size: 12,
+      ...(sort !== "relevance" && { sort }), ...(pos && { lat: pos.lat, lng: pos.lng }) };
+  }, [f, intent, understood, text, teacher, sort, pos]);
   const list = useInfiniteQuery({
     queryKey: [kind, "list", query, Boolean(user)], enabled: !text || smart.isFetched,
     queryFn: ({ pageParam }) => (teacher ? catalogService.teachers : catalogService.pros)({ ...query, page: pageParam }),
@@ -109,12 +114,19 @@ export function CatalogScreen({ kind }) {
       </View>
       </TourTarget>
       <BannerSlot placement="search" style={{ marginTop: 4, marginBottom: 12 }} />
-      <Row gap={8} wrap>
-        <TourTarget id="near-me">
-        <Chip icon={LocateFixed} label={locating ? t("geoloc.detecting") : t("geoloc.nearMe")} selected={Boolean(f.wilaya) && f.wilaya === nearWilaya}
-          onPress={nearMe} testID="near-me" />
-        </TourTarget>
-      </Row>
+      <View accessibilityLabel={t("nearby.label")} style={{ gap: 6 }}>
+        <Row gap={8} wrap>
+          <Chip icon={Sparkles} label={t("nearby.relevance")} selected={sort === "relevance"} onPress={() => chooseSort("relevance")} testID="sort-relevance" />
+          <Chip icon={Star} label={t("nearby.rating")} selected={sort === "rating"} onPress={() => chooseSort("rating")} testID="sort-rating" />
+          <TourTarget id="near-me">
+          <Chip icon={LocateFixed} label={locating ? t("nearby.locating") : t("nearby.distance")} selected={sort === "distance"}
+            onPress={() => chooseSort("distance")} testID="near-me" />
+          </TourTarget>
+        </Row>
+        {sort !== "relevance" && (
+          <Txt variant="tiny" muted>{sort === "rating" ? t("nearby.ratingHint") : t(pos ? "nearby.fromYou" : "nearby.fromWilaya")}</Txt>
+        )}
+      </View>
       {teacher && (
         <FlatList horizontal data={[...FORMATS.map((k) => ({ k, type: "f" })), ...(levels.data || []).map((l) => ({ k: l.key, type: "l", l }))]} keyExtractor={(x) => x.type + x.k}
           showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8 }}

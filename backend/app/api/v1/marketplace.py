@@ -1,6 +1,7 @@
 import re
 import time
 from datetime import datetime, timezone
+from typing import Literal
 
 from bson import ObjectId
 from bson.errors import InvalidId
@@ -13,6 +14,7 @@ from app.core.deps import get_optional_user
 from app.data.messages import lang_of
 from app.models.user import User
 from app.services.access_policy import Access, apply_policy, consume_view, resolve_access, views_used
+from app.services import geo
 from app.services.config_store import get_setting, is_enabled
 from app.services.matching import MatchContext, get_matching_service, recent_exposure, save_match_result
 from app.services.visibility import PUBLIC_PROFILE as PUBLIC_STATUS
@@ -21,6 +23,13 @@ router = APIRouter(tags=["marketplace"])
 
 MIME = {"jpg": "image/jpeg", "png": "image/png", "webp": "image/webp"}
 CANDIDATES_MAX = 300
+Sort = Literal["relevance", "rating", "distance"]
+# "Best rated" sort: average pulled towards 3.5/5 by 5 virtual reviews, so 5/5 from a single review does not beat
+# 4.8/5 from 40 reviews, and a profile without reviews sits in the middle.
+PRIOR_AVG, PRIOR_COUNT = 3.5, 5
+_COUNT = {"$ifNull": ["$rating_count", 0]}
+RATING_RANK = {"$divide": [{"$add": [{"$multiply": [{"$ifNull": ["$rating_avg", 0]}, _COUNT]}, PRIOR_AVG * PRIOR_COUNT]},
+                           {"$add": [_COUNT, PRIOR_COUNT]}]}
 
 
 def _rx(q: str):
@@ -71,13 +80,36 @@ async def _enrich_teachers(items: list) -> list:
     return items
 
 
-async def _search(kind: str, query: dict, ctx: MatchContext, acc: Access, page: int, page_size: int, user: User | None) -> dict:
+def _origin(sort: str, lat: float | None, lng: float | None, wilaya: int | None) -> tuple | None:
+    """Point the distances are measured from: the client's position, else (nearest sort only) the searched wilaya's capital."""
+    if lat is not None and lng is not None:
+        if not geo.in_algeria(lat, lng):
+            raise HTTPException(422, "outside_algeria")
+        return lat, lng
+    if sort == "distance":
+        if not wilaya:
+            raise HTTPException(422, "position_required")
+        return geo.WILAYA_CAPITALS[wilaya]
+    return None
+
+
+async def _search(kind: str, query: dict, ctx: MatchContext, acc: Access, page: int, page_size: int, user: User | None,
+                  sort: str = "relevance", origin: tuple | None = None) -> dict:
     coll = db.professional_profiles if kind == "professional" else db.teacher_profiles
     page, page_size = _page(page, page_size)
     total = await coll.count_documents(query)
-    use_match = await is_enabled("ai_match")
+    use_match = sort == "relevance" and await is_enabled("ai_match")
     mr_id = None
-    if use_match:
+    if sort == "distance":
+        # Profiles without a base point (online-only teachers) cannot be placed and are left out of this sort.
+        near = await coll.find(query | {"location": {"$nearSphere": {"$geometry": geo.point(*origin)}}}).to_list(CANDIDATES_MAX)
+        total = len(near) if len(near) < CANDIDATES_MAX else total
+        docs = near[(page - 1) * page_size: page * page_size]
+    elif sort == "rating":
+        docs = await coll.aggregate([{"$match": query}, {"$addFields": {"_rating_rank": RATING_RANK}},
+                                     {"$sort": {"_rating_rank": -1, "rating_count": -1, "trust_score": -1}},
+                                     {"$skip": (page - 1) * page_size}, {"$limit": page_size}]).to_list(page_size)
+    elif use_match:
         started = time.perf_counter()
         candidates = await coll.find(query).sort("trust_score", -1).to_list(CANDIDATES_MAX)
         ctx.hide_numbers = acc.blurred
@@ -95,6 +127,8 @@ async def _search(kind: str, query: dict, ctx: MatchContext, acc: Access, page: 
     items = []
     for i, d in enumerate(docs):
         it = apply_policy(d, acc, kind)
+        if origin:
+            it["distance_km"] = geo.distance_km(d, origin)
         if use_match:
             it["match"] = {**{k: d["_match"][k] for k in ("score", "reasons", "explanation")}, "top": i < top_n,
                            "rank": (page - 1) * page_size + i + 1, "match_result_id": str(mr_id) if mr_id else None}
@@ -107,7 +141,7 @@ async def _search(kind: str, query: dict, ctx: MatchContext, acc: Access, page: 
             await db.match_impressions.insert_many(rows)
     items = await (_enrich_pros(items) if kind == "professional" else _enrich_teachers(items))
     return {"total": total, "page": page, "page_size": page_size, "blurred": acc.blurred, "viewer_tier": acc.tier,
-            "ai_match": use_match, "match_result_id": str(mr_id) if mr_id else None, "views_limit": acc.views_limit, "views_used": await views_used(acc), "items": items}
+            "ai_match": use_match, "sort": sort, "match_result_id": str(mr_id) if mr_id else None, "views_limit": acc.views_limit, "views_used": await views_used(acc), "items": items}
 
 
 def _wilaya_filter(raw: str) -> int | None:
@@ -117,7 +151,8 @@ def _wilaya_filter(raw: str) -> int | None:
 
 @router.get("/catalog/professionals")
 async def list_pros(request: Request, q: str = "", family_key: str = "", category_key: str = "", wilaya: str = "",
-                    commune: str = "", page: int = 1, page_size: int = 12, user: User | None = Depends(get_optional_user)):
+                    commune: str = "", sort: Sort = "relevance", lat: float | None = None, lng: float | None = None,
+                    page: int = 1, page_size: int = 12, user: User | None = Depends(get_optional_user)):
     wilaya = _wilaya_filter(wilaya)
     query: dict = dict(PUBLIC_STATUS)
     if family_key:
@@ -131,12 +166,13 @@ async def list_pros(request: Request, q: str = "", family_key: str = "", categor
         query["$or"] = [{"display_name": _rx(q)}, {"bio": _rx(q)}, {"category_key": {"$in": cat_keys}}]
     acc = await resolve_access(user, "professional")
     ctx = MatchContext("professional", category_key=category_key or None, wilaya=wilaya, commune=commune or None, lang=lang_of(request))
-    return await _search("professional", query, ctx, acc, page, page_size, user)
+    return await _search("professional", query, ctx, acc, page, page_size, user, sort, _origin(sort, lat, lng, wilaya))
 
 
 @router.get("/catalog/teachers")
 async def list_teachers(request: Request, q: str = "", subject_key: str = "", level_key: str = "", format: str = "",
-                        wilaya: str = "", page: int = 1, page_size: int = 12, user: User | None = Depends(get_optional_user)):
+                        wilaya: str = "", sort: Sort = "relevance", lat: float | None = None, lng: float | None = None,
+                        page: int = 1, page_size: int = 12, user: User | None = Depends(get_optional_user)):
     wilaya = _wilaya_filter(wilaya)
     query: dict = dict(PUBLIC_STATUS)
     if subject_key and level_key:
@@ -155,7 +191,7 @@ async def list_teachers(request: Request, q: str = "", subject_key: str = "", le
     acc = await resolve_access(user, "teacher")
     ctx = MatchContext("teacher", subject_key=subject_key or None, level_key=level_key or None, wilaya=wilaya,
                        format=format or None, lang=lang_of(request))
-    return await _search("teacher", query, ctx, acc, page, page_size, user)
+    return await _search("teacher", query, ctx, acc, page, page_size, user, sort, _origin(sort, lat, lng, wilaya))
 
 
 async def _reviews(pid: ObjectId) -> list:

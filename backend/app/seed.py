@@ -18,6 +18,7 @@ from app.data import seed_en as EN
 from app.data.seed_media import avatar, cover, save_set
 from app.services import trust
 from app.services.config_store import ensure_defaults
+from app.services.geo import backfill_locations
 
 DEMO_PASSWORD = "GoFix@Demo2026"
 now = datetime.now(timezone.utc)
@@ -440,6 +441,7 @@ async def main(reference_only: bool = False, if_empty: bool = False):
         await init_indexes()
         await ensure_defaults()
         await upgrade_demo()
+        await backfill_locations()
         await db.app_meta.update_one({"key": "demo_seed"}, {"$set": {"version": DEMO_VERSION, "updated_at": now}}, upsert=True)
         print(f"Demo data upgraded to version {DEMO_VERSION}.")
         return
@@ -459,6 +461,7 @@ async def main(reference_only: bool = False, if_empty: bool = False):
     await seed_history()
     await seed_trust()
     await seed_promos()
+    await backfill_locations()
     await db.app_meta.update_one({"key": "demo_seed"}, {"$set": {"version": DEMO_VERSION, "updated_at": now}}, upsert=True)
     print({c: await db[c].count_documents({}) for c in ("wilayas", "communes", "taxonomy_categories", "users",
                                                         "professional_profiles", "teacher_profiles", "plans", "faq_entries", "requests", "jobs", "reviews", "trust_events")})

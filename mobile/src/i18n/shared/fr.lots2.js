@@ -76,6 +76,7 @@ const lots2 = {
     token_invalid: "Ce lien n'est plus valide (déjà utilisé ou expiré). Demandez-en un nouveau.", draft_too_large: "Brouillon trop volumineux.",
     insufficient_admin_role: "Action réservée au super-administrateur.",
     phone_taken: "Ce numéro est déjà utilisé par un autre compte.", push_token_invalid: "Appareil non reconnu pour les notifications.",
+    position_required: "Activez votre position ou choisissez une wilaya pour voir les plus proches.",
     outside_algeria: "Votre position semble hors d'Algérie : choisissez votre wilaya dans la liste.",
     location_denied: "Accès à la position refusé : choisissez votre wilaya dans la liste.", location_unavailable: "Position indisponible pour le moment.",
     cannot_message_self: "Vous ne pouvez pas vous écrire à vous-même.", invalid_key: "Clé invalide : lettres minuscules, chiffres et « _ » uniquement.",
@@ -272,7 +273,7 @@ const lots2 = {
     } },
     appSearch: { name: "Rechercher", steps: {
       input: { title: "Recherche intelligente", text: "Décrivez le besoin, le lieu et le moment, puis validez." },
-      nearMe: { title: "Près de moi", text: "Facultatif : utilisez votre position pour filtrer sur votre wilaya." },
+      nearMe: { title: "Près de moi", text: "Facultatif : triez les résultats du plus proche de vous, ou des mieux notés. Votre position n'est pas enregistrée." },
       filters: { title: "Filtres", text: "Wilaya et métier ou matière." },
     } },
     appAccount: { name: "Mon compte", steps: {
@@ -291,6 +292,19 @@ const lots2 = {
     resetTitle: "Nouveau mot de passe", resetSubtitle: "Choisissez un mot de passe d'au moins 8 caractères, avec une lettre et un chiffre.",
     newPassword: "Nouveau mot de passe", confirm: "Confirmer le mot de passe", mismatch: "Les deux mots de passe ne correspondent pas.",
     save: "Enregistrer", done: "Mot de passe modifié. Vous pouvez vous connecter.", backToLogin: "Retour à la connexion",
+  },
+  nearby: {
+    label: "Trier les résultats", relevance: "Pertinence", rating: "Mieux notés", distance: "Près de moi", locating: "Localisation…",
+    km: "≈ {km} km", kmAria: "Environ {km} km de vous",
+    fromYou: "Du plus proche au plus loin de votre position (elle n'est pas enregistrée).",
+    fromWilaya: "Du plus proche au plus loin du chef-lieu de la wilaya choisie.",
+    ratingHint: "Les avis vérifiés comptent : un 5/5 sur un seul avis ne passe pas devant un 4,8/5 sur 40 avis.",
+    noPosition: "Position indisponible : les distances partent du chef-lieu de la wilaya choisie.",
+    baseTitle: "Votre point de départ pour « Près de moi »",
+    baseHint: "Les clients voient seulement une distance arrondie au kilomètre, jamais votre adresse ni ce point.",
+    source_gps: "Placé depuis votre position", source_commune: "Centre de votre commune", source_wilaya: "Chef-lieu de votre wilaya",
+    none: "Ajoutez une zone d'intervention pour apparaître dans « Près de moi ».",
+    useHere: "Je suis à mon atelier : utiliser ma position", reset: "Revenir au centre de ma zone", saved: "Point de départ enregistré.",
   },
 };
 

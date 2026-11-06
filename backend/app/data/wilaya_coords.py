@@ -14,3 +14,15 @@ WILAYA_CAPITALS = {
 }
 # Generous bounding box of Algeria: outside it, no wilaya is suggested.
 ALGERIA_BOUNDS = {"lat": (18.9, 37.2), "lng": (-8.8, 12.1)}
+
+# Approximate centres of the other seeded communes, keyed by (wilaya code, French name). Wilaya capitals use
+# WILAYA_CAPITALS; an imported communes.json can also carry "lat"/"lng" for the rest of the 1541 communes.
+COMMUNE_COORDS = {
+    (16, "Alger Centre"): (36.773, 3.059), (16, "Bab El Oued"): (36.790, 3.050), (16, "Hydra"): (36.742, 3.030),
+    (16, "Kouba"): (36.725, 3.085), (16, "Bir Mourad Raïs"): (36.735, 3.050), (16, "Bab Ezzouar"): (36.720, 3.183),
+    (16, "Dar El Beïda"): (36.713, 3.212), (16, "Chéraga"): (36.767, 2.959), (16, "El Biar"): (36.768, 3.031),
+    (16, "Hussein Dey"): (36.743, 3.097), (31, "Bir El Djir"): (35.720, -0.545), (31, "Es Senia"): (35.648, -0.623),
+    (31, "Arzew"): (35.855, -0.320), (25, "El Khroub"): (36.263, 6.693), (25, "Hamma Bouziane"): (36.412, 6.595),
+    (9, "Boufarik"): (36.575, 2.912), (19, "El Eulma"): (36.153, 5.690), (23, "El Bouni"): (36.866, 7.718),
+    (15, "Azazga"): (36.745, 4.372), (6, "Akbou"): (36.457, 4.535),
+}

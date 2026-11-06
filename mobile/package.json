@@ -44,7 +44,12 @@
     "web": "expo start --web",
     "i18n:sync": "node scripts/sync-i18n.js",
     "export:web": "expo export --platform web",
-    "export:android": "expo export --platform android"
+    "export:android": "expo export --platform android",
+    "lint": "expo lint"
   },
-  "private": true
+  "private": true,
+  "devDependencies": {
+    "eslint": "^9.0.0",
+    "eslint-config-expo": "~57.0.2"
+  }
 }

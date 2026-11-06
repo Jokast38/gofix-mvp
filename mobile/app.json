@@ -18,7 +18,7 @@
         "CFBundleAllowMixedLocalizations": true,
         "NSPhotoLibraryUsageDescription": "GoFix utilise vos photos pour votre photo de profil, votre image de couverture et vos justificatifs.",
         "NSCameraUsageDescription": "GoFix utilise l'appareil photo pour votre photo de profil et vos justificatifs.",
-        "NSLocationWhenInUseUsageDescription": "GoFix utilise votre position, uniquement si vous le demandez, pour proposer votre wilaya. Elle n'est pas enregistrée."
+        "NSLocationWhenInUseUsageDescription": "GoFix utilise votre position uniquement quand vous le demandez : pour trouver les professionnels les plus proches, proposer votre wilaya ou, si vous êtes professionnel, placer votre point de départ."
       }
     },
     "android": {
@@ -79,7 +79,7 @@
       [
         "expo-location",
         {
-          "locationWhenInUsePermission": "GoFix utilise votre position, uniquement si vous le demandez, pour proposer votre wilaya. Elle n'est pas enregistrée.",
+          "locationWhenInUsePermission": "GoFix utilise votre position uniquement quand vous le demandez : pour trouver les professionnels les plus proches, proposer votre wilaya ou, si vous êtes professionnel, placer votre point de départ.",
           "isAndroidBackgroundLocationEnabled": false,
           "isIosBackgroundLocationEnabled": false
         }

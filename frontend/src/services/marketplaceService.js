@@ -38,6 +38,8 @@ export const onboardingService = {
 export const providerService = {
   me: () => get("/provider/me"),
   patch: (body) => api.patch("/provider/profile", body).then((r) => r.data),
+  setLocation: (lat, lng) => api.put("/provider/location", { lat, lng }).then((r) => r.data),
+  resetLocation: () => api.delete("/provider/location").then((r) => r.data),
   uploadMedia: (media, file) => upload(`/provider/media/${media}`, file).then((r) => r.data),
   deleteMedia: (media) => api.delete(`/provider/media/${media}`),
   uploadDocument: (docType, file) => upload("/provider/documents", file, { doc_type: docType }).then((r) => r.data),

@@ -97,6 +97,8 @@ export const onboardingService = {
 export const providerService = {
   me: () => get("/provider/me"),
   patch: (body) => patch("/provider/profile", body),
+  setLocation: (lat, lng) => api.put("/provider/location", { lat, lng }).then((r) => r.data),
+  resetLocation: () => api.delete("/provider/location").then((r) => r.data),
   uploadMedia: (media, asset) => upload(`/provider/media/${media}`, asset),
   deleteMedia: (media) => api.delete(`/provider/media/${media}`),
   uploadDocument: (docType, asset) => upload("/provider/documents", asset, { doc_type: docType }),

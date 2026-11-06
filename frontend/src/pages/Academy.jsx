@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Send, X } from "lucide-react";
 import { BlurNotice, QuotaNotice, TeacherCard } from "@/components/catalog/Cards";
 import { SmartMatch } from "@/components/catalog/SmartMatch";
+import { SortBar, useSort } from "@/components/catalog/SortBar";
 import { PageHeader } from "@/components/common/PageSkeleton";
 import { RequestDialog } from "@/components/requests/RequestDialog";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -28,11 +29,12 @@ export default function Academy() {
   const max = settings.request_max_recipients || 5;
   const subjects = useQuery({ queryKey: ["subjects"], queryFn: marketplaceService.subjects, staleTime: 300_000 });
   const levels = useQuery({ queryKey: ["levels"], queryFn: marketplaceService.levels, staleTime: 300_000 });
+  const sorting = useSort(params, set);
   const understood = intent?.subject_key;
   const query = understood
     ? { subject_key: params.subject_key || intent.subject_key, level_key: params.level_key || intent.level_key, format: params.format || intent.mode,
-        wilaya: params.wilaya || intent.wilaya_code, page: Number(params.page || 1), page_size: 12 }
-    : { q: params.q, subject_key: params.subject_key, level_key: params.level_key, format: params.format, wilaya: params.wilaya, page: Number(params.page || 1), page_size: 12 };
+        wilaya: params.wilaya || intent.wilaya_code, page: Number(params.page || 1), page_size: 12, ...sorting.query }
+    : { q: params.q, subject_key: params.subject_key, level_key: params.level_key, format: params.format, wilaya: params.wilaya, page: Number(params.page || 1), page_size: 12, ...sorting.query };
   const { data, isLoading } = useQuery({ queryKey: ["teachers", query, Boolean(user)], queryFn: () => marketplaceService.teachers(query), keepPreviousData: true,
     enabled: !params.q || intent !== null });
   const canSelect = Boolean(user) && data && !data.blurred;
@@ -59,6 +61,7 @@ export default function Academy() {
             className={`rounded-full border px-3 min-h-[40px] text-xs font-bold transition-colors ${params.level_key === l.key ? "border-brand-electric bg-brand-electric/15" : "border-border"}`}>{loc(l)}</button>
         ))}
       </div>
+      <SortBar {...sorting} />
       {params.q && <div className="mt-4"><SmartMatch text={params.q} kind="teacher" onIntent={(i) => setIntent(i || {})} /></div>}
       {params.q && understood && <h2 className="mt-6 text-base font-extrabold">{t("match.allResults")}</h2>}
       {data?.blurred && <div className="mt-4"><BlurNotice loggedIn={Boolean(user)} /></div>}

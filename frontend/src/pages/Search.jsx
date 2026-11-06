@@ -5,6 +5,7 @@ import { Camera, Mic, Search as SearchIcon, SearchX, Send } from "lucide-react";
 import { toast } from "sonner";
 import { BlurNotice, ProCard, QuotaNotice } from "@/components/catalog/Cards";
 import { SmartMatch } from "@/components/catalog/SmartMatch";
+import { SortBar, useSort } from "@/components/catalog/SortBar";
 import { RequestDialog } from "@/components/requests/RequestDialog";
 import { useAuth } from "@/hooks/AuthProvider";
 import { PageHeader } from "@/components/common/PageSkeleton";
@@ -108,12 +109,13 @@ export default function Search() {
     if (kind === "teacher") navigate(`/academy?q=${encodeURIComponent(params.q)}`, { replace: true });
     else setIntent(i || {});
   };
+  const sorting = useSort(params, set);
   const cats = useQuery({ queryKey: ["cats-all"], queryFn: () => marketplaceService.categories(), staleTime: 300_000 });
   // Free text understood by AI MATCH -> structured filters for the full list (keyword search only as a fallback).
   const understood = intent?.category_key;
   const query = understood
-    ? { category_key: params.category_key || intent.category_key, wilaya: params.wilaya || intent.wilaya_code, commune: intent.commune, page: Number(params.page || 1), page_size: 12 }
-    : { q: params.q, category_key: params.category_key, wilaya: params.wilaya, page: Number(params.page || 1), page_size: 12 };
+    ? { category_key: params.category_key || intent.category_key, wilaya: params.wilaya || intent.wilaya_code, commune: intent.commune, page: Number(params.page || 1), page_size: 12, ...sorting.query }
+    : { q: params.q, category_key: params.category_key, wilaya: params.wilaya, page: Number(params.page || 1), page_size: 12, ...sorting.query };
   const { data, isLoading } = useQuery({ queryKey: ["pros", query, Boolean(user)], queryFn: () => marketplaceService.pros(query), keepPreviousData: true,
     enabled: !params.q || intent !== null });
   const cat = cats.data?.find((c) => c.key === params.category_key);
@@ -127,6 +129,7 @@ export default function Search() {
           {(cats.data || []).map((c) => <option key={c.key} value={c.key}>{loc(c)}</option>)}
         </select>
       } />
+      <SortBar {...sorting} />
       <BannerSlot placement="search" className="mt-4" />
       {params.q && <div className="mt-4"><SmartMatch text={params.q} onIntent={onIntent} /></div>}
       {params.q && understood && <h2 className="mt-6 text-base font-extrabold" data-testid="all-results">{t("match.allResults")}</h2>}

@@ -12,6 +12,7 @@ from app.core.db import db
 from app.core.deps import client_ip, get_current_user
 from app.core.ratelimit import hit
 from app.models.user import User
+from app.services import geo
 from app.services.audit import audit
 from app.services.free_access import provider_access
 from app.services.images import store_image
@@ -93,6 +94,8 @@ def _coll(kind: str):
 def _profile_out(p: dict) -> dict:
     out = _j({k: v for k, v in p.items() if k not in ("_id", "user_id", "ai")})
     out["id"] = str(p["_id"])
+    coords = (p.get("location") or {}).get("coordinates")
+    out["location"] = {"lat": coords[1], "lng": coords[0], "source": p.get("location_source")} if coords else None
     out["documents"] = [{k: v for k, v in d.items() if k != "key"} | {"has_file": bool(d.get("key"))} if isinstance(d, dict)
                         else {"type": d, "status": "declared", "has_file": False} for d in p.get("documents") or []]
     return out
@@ -136,6 +139,33 @@ async def patch_profile(body: ProfilePatch, user: User = Depends(get_current_use
                           "radius_km": int(z.get("radius_km") or 10)} for z in data["zones"] if 1 <= int(z.get("wilaya_code") or 0) <= 58][:10]
     data["updated_at"] = _now()
     await _coll(kind).update_one({"_id": p["_id"]}, {"$set": data})
+    if "zones" in data:
+        await geo.refresh_location(_coll(kind).name, p | data)
+    return _profile_out(await _coll(kind).find_one({"_id": p["_id"]}))
+
+
+class LocationIn(BaseModel):
+    lat: float = Field(ge=-90, le=90)
+    lng: float = Field(ge=-180, le=180)
+
+
+@router.put("/provider/location")
+async def set_location(body: LocationIn, user: User = Depends(get_current_user)):
+    """The provider places their base point (workshop, home base) from their device, for the "nearest" sort.
+    Clients only ever see a distance rounded to the kilometre, never the point itself."""
+    kind, p = await my_profile(user)
+    if not geo.in_algeria(body.lat, body.lng):
+        raise HTTPException(422, "outside_algeria")
+    await _coll(kind).update_one({"_id": p["_id"]}, {"$set": {"location": geo.point(round(body.lat, 4), round(body.lng, 4)),
+                                                              "location_source": "gps", "updated_at": _now()}})
+    return _profile_out(await _coll(kind).find_one({"_id": p["_id"]}))
+
+
+@router.delete("/provider/location")
+async def reset_location(user: User = Depends(get_current_user)):
+    """Back to the default base point: the centre of the first commune (or wilaya) of the zones."""
+    kind, p = await my_profile(user)
+    await geo.refresh_location(_coll(kind).name, p, force=True)
     return _profile_out(await _coll(kind).find_one({"_id": p["_id"]}))
 
 

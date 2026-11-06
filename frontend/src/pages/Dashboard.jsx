@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, Navigate } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Camera, Check, Clock, FileUp, ImagePlus, Inbox, Loader2, Lock, MessageCircle, Rocket, ShieldCheck, Trash2, X } from "lucide-react";
+import { Camera, Check, Clock, FileUp, ImagePlus, Inbox, Loader2, LocateFixed, Lock, MapPin, MessageCircle, RotateCcw, Rocket, ShieldCheck, Trash2, X } from "lucide-react";
 import { toast } from "sonner";
 import { Avatar, Cover } from "@/components/catalog/Cards";
 import { PageHeader, PageSkeleton } from "@/components/common/PageSkeleton";
@@ -10,6 +10,7 @@ import { Textarea } from "@/components/onboarding/Parts";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useI18n, useLocalized } from "@/i18n";
 import { errorCode, formatDate, formatDateTime } from "@/lib/format";
+import { getPosition } from "@/lib/geo";
 import { ui } from "@/lib/ui";
 import { marketplaceService, providerService, requestService } from "@/services/marketplaceService";
 import { StatusPill } from "./Requests";
@@ -193,6 +194,46 @@ function Documents({ kind, profile, onDone }) {
   );
 }
 
+/** Starting point used by the clients' "Near me" sort: the centre of the zone by default, or the provider's own position. */
+function BasePoint({ location, onDone }) {
+  const { t, te } = useI18n();
+  const [busy, setBusy] = useState(null);
+  const run = async (key, action) => {
+    setBusy(key);
+    try {
+      await action();
+      toast.success(t("nearby.saved"));
+      onDone();
+    } catch (err) { toast.error(te(errorCode(err))); } finally { setBusy(null); }
+  };
+  const useHere = async () => {
+    setBusy("here");
+    const pos = await getPosition({ precise: true });
+    if (pos.error) {
+      setBusy(null);
+      return toast.error(te(pos.error));
+    }
+    return run("here", () => providerService.setLocation(pos.lat, pos.lng));
+  };
+  return (
+    <section className="gf-card p-5" data-testid="dashboard-base-point">
+      <h3 className="font-extrabold flex items-center gap-2"><MapPin size={18} aria-hidden="true" />{t("nearby.baseTitle")}</h3>
+      <p className="mt-1 text-sm font-semibold" data-testid="base-point-source">{location ? t(`nearby.source_${location.source}`) : t("nearby.none")}</p>
+      <p className="mt-1 text-xs text-muted-foreground">{t("nearby.baseHint")}</p>
+      <div className="mt-3 flex flex-wrap gap-2">
+        <button type="button" onClick={useHere} disabled={Boolean(busy)} className={`${ui.btnOutline} min-h-[44px]`} data-testid="base-point-here">
+          {busy === "here" ? <Loader2 size={16} className="animate-spin" /> : <LocateFixed size={16} aria-hidden="true" />}{t("nearby.useHere")}
+        </button>
+        {location?.source === "gps" && (
+          <button type="button" onClick={() => run("reset", providerService.resetLocation)} disabled={Boolean(busy)} className={`${ui.btnOutline} min-h-[44px]`} data-testid="base-point-reset">
+            {busy === "reset" ? <Loader2 size={16} className="animate-spin" /> : <RotateCcw size={16} aria-hidden="true" />}{t("nearby.reset")}
+          </button>
+        )}
+      </div>
+    </section>
+  );
+}
+
 function ProfileTab({ kind, profile }) {
   const { t, te } = useI18n();
   const qc = useQueryClient();
@@ -237,6 +278,7 @@ function ProfileTab({ kind, profile }) {
         </div>
       </section>
       <section className="gf-card p-5"><StepZones d={d} update={update} kind={kind} /></section>
+      <BasePoint location={profile.location} onDone={refresh} />
       <section className="gf-card p-5"><StepPricing d={d} update={update} kind={kind} /></section>
       <button type="button" onClick={save} disabled={saving} className={`${ui.btnGradient} w-full`} data-testid="dashboard-save">{saving && <Loader2 size={18} className="animate-spin" />}{t("common.save")}</button>
       <Documents kind={kind} profile={profile} onDone={refresh} />

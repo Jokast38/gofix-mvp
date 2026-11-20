@@ -13,6 +13,7 @@ import { RequestSheet } from "./actions";
 import { BlurNotice, IntentChips, ProfileCard } from "./catalog";
 import { BannerSlot } from "@/components/promo";
 import { TourTarget } from "./tour";
+import { EduCta } from "./edu";
 
 const FORMATS = ["home", "online", "center"];
 
@@ -88,6 +89,7 @@ export function CatalogScreen({ kind }) {
   const header = (
     <View style={{ gap: 12, paddingBottom: 12 }}>
       <Txt variant="h1">{teacher ? t("catalog.teachersTitle") : t("catalog.prosTitle")}</Txt>
+      {teacher && <EduCta />}
       <TourTarget id="catalog-search">
       <Row style={{ borderWidth: 1, borderColor: c.border, backgroundColor: c.card, borderRadius: 999, paddingStart: 14, paddingEnd: 4, minHeight: 50 }}>
         <Search size={18} color={c.muted} />

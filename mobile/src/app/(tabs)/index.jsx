@@ -6,6 +6,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Bell, BookOpen, Cake, Camera, Car, ChefHat, Droplets, Globe, Lock, LogIn, Mic, Package, Rocket, Scissors, Search, ShoppingBasket, Target, Wrench, Zap } from "lucide-react-native";
 import { catalogService, socialService } from "@/api/services";
 import { Upcoming } from "@/components/catalog";
+import { EduCta } from "@/components/edu";
 import { isProvider, useAuth } from "@/hooks/auth";
 import { useI18n, useLocalized } from "@/i18n";
 import { alpha, BRAND, neonFor, useTheme } from "@/theme";
@@ -87,6 +88,7 @@ export default function Home() {
         </View>
       </Section>
 
+      <EduCta style={{ marginTop: 22 }} />
       <Highlights />
 
       <Card glow style={{ marginTop: 22, flexDirection: "row", gap: 12, alignItems: "center" }} onPress={() => router.push(provider ? "/dashboard" : "/onboarding")} testID="talent-banner">

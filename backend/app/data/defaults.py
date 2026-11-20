@@ -8,7 +8,7 @@ DEFAULT_FLAGS = [
     {"key": "trust_score", "enabled": True, "mvp": True, "description": "Affichage du Trust Score"},
     {"key": "ai_match", "enabled": True, "mvp": True, "description": "Classement AI Match v1 par règles"},
     {"key": "vision", "enabled": False, "mvp": False, "description": "VISION – analyse photo (non construit)"},
-    {"key": "edu_ai", "enabled": False, "mvp": False, "description": "EDU AI – test de niveau (non construit)"},
+    {"key": "edu_ai", "enabled": True, "mvp": True, "description": "EDU AI – tests de niveau (classes 1AP-3AS, langues, supérieur)"},
     {"key": "voice", "enabled": False, "mvp": False, "description": "VOICE – demande vocale fr/ar/darija (non construit)"},
     {"key": "pro_ai", "enabled": False, "mvp": False, "description": "PRO AI – assistant commercial (non construit)"},
     {"key": "passport", "enabled": False, "mvp": False, "description": "PASSPORT – page d'identité vérifiée QR (non construit)"},

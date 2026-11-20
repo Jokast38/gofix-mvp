@@ -177,7 +177,7 @@ async def _erase_personal_data(uid: ObjectId) -> None:
     await db.reviews.update_many({"client_id": uid}, {"$set": {"author_name": anon}})
     await db.conversations.update_many({"provider_user_id": uid}, {"$set": {"provider_display_name": anon}})
     await db.jobs.update_many({"provider_user_id": uid}, {"$set": {"provider_display_name": anon}})
-    for coll in (db.onboarding_drafts, db.favorites, db.notifications, db.password_reset_tokens, db.push_tokens):
+    for coll in (db.onboarding_drafts, db.favorites, db.notifications, db.password_reset_tokens, db.push_tokens, db.edu_attempts):
         await coll.delete_many({"user_id": uid})
 
 

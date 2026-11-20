@@ -151,3 +151,12 @@ export const chatbotService = {
   entry: (id, lang) => get(`/chatbot/faq/${id}`, { lang }),
   handoff: (body) => post("/chatbot/handoff", body),
 };
+
+// EDU AI level tests: answers stay on the server until an attempt is finished.
+export const eduService = {
+  catalog: () => get("/edu/catalog"),
+  start: (test_key) => post("/edu/attempts", { test_key }),
+  finish: (id, answers, token) => post(`/edu/attempts/${id}/finish`, { answers, token }),
+  history: () => get("/edu/history"),
+  attempt: (id) => get(`/edu/attempts/${id}`),
+};

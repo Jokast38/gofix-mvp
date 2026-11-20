@@ -10,6 +10,7 @@ import { useI18n } from "@/i18n";
 import { ui } from "@/lib/ui";
 import AppHome from "./AppHome";
 import { UpcomingSection } from "@/components/home/Upcoming";
+import { EduCta } from "@/pages/Edu";
 import { BannerSlot } from "@/components/promo/BannerSlot";
 import { GoFixSeries } from "@/components/promo/GoFixSeries";
 import { Highlights } from "@/components/promo/Highlights";
@@ -82,6 +83,7 @@ function Landing() {
       </section>
 
       <div className={`${ui.container} pb-4`}><BannerSlot placement="home" /></div>
+      <div className={`${ui.container} pb-4`}><EduCta /></div>
       <div className={`${ui.container} py-8`}><Highlights /></div>
 
       <HowItWorks />

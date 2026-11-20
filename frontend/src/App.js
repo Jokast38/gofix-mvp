@@ -20,6 +20,9 @@ const Onboarding = lazy(() => import("@/pages/onboarding/Onboarding"));
 const ChooseKind = lazy(() => import("@/pages/onboarding/Onboarding").then((m) => ({ default: m.ChooseKind })));
 const Search = lazy(() => import("@/pages/Search"));
 const Academy = lazy(() => import("@/pages/Academy"));
+const EduHome = lazy(() => import("@/pages/Edu"));
+const EduTest = lazy(() => import("@/pages/Edu").then((m) => ({ default: m.EduTest })));
+const EduResult = lazy(() => import("@/pages/Edu").then((m) => ({ default: m.EduResult })));
 const ProfileDetail = lazy(() => import("@/pages/ProfileDetail"));
 const NotFound = lazy(() => import("@/pages/NotFound"));
 const Pricing = lazy(() => import("@/pages/Pricing"));
@@ -52,6 +55,9 @@ export default function App() {
             <Route path="/app" element={<AppLanding />} />
             <Route path="/search" element={<Search />} />
             <Route path="/academy" element={<Academy />} />
+            <Route path="/academy/tests" element={<EduHome />} />
+            <Route path="/academy/tests/result/:id" element={<ProtectedRoute><EduResult /></ProtectedRoute>} />
+            <Route path="/academy/tests/:key" element={<EduTest />} />
             <Route path="/pro/join" element={<ChooseKind />} />
             <Route path="/pro/join/:kind" element={<ProtectedRoute><Onboarding /></ProtectedRoute>} />
             <Route path="/pro/:id" element={<ProfileDetail kind="professional" />} />

@@ -12,6 +12,7 @@ import { useConfig } from "@/hooks/usePublic";
 import { useI18n, useLocalized } from "@/i18n";
 import { marketplaceService } from "@/services/marketplaceService";
 import { ui } from "@/lib/ui";
+import { EduCta } from "@/pages/Edu";
 import { Empty, Filters, Pager, PublishRequestBar, useParamsState } from "./Search";
 
 const FORMATS = ["home", "online", "center"];
@@ -44,6 +45,7 @@ export default function Academy() {
   return (
     <div className={`${ui.container} py-6 sm:py-10`} data-testid="academy-page">
       <PageHeader eyebrow={t("appHome.academy")} title={t("catalog.teachersTitle")} subtitle={data ? t("catalog.results", { n: data.total }) : ""} />
+      <EduCta className="mb-4" />
       <Filters params={params} set={set} extra={
         <select value={params.subject_key || ""} onChange={(e) => set({ subject_key: e.target.value })} className={`${ui.input} min-h-[44px] appearance-none sm:w-48`} data-testid="catalog-subject-select">
           <option value="">{t("catalog.allSubjects")}</option>

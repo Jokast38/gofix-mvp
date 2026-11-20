@@ -29,3 +29,7 @@ async def ensure_defaults():
     for s in DEFAULT_SETTINGS:
         await db.settings.update_one({"key": s["key"]}, {"$setOnInsert": s}, upsert=True)
     await db.settings.delete_many({"key": {"$in": OBSOLETE_SETTINGS}})
+    # EDU AI was a placeholder flag (off, "non construit") until the feature was built: switch it on once.
+    edu_flag = next(f for f in DEFAULT_FLAGS if f["key"] == "edu_ai")
+    await db.feature_flags.update_one({"key": "edu_ai", "description": {"$regex": "non construit"}},
+                                      {"$set": {k: edu_flag[k] for k in ("enabled", "mvp", "description")}})

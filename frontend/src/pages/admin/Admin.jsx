@@ -16,6 +16,7 @@ import { AdminEmailConfig } from "./AdminEmailConfig";
 import { AdminCommunication } from "./AdminCommunication";
 import { AdminBanners } from "./AdminBanners";
 import { AdminFaq } from "./AdminFaq";
+import { AdminEdu } from "./AdminEdu";
 import { useAuth } from "@/hooks/AuthProvider";
 import { useI18n } from "@/i18n";
 import { ui } from "@/lib/ui";
@@ -37,6 +38,7 @@ const TABS = [
   { key: "communication", C: AdminCommunication, roles: [], edit: [] },
   { key: "banners", C: AdminBanners, roles: [], edit: [] },
   { key: "company", C: AdminCompany, roles: [], edit: [] },
+  { key: "edu", C: AdminEdu, roles: ["moderator", "support"], edit: ["moderator"] },
   { key: "taxonomy", C: AdminTaxonomy, roles: ["moderator", "support"], edit: ["moderator"] },
   { key: "flags", C: AdminFlags, roles: null, edit: [] },
   { key: "settings", C: AdminSettings, roles: null, edit: [] },

@@ -15,12 +15,13 @@ from app.core.safety import is_production, production_problems
 from app.core.security import hash_password, verify_password
 from app.services import payment_config, scheduler
 from app.services.config_store import ensure_defaults
+from app.services.edu import ensure_bank as ensure_edu_bank
 from app.services.geo import backfill_locations
 
 setup_logging()
 log = get_logger("gofix")
 
-from app.api.v1 import (admin, admin_email, admin_ops, admin_payment, admin_promo, admin_taxonomy, auth, billing, catalog, chatbot, jobs, marketplace, match,  # noqa: E402
+from app.api.v1 import (admin, admin_email, admin_ops, admin_payment, admin_promo, admin_taxonomy, auth, billing, catalog, chatbot, edu, jobs, marketplace, match,  # noqa: E402
                        onboarding, promo, provider, public, requests, social, trust_api, users)
 
 # The interactive API docs map every endpoint: hidden in production unless EXPOSE_API_DOCS=true.
@@ -60,7 +61,7 @@ app.add_middleware(CORSMiddleware, allow_origins=settings.cors_origins, allow_cr
 
 v1 = APIRouter(prefix="/api/v1")
 for r in (auth.router, users.router, catalog.router, marketplace.router, onboarding.router, provider.router, requests.router, jobs.router, match.router, trust_api.router, billing.router,
-          social.router, chatbot.router, public.router, admin.router, admin_ops.router, admin_email.router, admin_payment.router, admin_promo.router, promo.router, admin_taxonomy.router):
+          social.router, chatbot.router, public.router, edu.router, admin.router, admin_ops.router, admin_email.router, admin_payment.router, admin_promo.router, promo.router, admin_taxonomy.router):
     v1.include_router(r)
 
 
@@ -105,6 +106,7 @@ async def startup():
     await init_indexes()
     await ensure_defaults()
     await backfill_locations()
+    await ensure_edu_bank()
     if is_production():
         pay = await payment_config.effective()
         if pay["provider"] != "satim" or not payment_config.satim_complete(pay):

@@ -1,11 +1,10 @@
-import { Camera, GraduationCap, Mic, QrCode, Sparkles } from "lucide-react";
+import { Camera, Mic, QrCode, Sparkles } from "lucide-react";
 import { useI18n } from "@/i18n";
 
 // Innovations planned in the roadmap (feature flags off, no behaviour yet): shown as "coming soon" only.
 export const UPCOMING = [
   { key: "voice", icon: Mic, color: "var(--brand-orange)" },
   { key: "vision", icon: Camera, color: "var(--brand-pink)" },
-  { key: "edu_ai", icon: GraduationCap, color: "var(--brand-violet)" },
   { key: "pro_ai", icon: Sparkles, color: "var(--brand-electric)" },
   { key: "passport", icon: QrCode, color: "var(--brand-pink)" },
 ];

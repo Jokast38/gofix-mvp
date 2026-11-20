@@ -1,6 +1,7 @@
 services:
   mongo:
-    image: mongo:7
+    # MONGO_VERSION=4.4 in .env on a server whose CPU has no AVX (MongoDB 5+ requires AVX).
+    image: mongo:${MONGO_VERSION:-7}
     restart: unless-stopped
     environment:
       # Set MONGO_ROOT_USER/MONGO_ROOT_PASSWORD in .env (production) to enable authentication on a NEW volume,
@@ -11,7 +12,8 @@ services:
       - mongo_data:/data/db
       - ./backups:/backups
     healthcheck:
-      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping')"]
+      # mongosh ships with MongoDB 6+, the legacy mongo shell with 4.4/5.0.
+      test: ["CMD-SHELL", "mongosh --quiet --eval 'db.adminCommand(\"ping\")' || mongo --quiet --eval 'db.adminCommand(\"ping\")'"]
       interval: 15s
       timeout: 5s
       retries: 5

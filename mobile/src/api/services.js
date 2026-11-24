@@ -161,3 +161,16 @@ export const eduService = {
   history: () => get("/edu/history"),
   attempt: (id) => get(`/edu/attempts/${id}`),
 };
+
+// GOFIX PASSPORT: the pro's public page shared by QR code (the QR image comes from the server as a data URI).
+export const passportService = {
+  me: () => get("/me/passport"),
+  update: (body) => patch("/me/passport", body),
+  addSkill: (label) => post("/me/passport/skills", { label }),
+  removeSkill: async (id) => (await api.delete(`/me/passport/skills/${id}`)).data,
+  publish: (published) => post("/me/passport/publish", { published }),
+  share: () => post("/me/passport/share"),
+  revoke: () => post("/me/passport/share/revoke"),
+  history: () => get("/me/passport/history"),
+  view: (token) => get(`/passports/${token}`),
+};

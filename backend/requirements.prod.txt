@@ -13,3 +13,4 @@ Pillow>=10.3
 fpdf2>=2.7.9
 tzdata>=2024.1
 redis>=5.0,<6
+segno>=1.6,<2

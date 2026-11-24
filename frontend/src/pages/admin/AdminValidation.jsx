@@ -7,7 +7,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useI18n } from "@/i18n";
 import { errorCode, formatDA, formatDateTime } from "@/lib/format";
 import { ui } from "@/lib/ui";
-import { adminOpsService, adminTaxonomyService, trustService } from "@/services/marketplaceService";
+import { adminOpsService, adminTaxonomyService, passportService, trustService } from "@/services/marketplaceService";
 import { CategoryRequests } from "./AdminModeration";
 
 const STATUSES = ["pending", "verified", "unverified", "rejected"];
@@ -44,6 +44,35 @@ function Documents({ kind, profile, canEdit }) {
         </li>
       ))}
     </ul>
+  );
+}
+
+// Passport skills are "declared" until a moderator verifies them against the documents.
+function PassportSkills({ kind, profile, canEdit }) {
+  const { t, te } = useI18n();
+  const qc = useQueryClient();
+  const skills = profile.passport?.skills || [];
+  if (!skills.length) return null;
+  const decide = async (s) => {
+    try {
+      await passportService.verifySkill(kind, profile.id, s.id, !s.verified);
+      qc.invalidateQueries({ queryKey: ["admin-profiles"] });
+      toast.success(t("admin.saved"));
+    } catch (err) { toast.error(te(errorCode(err))); }
+  };
+  return (
+    <div className="mt-2" data-testid={`validation-skills-${profile.id}`}>
+      <p className="text-xs font-bold text-muted-foreground">{t("passport.admin.skills")}</p>
+      <ul className="mt-1 flex flex-wrap gap-2">
+        {skills.map((s) => (
+          <li key={s.id} className="inline-flex items-center gap-1.5 rounded-full border border-border ps-3 pe-1 py-1 text-xs">
+            <span className="font-semibold" dir="auto">{s.label}</span>
+            <span className={s.verified ? "text-brand-electric" : "text-muted-foreground"}>· {t(s.verified ? "passport.verified" : "passport.declared")}</span>
+            {canEdit && <button type="button" onClick={() => decide(s)} className="rounded-full px-2 py-1 text-[10px] font-bold hover:bg-secondary">{t(s.verified ? "passport.admin.unverify" : "passport.admin.verify")}</button>}
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 }
 
@@ -108,6 +137,7 @@ export function AdminValidation({ canEdit }) {
                   </p>
                   {p.verification_reason && <p className="mt-1 text-xs italic">{p.verification_reason}</p>}
                   <Documents kind={kind} profile={p} canEdit={canEdit} />
+                  <PassportSkills kind={kind} profile={p} canEdit={canEdit} />
                   <p className="mt-1 text-xs">{t("catalog.trust")} : <b>{p.trust_score ?? "—"}</b> · {p.trust_status ? t(`trust.status.${p.trust_status}`) : ""}
                     {canEdit && <button type="button" onClick={() => recompute(p.id)} className="ms-2 underline font-semibold min-h-[32px]" data-testid={`trust-recompute-${p.id}`}>{t("adminx.recompute")}</button>}</p>
                 </div>

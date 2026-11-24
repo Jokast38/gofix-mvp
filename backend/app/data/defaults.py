@@ -11,7 +11,7 @@ DEFAULT_FLAGS = [
     {"key": "edu_ai", "enabled": True, "mvp": True, "description": "EDU AI – tests de niveau (classes 1AP-3AS, langues, supérieur)"},
     {"key": "voice", "enabled": False, "mvp": False, "description": "VOICE – demande vocale fr/ar/darija (non construit)"},
     {"key": "pro_ai", "enabled": False, "mvp": False, "description": "PRO AI – assistant commercial (non construit)"},
-    {"key": "passport", "enabled": False, "mvp": False, "description": "PASSPORT – page d'identité vérifiée QR (non construit)"},
+    {"key": "passport", "enabled": True, "mvp": True, "description": "PASSPORT – passeport professionnel public partagé par QR"},
     {"key": "video_calls", "enabled": False, "mvp": False, "description": "Visioconférence intégrée (hors MVP)"},
 ]
 

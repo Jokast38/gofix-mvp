@@ -21,7 +21,7 @@ from app.services.geo import backfill_locations
 setup_logging()
 log = get_logger("gofix")
 
-from app.api.v1 import (admin, admin_email, admin_ops, admin_payment, admin_promo, admin_taxonomy, auth, billing, catalog, chatbot, edu, jobs, marketplace, match,  # noqa: E402
+from app.api.v1 import (admin, admin_email, admin_ops, admin_payment, admin_promo, admin_taxonomy, auth, billing, catalog, chatbot, edu, jobs, passport, marketplace, match,  # noqa: E402
                        onboarding, promo, provider, public, requests, social, trust_api, users)
 
 # The interactive API docs map every endpoint: hidden in production unless EXPOSE_API_DOCS=true.
@@ -61,7 +61,7 @@ app.add_middleware(CORSMiddleware, allow_origins=settings.cors_origins, allow_cr
 
 v1 = APIRouter(prefix="/api/v1")
 for r in (auth.router, users.router, catalog.router, marketplace.router, onboarding.router, provider.router, requests.router, jobs.router, match.router, trust_api.router, billing.router,
-          social.router, chatbot.router, public.router, edu.router, admin.router, admin_ops.router, admin_email.router, admin_payment.router, admin_promo.router, promo.router, admin_taxonomy.router):
+          social.router, chatbot.router, public.router, edu.router, passport.router, admin.router, admin_ops.router, admin_email.router, admin_payment.router, admin_promo.router, promo.router, admin_taxonomy.router):
     v1.include_router(r)
 
 

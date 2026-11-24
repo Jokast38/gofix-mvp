@@ -17,6 +17,7 @@ import { StatusPill } from "./Requests";
 import { JobsList } from "./Jobs";
 import { TrustBadge, TrustSubscores } from "@/components/trust/Trust";
 import { UpcomingTeaser } from "@/components/home/Upcoming";
+import { PassportCta } from "@/pages/Passport";
 
 function AccessBanner({ access }) {
   const { t } = useI18n();
@@ -161,11 +162,12 @@ const DOC_TYPES = { professional: ["id_card", "trade_register"], teacher: ["id_c
 function Documents({ kind, profile, onDone }) {
   const { t, te } = useI18n();
   const [busy, setBusy] = useState(null);
+  const [expiry, setExpiry] = useState({});
   const upload = async (type, file) => {
     if (!file) return;
     setBusy(type);
     try {
-      await providerService.uploadDocument(type, file);
+      await providerService.uploadDocument(type, file, expiry[type]);
       toast.success(t("dashboard.docSent"));
       onDone();
     } catch (err) { toast.error(te(errorCode(err))); } finally { setBusy(null); }
@@ -182,6 +184,10 @@ function Documents({ kind, profile, onDone }) {
             <li key={type} className="flex flex-wrap items-center gap-3 rounded-xl border border-border p-3">
               <span className="flex-1 min-w-[140px] text-sm font-semibold">{t(`onboarding.docs.${type}`)}</span>
               {last && <span className="text-xs font-bold" data-testid={`doc-status-${type}`}>{t(`dashboard.docStatus.${last.status}`)}</span>}
+              <label className="flex items-center gap-2 text-xs text-muted-foreground">{t("passport.docExpiry")}
+                <input type="date" value={expiry[type] || ""} min={new Date().toISOString().slice(0, 10)} onChange={(e) => setExpiry({ ...expiry, [type]: e.target.value })}
+                  className={`${ui.input} min-h-[40px] w-auto py-1 text-sm`} data-testid={`doc-expiry-${type}`} />
+              </label>
               <label className={`${ui.btnOutline} min-h-[40px] text-sm cursor-pointer`}>
                 {busy === type ? <Loader2 size={16} className="animate-spin" /> : <FileUp size={16} />}{t("dashboard.docUpload")}
                 <input type="file" accept="application/pdf,image/jpeg,image/png,image/webp" className="sr-only" onChange={(e) => { upload(type, e.target.files?.[0]); e.target.value = ""; }} data-testid={`doc-input-${type}`} />
@@ -377,7 +383,8 @@ export default function Dashboard() {
         <TabsContent value="profile" className="mt-5"><ProfileTab kind={kind} profile={profile} /></TabsContent>
         <TabsContent value="trust" className="mt-5"><TrustTab trust={trust} /></TabsContent>
       </Tabs>
-      <div className="mt-6"><UpcomingTeaser keys={["pro_ai", "passport"]} /></div>
+      <div className="mt-6"><PassportCta /></div>
+      <div className="mt-6"><UpcomingTeaser keys={["pro_ai"]} /></div>
       {["verified", "unverified"].includes(profile.verification_status) && (
         <div className="mt-6 text-center">
           <Link to={`/${kind === "teacher" ? "teacher" : "pro"}/${profile.id}`} className="inline-flex items-center min-h-[44px] px-3 text-sm underline" data-testid="dashboard-view-public">{t("account.viewProfile")}</Link>

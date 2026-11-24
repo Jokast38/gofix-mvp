@@ -21,6 +21,8 @@ const ChooseKind = lazy(() => import("@/pages/onboarding/Onboarding").then((m) =
 const Search = lazy(() => import("@/pages/Search"));
 const Academy = lazy(() => import("@/pages/Academy"));
 const Match = lazy(() => import("@/pages/Match"));
+const MyPassport = lazy(() => import("@/pages/Passport"));
+const PublicPassport = lazy(() => import("@/pages/Passport").then((m) => ({ default: m.PublicPassport })));
 const EduHome = lazy(() => import("@/pages/Edu"));
 const EduTest = lazy(() => import("@/pages/Edu").then((m) => ({ default: m.EduTest })));
 const EduResult = lazy(() => import("@/pages/Edu").then((m) => ({ default: m.EduResult })));
@@ -56,6 +58,8 @@ export default function App() {
             <Route path="/app" element={<AppLanding />} />
             <Route path="/search" element={<Search />} />
             <Route path="/match" element={<Match />} />
+            <Route path="/p/:token" element={<PublicPassport />} />
+            <Route path="/account/passport" element={<ProtectedRoute><MyPassport /></ProtectedRoute>} />
             <Route path="/academy" element={<Academy />} />
             <Route path="/academy/tests" element={<EduHome />} />
             <Route path="/academy/tests/result/:id" element={<ProtectedRoute><EduResult /></ProtectedRoute>} />

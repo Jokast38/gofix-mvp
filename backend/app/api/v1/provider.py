@@ -191,10 +191,19 @@ async def delete_media(media: Literal["photo", "cover"], user: User = Depends(ge
 
 
 @router.post("/provider/documents", status_code=201)
-async def upload_document(request: Request, doc_type: DocType = Form(...), file: UploadFile = File(...), user: User = Depends(get_current_user)):
+async def upload_document(request: Request, doc_type: DocType = Form(...), file: UploadFile = File(...),
+                          expires_on: Optional[str] = Form(None), user: User = Depends(get_current_user)):
     await hit(f"docs:{user.id}", 20, 3600)
+    expires_at = None
+    if expires_on:
+        try:
+            expires_at = datetime.strptime(expires_on, "%Y-%m-%d").replace(tzinfo=timezone.utc)
+        except ValueError:
+            raise HTTPException(422, "invalid_date")
+        if expires_at <= _now():
+            raise HTTPException(422, "document_expired")
     kind, p = await my_profile(user)
-    doc = await read_document(file, doc_type, user.id)
+    doc = await read_document(file, doc_type, user.id) | {"expires_at": expires_at}
     docs = [d for d in p.get("documents") or [] if not (isinstance(d, str) and d == doc_type)]
     await _coll(kind).update_one({"_id": p["_id"]}, {"$set": {"documents": docs + [doc], "updated_at": _now()}})
     await audit("verification.document_uploaded", user, kind, str(p["_id"]), {"type": doc_type}, client_ip(request))

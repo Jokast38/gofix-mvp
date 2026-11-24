@@ -2,12 +2,13 @@ import { useEffect, useState } from "react";
 import { View } from "react-native";
 import { Redirect, router } from "expo-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Check, Clock, Inbox, LocateFixed, Lock, MessageCircle, RotateCcw, Rocket, ShieldCheck, X } from "lucide-react-native";
+import { Check, Clock, IdCard, Inbox, LocateFixed, Lock, MessageCircle, RotateCcw, Rocket, ShieldCheck, X } from "lucide-react-native";
 import { errorCode } from "@/api/client";
 import { catalogService, providerService, requestService } from "@/api/services";
 import { TrustBadge, TrustSubscores, Upcoming } from "@/components/catalog";
 import { AvailabilityEditor, DocRow, MediaEditor, pickDocument, pickImage, ZonesEditor } from "@/components/editors";
 import { JobsList } from "@/components/JobsList";
+import { useConfig } from "@/hooks/auth";
 import { useI18n, useLocalized } from "@/i18n";
 import { formatDate, formatDateTime } from "@/lib/format";
 import { getPosition } from "@/lib/location";
@@ -228,6 +229,7 @@ function TrustTab({ trust }) {
 export default function Dashboard() {
   useScreenTour("appDashboard");
   const { t } = useI18n();
+  const { flag } = useConfig();
   const [tab, setTab] = useState("requests");
   const { data, isLoading, error, refetch, isRefetching } = useQuery({ queryKey: ["provider-me"], queryFn: providerService.me });
   if (error?.response?.status === 404) return <Redirect href="/onboarding" />;
@@ -252,7 +254,16 @@ export default function Dashboard() {
       {tab === "jobs" && <JobsList role="provider" />}
       {tab === "profile" && <ProfileEditor kind={kind} profile={profile} />}
       {tab === "trust" && <TrustTab trust={trust} />}
-      <Section title={t("upcoming.title")}><Upcoming keys={["pro_ai", "passport"]} /></Section>
+      {flag("passport") && (
+        <Card glow onPress={() => router.push("/passport")} testID="passport-cta" style={{ marginTop: 22, flexDirection: "row", gap: 12, alignItems: "center" }}>
+          <View style={{ width: 46, height: 46, borderRadius: 12, backgroundColor: alpha(BRAND.electric, 0.15), alignItems: "center", justifyContent: "center" }}><IdCard size={24} color={BRAND.electric} /></View>
+          <View style={{ flex: 1 }}>
+            <Txt weight={800}>{t("passport.cta.title")}</Txt>
+            <Txt variant="tiny" muted>{t("passport.cta.text")}</Txt>
+          </View>
+        </Card>
+      )}
+      <Section title={t("upcoming.title")}><Upcoming keys={["pro_ai"]} /></Section>
       {["verified", "unverified"].includes(profile.verification_status) && (
         <Btn variant="ghost" title={t("account.viewProfile")} onPress={() => router.push(`/${kind === "teacher" ? "teacher" : "pro"}/${profile.id}`)} style={{ marginTop: 12 }} />
       )}

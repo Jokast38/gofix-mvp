@@ -42,7 +42,7 @@ export const providerService = {
   resetLocation: () => api.delete("/provider/location").then((r) => r.data),
   uploadMedia: (media, file) => upload(`/provider/media/${media}`, file).then((r) => r.data),
   deleteMedia: (media) => api.delete(`/provider/media/${media}`),
-  uploadDocument: (docType, file) => upload("/provider/documents", file, { doc_type: docType }).then((r) => r.data),
+  uploadDocument: (docType, file, expiresOn) => upload("/provider/documents", file, { doc_type: docType, ...(expiresOn && { expires_on: expiresOn }) }).then((r) => r.data),
   contest: (body) => post("/provider/trust/contest", body),
 };
 
@@ -159,4 +159,18 @@ export const adminDisputeService = {
   list: (status) => get("/admin/disputes", { status }),
   resolve: (id, resolution, note) => api.patch(`/admin/disputes/${id}`, { resolution, note }),
   matchResults: () => get("/admin/match-results"),
+};
+
+// GOFIX PASSPORT: the pro's public page shared by QR code (the QR image comes from the server).
+export const passportService = {
+  me: () => get("/me/passport"),
+  update: (body) => api.patch("/me/passport", body).then((r) => r.data),
+  addSkill: (label) => post("/me/passport/skills", { label }),
+  removeSkill: (id) => api.delete(`/me/passport/skills/${id}`).then((r) => r.data),
+  publish: (published) => post("/me/passport/publish", { published }),
+  share: () => post("/me/passport/share"),
+  revoke: () => post("/me/passport/share/revoke"),
+  history: () => get("/me/passport/history"),
+  view: (token) => get(`/passports/${token}`),
+  verifySkill: (kind, pid, sid, verified) => api.patch(`/admin/passports/${kind}/${pid}/skills/${sid}`, { verified }).then((r) => r.data),
 };

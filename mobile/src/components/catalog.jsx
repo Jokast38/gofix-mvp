@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Pressable, View } from "react-native";
 import { router } from "expo-router";
 import { useQuery } from "@tanstack/react-query";
-import { AlarmClock, BadgeCheck, CalendarDays, Camera, Info, Lock, MapPin, Mic, MonitorSmartphone, QrCode, ShieldCheck,
+import { AlarmClock, BadgeCheck, CalendarDays, Camera, Info, Lock, MapPin, Mic, MonitorSmartphone, ShieldCheck,
   ShieldQuestion, Sparkles, Star, Tag, TriangleAlert } from "lucide-react-native";
 import { catalogService, matchService } from "@/api/services";
 import { useWilayas } from "@/hooks/auth";
@@ -216,7 +216,6 @@ export function IntentChips({ intent, kind }) {
 export const UPCOMING = [
   { key: "voice", icon: Mic, color: BRAND.orange }, { key: "vision", icon: Camera, color: BRAND.pink },
   { key: "pro_ai", icon: Sparkles, color: BRAND.electric },
-  { key: "passport", icon: QrCode, color: BRAND.pink },
 ];
 
 /** Roadmap innovations: shown as "coming soon" only (feature flags off, no behaviour). */

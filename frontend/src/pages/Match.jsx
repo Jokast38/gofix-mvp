@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft, Check, CheckCircle2, LocateFixed, Loader2, Search as SearchIcon, Sparkles } from "lucide-react";
+import { ArrowLeft, Check, CheckCircle2, Loader2, LocateFixed, Mic, Search as SearchIcon, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import { ProCard } from "@/components/catalog/Cards";
 import { PageHeader } from "@/components/common/PageSkeleton";
@@ -12,6 +12,7 @@ import { useI18n, useLocalized } from "@/i18n";
 import { errorCode } from "@/lib/format";
 import { getPosition } from "@/lib/geo";
 import { ui } from "@/lib/ui";
+import { VoiceDialog } from "@/components/voice/VoiceDialog";
 import { marketplaceService, matchService, requestService } from "@/services/marketplaceService";
 
 // Guided AI MATCH flow: trade -> need -> place -> results -> recap -> sent. The draft survives "back", a reload and a
@@ -79,12 +80,18 @@ function Nav({ onBack, onNext, nextLabel, disabled, testId }) {
 
 function ServiceStep({ d, set, go }) {
   const { t } = useI18n();
+  const { flag } = useConfig();
   const loc = useLocalized();
   const [q, setQ] = useState("");
+  const [voice, setVoice] = useState(false);
   const { data: cats = [], isLoading } = useQuery({ queryKey: ["cats-all"], queryFn: () => marketplaceService.categories(), staleTime: 300_000 });
   const list = cats.filter((c) => c.key !== "private_tutoring" && (!q.trim() || loc(c).toLowerCase().includes(q.trim().toLowerCase())));
   return (
     <section>
+      {flag("voice") && (
+        <button type="button" onClick={() => setVoice(true)} className={`${ui.btnOutline} mb-5 w-full sm:w-auto`} data-testid="match-voice"><Mic size={16} aria-hidden="true" />{t("voice.mic")}</button>
+      )}
+      {voice && <VoiceDialog onClose={() => setVoice(false)} onDone={(draft, step) => { set(draft); go(step); }} />}
       <h1 className="text-xl font-extrabold">{t("aimatch.serviceTitle")}</h1>
       <label className="relative mt-3 block">
         <SearchIcon size={18} className="absolute top-1/2 -translate-y-1/2 start-3 text-muted-foreground" aria-hidden="true" />

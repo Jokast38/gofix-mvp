@@ -2,9 +2,10 @@ import { useEffect, useMemo, useState } from "react";
 import { FlatList, TextInput, View } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
-import { Camera, LocateFixed, Mic, Search, SearchX, Send, Sparkles, Star, X } from "lucide-react-native";
+import { Camera, LocateFixed, Search, SearchX, Send, Sparkles, Star, X } from "lucide-react-native";
 import { catalogService, matchService } from "@/api/services";
 import { useAuth, useConfig, useWilayas } from "@/hooks/auth";
+import { VoiceMic } from "@/components/voice";
 import { useI18n, useLocalized } from "@/i18n";
 import { getPosition } from "@/lib/location";
 import { BRAND, useTheme } from "@/theme";
@@ -96,7 +97,7 @@ export function CatalogScreen({ kind }) {
         <TextInput value={draft} onChangeText={setDraft} onSubmitEditing={submitText} returnKeyType="search" placeholder={t("match.placeholder")}
           placeholderTextColor={c.muted} style={{ flex: 1, color: c.text, marginHorizontal: 8, minHeight: 46, fontSize: 15 }} testID="catalog-search" />
         {draft ? <IconBtn onPress={() => { setDraft(""); setText(""); }} label={t("common.close")}><X size={18} color={c.muted} /></IconBtn> : null}
-        <IconBtn onPress={() => toast(t("upcoming.toast.voice"))} label={t("upcoming.voice.title")}><Mic size={19} color={c.muted} /></IconBtn>
+        <VoiceMic size={19} testID="search-voice" />
         <IconBtn onPress={() => toast(t("upcoming.toast.vision"))} label={t("upcoming.vision.title")}><Camera size={19} color={c.muted} /></IconBtn>
       </Row>
       </TourTarget>

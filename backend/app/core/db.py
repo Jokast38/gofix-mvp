@@ -68,6 +68,8 @@ async def init_indexes():
     await db.requests.create_index([("client_id", ASCENDING), ("idempotency_key", ASCENDING)], unique=True,
                                    partialFilterExpression={"idempotency_key": {"$type": "string"}})
     await db.reviews.create_index([("profile_id", ASCENDING), ("created_at", DESCENDING)])
+    await db.voice_intents.create_index("expires_at", expireAfterSeconds=0)  # VOICE quality records: 90 days
+    await db.voice_intents.create_index("created_at")
     # PRO AI
     await db.quotes.create_index([("provider_user_id", ASCENDING), ("status", ASCENDING), ("created_at", DESCENDING)])
     await db.quotes.create_index([("provider_user_id", ASCENDING), ("request_id", ASCENDING)])

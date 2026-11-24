@@ -3,11 +3,12 @@ import { Pressable, TextInput, View } from "react-native";
 import { router } from "expo-router";
 import { Image } from "expo-image";
 import { useQuery } from "@tanstack/react-query";
-import { Bell, BookOpen, Cake, Camera, Car, ChefHat, Droplets, Globe, Lock, LogIn, Mic, Package, Rocket, Scissors, Search, ShoppingBasket, Sparkles, Target, Wrench, Zap } from "lucide-react-native";
+import { Bell, BookOpen, Cake, Camera, Car, ChefHat, Droplets, Globe, Lock, LogIn, Package, Rocket, Scissors, Search, ShoppingBasket, Sparkles, Target, Wrench, Zap } from "lucide-react-native";
 import { catalogService, socialService } from "@/api/services";
 import { Upcoming } from "@/components/catalog";
 import { EduCta } from "@/components/edu";
 import { isProvider, useAuth, useConfig } from "@/hooks/auth";
+import { VoiceMic } from "@/components/voice";
 import { useI18n, useLocalized } from "@/i18n";
 import { alpha, BRAND, neonFor, useTheme } from "@/theme";
 import { Card, IconBtn, Row, Screen, Section, Txt, useToast } from "@/ui";
@@ -72,7 +73,7 @@ export default function Home() {
         <Search size={18} color={c.muted} />
         <TextInput value={q} onChangeText={setQ} onSubmitEditing={go} returnKeyType="search" placeholder={t("match.placeholder")} placeholderTextColor={c.muted}
           style={{ flex: 1, color: c.text, fontSize: 15, marginHorizontal: 8, minHeight: 48 }} testID="home-search" accessibilityLabel={t("home.searchBtn")} />
-        <IconBtn onPress={() => toast(t("upcoming.toast.voice"))} label={t("upcoming.voice.title")}><Mic size={20} color={c.muted} /></IconBtn>
+        <VoiceMic size={20} testID="search-voice" />
         <IconBtn onPress={() => toast(t("upcoming.toast.vision"))} label={t("upcoming.vision.title")}><Camera size={20} color={c.muted} /></IconBtn>
       </Row>
       </TourTarget>

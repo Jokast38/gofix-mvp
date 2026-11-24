@@ -14,8 +14,16 @@ PARSER_VERSION = "rules-v1"
 TZ = ZoneInfo("Africa/Algiers")
 DAY_KEYS = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"]
 _ARABIC = re.compile(r"[؀-ۿ]")
+# Arabic clitics glued to the word: "المكيف" (the AC), "بالكهرباء", "والما". Matching also tries the bare word.
+_AR_PREFIX = re.compile(r"^(?:وال|بال|فال|كال|لل|ال)(?=[؀-ۿ]{2,})")
 _CACHE: dict = {"at": 0.0}
 CACHE_TTL_S = 300
+
+
+def _with_ar_stems(t: str) -> str:
+    """Normalised text + the Arabic words without their article/preposition prefix, so "المكيف" matches "مكيف"."""
+    extra = [_AR_PREFIX.sub("", w) for w in t.split() if _AR_PREFIX.match(w)]
+    return f"{t} {' '.join(extra)}" if extra else t
 
 
 def _has(text: str, phrase: str) -> bool:
@@ -93,7 +101,7 @@ def resolve_day(day: str | None, now: datetime | None = None) -> str | None:
 
 async def parse(text: str, kind_hint: str | None = None) -> dict:
     raw = (text or "").strip()[:500]
-    t = norm(raw)
+    t = _with_ar_stems(norm(raw))
     tokens = t.split()
     v = await _vocab()
     arabic = len(_ARABIC.findall(raw))

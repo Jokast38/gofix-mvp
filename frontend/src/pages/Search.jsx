@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { Camera, Mic, Search as SearchIcon, SearchX, Send } from "lucide-react";
+import { Camera, Search as SearchIcon, SearchX, Send } from "lucide-react";
+import { VoiceMicButton } from "@/components/voice/VoiceDialog";
 import { toast } from "sonner";
 import { BlurNotice, ProCard, QuotaNotice } from "@/components/catalog/Cards";
 import { SmartMatch } from "@/components/catalog/SmartMatch";
@@ -31,7 +32,8 @@ export function Filters({ params, set, extra }) {
           onKeyDown={(e) => e.key === "Enter" && set({ q: draft })} placeholder={t("match.placeholder")} enterKeyHint="search"
           className={`${ui.input} ps-10 pe-24 min-h-[44px]`} data-testid="catalog-search-input" maxLength={200} />
         <span className="absolute top-1/2 -translate-y-1/2 end-1.5 flex items-center">
-          {[["voice", Mic], ["vision", Camera]].map(([k, Icon]) => (
+          <VoiceMicButton />
+          {[["vision", Camera]].map(([k, Icon]) => (
             <button key={k} type="button" onClick={() => toast(t(`upcoming.toast.${k}`))} aria-label={t(`upcoming.${k}.title`)} data-testid={`search-${k}-soon`}
               className="relative grid place-items-center h-10 w-10 rounded-full text-muted-foreground hover:bg-secondary">
               <Icon size={18} strokeWidth={1.6} /><span className="absolute -top-0.5 end-0 rounded-full bg-brand-orange px-1 text-[8px] font-extrabold text-[#070911]">{t("upcoming.soon")}</span>

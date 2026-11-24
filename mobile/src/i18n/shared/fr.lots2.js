@@ -502,6 +502,27 @@ const lots2 = {
       deleted: "Données supprimées",
     },
   },
+  voice: {
+    title: "Parler à GoFix", mic: "Dicter ma demande", consentTitle: "Avant de parler",
+    consent1: "Votre voix sert uniquement à comprendre votre demande. Le micro ne s'active que quand vous appuyez.",
+    consent2: "La voix est transformée en texte par votre téléphone (service vocal Google sur Android, Apple sur iPhone) ou par votre navigateur. GoFix ne reçoit que le texte, jamais l'audio.",
+    consent3: "Vous relisez et corrigez le texte avant toute recherche. Rien n'est envoyé à un professionnel sans votre accord.",
+    accept: "Autoriser le micro", keyboard: "Saisie au clavier", lang: "Langue",
+    langs: { "fr-FR": "Français", "ar-DZ": "Darija (bêta)", "ar-SA": "العربية", "en-US": "English" },
+    darijaBeta: "La darija est en bêta : relisez bien le texte reconnu.",
+    tapToTalk: "Appuyez et parlez", listening: "Je vous écoute…", listeningHint: "Dites le métier, le lieu et si c'est urgent.",
+    example: "Ex. : « J'ai une fuite sous l'évier à Bab Ezzouar, c'est urgent »", stop: "Terminer", cancel: "Annuler", timer: "{s} s / 30 s",
+    onDevice: "traité sur le téléphone", review: "Votre demande", reviewHint: "Vérifiez le texte : la reconnaissance vocale peut se tromper.",
+    again: "Réessayer", continue: "Continuer", analysing: "Analyse de votre demande…", summary: "Vérifiez votre demande",
+    trade: "Métier", place: "Wilaya", commune: "Commune", missingTrade: "Quel métier recherchez-vous ?", missingPlace: "Où faut-il intervenir ?",
+    confirm: "Confirmer et voir les pros", editText: "Modifier le texte", validateNote: "Rien n'est envoyé : vous choisissez ensuite les professionnels à contacter.",
+    settings: "Ouvrir les réglages", unsupported: "La dictée n'est pas disponible dans ce navigateur (utilisez Chrome ou l'application).",
+    errors: {
+      "not-allowed": "Micro refusé : autorisez-le dans les réglages, ou utilisez le clavier.", "no-speech": "Je n'ai rien entendu. Réessayez en parlant près du micro.",
+      network: "Pas de connexion : la reconnaissance vocale a besoin d'internet sur cet appareil.", "language-not-supported": "Cette langue n'est pas disponible sur votre appareil : choisissez-en une autre.",
+      unavailable: "La dictée n'est pas disponible sur cet appareil (mettez l'application à jour). Utilisez le clavier.", generic: "La dictée a échoué. Réessayez ou utilisez le clavier.",
+    },
+  },
 };
 
 export default lots2;

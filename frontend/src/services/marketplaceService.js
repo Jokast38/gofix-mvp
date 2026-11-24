@@ -207,3 +207,9 @@ export const quoteService = {
   reject: (id, reason = "") => post(`/quotes/${id}/reject`, { reason }),
   muteFollowups: (cid, muted) => post(`/conversations/${cid}/followups-mute`, { muted }),
 };
+
+// GOFIX VOICE: the browser (or phone) recognises the speech; only the text reaches the API, never the audio.
+export const voiceService = {
+  analyse: (body) => post("/voice/intents", body),
+  confirm: (id, body) => post(`/voice/intents/${id}/confirm`, body),
+};

@@ -5,31 +5,33 @@ Keys must exist in the taxonomy (unknown keys are ignored)."""
 CATEGORY_SYNONYMS = {
     "plumber": ["plombier", "plomberie", "fuite", "fuit", "robinet", "tuyau", "evier", "chauffe eau", "chauffe-eau", "sanitaire", "wc",
                 "toilette", "canalisation", "bouche", "debouchage", "lavabo", "douche", "سباك", "ترصيص", "تسرب", "تسريب", "الماء يقطر",
-                "plombi", "lplombi", "robini"],
+                "plombi", "lplombi", "robini",
+                "بلومبي", "بلومبيي", "روبيني", "الروبيني", "قادوس", "طيو", "يقطر", "الما يسيل", "شوفاج", "شوفو"],
     "electrician": ["electricien", "electricite", "courant", "prise", "disjoncteur", "court circuit", "panne electrique", "lumiere",
-                    "eclairage", "tableau electrique", "كهربائي", "كهرباء", "الضو", "trisiti", "tricity", "electrique"],
-    "air_conditioning": ["clim", "climatiseur", "climatisation", "climatiseurs", "مكيف", "مكيفات", "klimatizor", "climatizour"],
-    "cleaning": ["menage", "nettoyage", "femme de menage", "nettoyer", "تنظيف", "منظفة"],
+                    "eclairage", "tableau electrique", "كهربائي", "كهرباء", "الضو", "trisiti", "tricity", "electrique",
+                    "تريسيتي", "تريسيتيان", "الكوران", "كوران", "بريز", "ديسجونكتور"],
+    "air_conditioning": ["clim", "climatiseur", "climatisation", "climatiseurs", "مكيف", "مكيفات", "klimatizor", "climatizour", "كليماتيزور", "كليماتيزار", "كليم", "الكليم"],
+    "cleaning": ["menage", "nettoyage", "femme de menage", "nettoyer", "تنظيف", "منظفة", "مينياج", "فام دو مينياج", "تنقية الدار"],
     "moving": ["demenagement", "demenager", "transport meubles", "نقل الأثاث", "ترحيل"],
-    "locksmith": ["serrure", "serrurier", "cle", "porte bloquee", "porte claquee", "قفل", "مفتاح"],
-    "painter": ["peinture", "peintre", "repeindre", "دهان", "صباغة", "sbagh"],
+    "locksmith": ["serrure", "serrurier", "cle", "porte bloquee", "porte claquee", "قفل", "مفتاح", "ساروت", "سروت", "الساروت", "سيرير", "الباب مسكر"],
+    "painter": ["peinture", "peintre", "repeindre", "دهان", "صباغة", "sbagh", "صباغ", "نصبغ", "نصبغو", "تصبيغ", "بانتير"],
     "mason": ["macon", "maconnerie", "beton", "mur", "dalle", "بناء", "بنّاء", "ماصو", "masson"],
     "carpenter": ["menuisier", "menuiserie", "bois", "placard", "porte en bois", "نجار", "نجارة"],
     "tiler": ["carrelage", "carreleur", "faience", "dalle de sol", "بلاط", "زليج"],
     "welder": ["soudure", "soudeur", "ferronnier", "fer forge", "portail", "حداد", "تلحيم"],
-    "car_mechanic": ["mecanicien", "mecanique", "garage", "voiture en panne", "moteur", "vidange", "frein", "ميكانيكي", "طونوبيل", "tomobil"],
+    "car_mechanic": ["mecanicien", "mecanique", "garage", "voiture en panne", "moteur", "vidange", "frein", "ميكانيكي", "طونوبيل", "tomobil", "طوموبيل", "الطوموبيل", "لوطو", "ميكانيسيان", "موطور", "السيارة"],
     "auto_electrician": ["electricien auto", "batterie voiture", "demarreur", "alternateur"],
     "bodywork": ["carrosserie", "carrossier", "tolerie", "سمكري"],
     "hairdresser": ["coiffeur", "coiffeuse", "coiffure", "coupe de cheveux", "brushing", "حلاق", "حلاقة", "كوافير", "coiffeur a domicile"],
     "beautician": ["estheticienne", "epilation", "soin visage", "manucure", "تجميل"],
     "computer_repair": ["ordinateur", "pc", "laptop", "portable pc", "informaticien", "réparation pc", "حاسوب", "كمبيوتر"],
-    "phone_repair": ["telephone", "smartphone", "ecran casse", "iphone", "samsung", "هاتف", "تيليفون", "portable casse"],
+    "phone_repair": ["telephone", "smartphone", "ecran casse", "iphone", "samsung", "هاتف", "تيليفون", "portable casse", "التيليفون", "بورطابل", "الشاشة تكسرت", "تكسر الشاشة"],
     "network_installer": ["wifi", "reseau", "box internet", "fibre", "شبكة", "انترنت"],
     "pastry": ["patisserie", "patissier", "gateau", "gateaux", "حلويات", "حلوة", "gato"],
     "cooking": ["cuisinier", "traiteur", "repas", "cuisine pour fete", "طباخ"],
     "delivery": ["livraison", "livreur", "colis", "توصيل"],
     "gardening": ["jardin", "jardinier", "pelouse", "حديقة", "بستاني"],
-    "appliance_repair": ["machine a laver", "frigo", "refrigerateur", "four", "lave vaisselle", "غسالة", "ثلاجة"],
+    "appliance_repair": ["machine a laver", "frigo", "refrigerateur", "four", "lave vaisselle", "غسالة", "ثلاجة", "ماشينة تاع الصابون", "الماشينة تاع الصابون", "ماشينة الصابون", "لافوز", "فريجيدار", "فريجو", "الفريجيدار"],
     "photography": ["photographe", "photo mariage", "مصور"],
 }
 EN_CATEGORY_SYNONYMS = {
@@ -98,7 +100,7 @@ LEVEL_PATTERNS = [
 ]
 
 URGENCY_WORDS = ["urgent", "urgence", "urgemment", "vite", "rapidement", "immediatement", "tout de suite", "maintenant", "au plus vite",
-                 "asap", "emergency", "immediately", "right away", "right now", "quickly", "as soon as possible", "عاجل", "ضروري", "حالا", "دروك", "درك", "dorka", "drk", "zerb", "zerbe", "dghya", "دغيا"]
+                 "asap", "emergency", "immediately", "right away", "right now", "quickly", "as soon as possible", "عاجل", "ضروري", "حالا", "دروك", "درك", "dorka", "drk", "zerb", "zerbe", "dghya", "دغيا", "زرب", "بالزربة", "ضروك", "دغية"]
 
 DAY_WORDS = {
     "today": ["aujourd hui", "aujourdhui", "ce matin", "ce soir", "cet apres midi", "today", "this morning", "this afternoon", "this evening", "tonight", "اليوم", "lyoum", "el youm"],

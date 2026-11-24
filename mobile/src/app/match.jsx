@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import { View } from "react-native";
 import { router } from "expo-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Check, CheckCircle2, LocateFixed, Sparkles } from "lucide-react-native";
+import { Check, CheckCircle2, LocateFixed, Mic, Sparkles } from "lucide-react-native";
 import { errorCode } from "@/api/client";
 import { catalogService, matchService, publicService, requestService } from "@/api/services";
 import { ProfileCard } from "@/components/catalog";
@@ -10,6 +10,8 @@ import { CheckRow } from "@/ui/CheckRow";
 import { useAuth, useConfig, useWilayas } from "@/hooks/auth";
 import { useI18n, useLocalized } from "@/i18n";
 import { getPosition } from "@/lib/location";
+import { matchDraft } from "@/lib/matchDraft";
+import { VoiceSheet } from "@/components/voice";
 import { BRAND } from "@/theme";
 import { Btn, Card, Chip, Input, Loading, Row, Screen, SelectField, TopBar, Txt, useToast } from "@/ui";
 
@@ -17,8 +19,6 @@ import { Btn, Card, Chip, Input, Loading, Row, Screen, SelectField, TopBar, Txt,
 // (it survives going to the login screen and back); the device position is only sent with the search.
 const STEPS = ["service", "need", "place", "results"];
 const RADII = [5, 10, 20, 50];
-const EMPTY = { category_key: "", description: "", when: "week", wilaya_code: "", commune: "", radius_km: 10, gps: null, selected: [], names: {} };
-let saved = { ...EMPTY, step: "service" };
 
 function Progress({ step }) {
   const { t } = useI18n();
@@ -41,14 +41,18 @@ function Nav({ onBack, onNext, nextLabel, disabled, testID }) {
   );
 }
 
-function ServiceStep({ d, set, go }) {
+function ServiceStep({ d, set, go, onVoice }) {
   const { t } = useI18n();
+  const { flag } = useConfig();
   const loc = useLocalized();
   const [q, setQ] = useState("");
+  const [voice, setVoice] = useState(false);
   const { data: cats = [], isLoading } = useQuery({ queryKey: ["cats-all"], queryFn: () => catalogService.categories(), staleTime: 300_000 });
   const list = cats.filter((c) => c.key !== "private_tutoring" && (!q.trim() || loc(c).toLowerCase().includes(q.trim().toLowerCase())));
   return (
     <View>
+      {flag("voice") ? <Btn variant="outline" icon={Mic} title={t("voice.mic")} onPress={() => setVoice(true)} style={{ marginBottom: 14 }} testID="match-voice" /> : null}
+      {voice ? <VoiceSheet onClose={() => setVoice(false)} onDone={onVoice} /> : null}
       <Txt variant="h3">{t("aimatch.serviceTitle")}</Txt>
       <Input value={q} onChangeText={setQ} placeholder={t("aimatch.serviceSearch")} style={{ marginTop: 10 }} testID="match-service-search" />
       {isLoading ? <Loading /> : (
@@ -246,11 +250,11 @@ function Sent({ res, reset }) {
 export default function MatchScreen() {
   const { t } = useI18n();
   const { flag } = useConfig();
-  const [d, setD] = useState(saved);
+  const [d, setD] = useState(matchDraft.get);
   const [sent, setSent] = useState(null);
-  const set = (patch) => setD((x) => (saved = { ...x, ...patch }));
+  const set = (patch) => setD((x) => matchDraft.set({ ...x, ...patch }));
   const go = (step) => set({ step });
-  const reset = () => { setSent(null); setD((saved = { ...EMPTY, step: "service" })); };
+  const reset = () => { setSent(null); setD(matchDraft.reset()); };
   const prev = { need: "service", place: "need", results: "place", recap: "results" }[d.step];
   return (
     <Screen padded={false}>
@@ -260,11 +264,11 @@ export default function MatchScreen() {
           <>
             {d.step === "service" && <Txt variant="small" muted style={{ marginBottom: 12 }}>{t("aimatch.subtitle")}</Txt>}
             <Progress step={d.step === "recap" ? "results" : d.step} />
-            {d.step === "service" && <ServiceStep d={d} set={set} go={go} />}
+            {d.step === "service" && <ServiceStep d={d} set={set} go={go} onVoice={setD} />}
             {d.step === "need" && <NeedStep d={d} set={set} go={go} />}
             {d.step === "place" && <PlaceStep d={d} set={set} go={go} />}
             {d.step === "results" && <Results d={d} set={set} go={go} />}
-            {d.step === "recap" && <Recap d={d} go={go} onSent={(res) => { setSent(res); saved = { ...EMPTY, step: "service" }; }} />}
+            {d.step === "recap" && <Recap d={d} go={go} onSent={(res) => { setSent(res); matchDraft.reset(); }} />}
           </>
         )}
       </View>

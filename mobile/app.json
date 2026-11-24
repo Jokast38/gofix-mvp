@@ -89,6 +89,14 @@
         {
           "color": "#00C8F0"
         }
+      ],
+      [
+        "expo-speech-recognition",
+        {
+          "microphonePermission": "GoFix utilise le micro uniquement quand vous dictez une demande. Aucun enregistrement n'est conservé.",
+          "speechRecognitionPermission": "GoFix transforme votre voix en texte pour comprendre votre demande. Vous vérifiez le texte avant toute recherche.",
+          "androidSpeechServicePackages": ["com.google.android.googlequicksearchbox", "com.google.android.tts"]
+        }
       ]
     ],
     "extra": {

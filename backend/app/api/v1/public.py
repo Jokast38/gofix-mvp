@@ -42,7 +42,7 @@ async def public_config():
 
 @router.post("/consents/cookies", status_code=201)
 async def cookie_consent(body: CookieConsentIn, request: Request, user: User | None = Depends(get_optional_user)):
-    hit(f"cookies:{client_ip(request)}", 20, 3600)
+    await hit(f"cookies:{client_ip(request)}", 20, 3600)
     c = Consent(type="cookies", choice=body.choice, anonymous_id=body.anonymous_id, ip=client_ip(request)).to_mongo()
     if user:
         c["user_id"] = ObjectId(user.id)
@@ -52,7 +52,7 @@ async def cookie_consent(body: CookieConsentIn, request: Request, user: User | N
 
 @router.post("/contact", status_code=201)
 async def contact(body: ContactIn, request: Request, user: User | None = Depends(get_optional_user)):
-    hit(f"contact:{client_ip(request)}", 5, 3600)
+    await hit(f"contact:{client_ip(request)}", 5, 3600)
     doc = {**body.model_dump(), "source": "contact_form", "status": "open",
            "user_id": ObjectId(user.id) if user else None, "created_at": datetime.now(timezone.utc)}
     res = await db.support_tickets.insert_one(doc)

@@ -65,6 +65,8 @@ async def init_indexes():
     await db.category_requests.create_index([("status", ASCENDING), ("created_at", DESCENDING)])
     await db.requests.create_index([("client_id", ASCENDING), ("created_at", DESCENDING)])
     await db.requests.create_index("recipients.provider_user_id")
+    await db.requests.create_index([("client_id", ASCENDING), ("idempotency_key", ASCENDING)], unique=True,
+                                   partialFilterExpression={"idempotency_key": {"$type": "string"}})
     await db.reviews.create_index([("profile_id", ASCENDING), ("created_at", DESCENDING)])
     await db.reviews.create_index([("kind", ASCENDING), ("created_at", DESCENDING)])  # Fixeur du mois
     await db.ad_banners.create_index([("active", ASCENDING), ("placements", ASCENDING), ("order", ASCENDING)])
@@ -73,6 +75,8 @@ async def init_indexes():
     await db.trust_contests.create_index([("status", ASCENDING), ("created_at", DESCENDING)])
     await db.profile_views.create_index([("user_id", ASCENDING), ("month", ASCENDING), ("profile_id", ASCENDING)], unique=True)
     await db.match_impressions.create_index([("user_id", ASCENDING), ("profile_id", ASCENDING), ("created_at", DESCENDING)])
+    # recent_exposure (every search) filters on profile_id + created_at: without this index it scanned the whole collection.
+    await db.match_impressions.create_index([("profile_id", ASCENDING), ("created_at", DESCENDING)])
     await db.contact_events.create_index([("user_id", ASCENDING), ("profile_id", ASCENDING), ("created_at", DESCENDING)])
     await db.chatbot_logs.create_index([("answered", ASCENDING), ("created_at", DESCENDING)])
     await db.payment_orders.create_index("gateway_order_id")

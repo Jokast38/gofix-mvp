@@ -8,6 +8,7 @@ import uuid
 os.environ["DB_NAME"] = os.environ.get("TEST_DB_NAME", "gofix_test")
 os.environ["APP_ENV"] = "test"
 os.environ["PAYMENT_PROVIDER"] = "mock"
+os.environ["REDIS_URL"] = ""  # in-memory rate limits, reset before each test (Redis counters would leak between tests)
 os.environ.setdefault("MONGO_URL", "mongodb://localhost:27017")
 
 # One loop for the whole session, set BEFORE the app (and its Motor client) is imported.
@@ -19,6 +20,7 @@ import pytest  # noqa: E402
 
 from app.core import ratelimit  # noqa: E402
 from app.core.db import client as mongo_client, db  # noqa: E402
+from app.services.matching import clear_rank_cache  # noqa: E402
 from app.main import app, startup  # noqa: E402
 
 DEMO_PASSWORD = "GoFix@Demo2026"
@@ -41,6 +43,7 @@ def _setup_db():
 @pytest.fixture(autouse=True)
 def _reset_rate_limits():
     ratelimit._buckets.clear()
+    clear_rank_cache()  # each test sees its own data, never a ranking cached by a previous test
 
 
 class Api:

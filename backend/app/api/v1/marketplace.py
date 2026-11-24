@@ -16,7 +16,7 @@ from app.models.user import User
 from app.services.access_policy import Access, apply_policy, consume_view, resolve_access, views_used
 from app.services import geo
 from app.services.config_store import get_setting, is_enabled
-from app.services.matching import MatchContext, get_matching_service, recent_exposure, save_match_result
+from app.services.matching import MatchContext, get_matching_service, hydrate, ranked_light, save_match_result
 from app.services.visibility import PUBLIC_PROFILE as PUBLIC_STATUS
 
 router = APIRouter(tags=["marketplace"])
@@ -111,16 +111,15 @@ async def _search(kind: str, query: dict, ctx: MatchContext, acc: Access, page: 
                                      {"$skip": (page - 1) * page_size}, {"$limit": page_size}]).to_list(page_size)
     elif use_match:
         started = time.perf_counter()
-        candidates = await coll.find(query).sort("trust_score", -1).to_list(CANDIDATES_MAX)
         ctx.hide_numbers = acc.blurred
-        ctx.exposure = await recent_exposure([d["_id"] for d in candidates]) if page == 1 else {}
         service = await get_matching_service()
-        ranked = await service.rank(candidates, ctx)
-        total = len(ranked) if len(candidates) < CANDIDATES_MAX else total
-        if page == 1 and ranked:
-            mr_id = await save_match_result(ranked, ctx, user_id=user.id if user else None, source="search", service=service,
-                                            started=started, candidate_count=len(candidates))
-        docs = ranked[(page - 1) * page_size: page * page_size]
+        ranked, n_candidates = await ranked_light(coll, query, ctx, service, limit=CANDIDATES_MAX, sort=("trust_score", -1),
+                                                  exposure=page == 1)
+        total = len(ranked) if n_candidates < CANDIDATES_MAX else total
+        docs = service.detail(await hydrate(coll, ranked[(page - 1) * page_size: page * page_size]), ctx)
+        if page == 1 and docs:
+            mr_id = await save_match_result(docs, ctx, user_id=user.id if user else None, source="search", service=service,
+                                            started=started, candidate_count=n_candidates)
     else:
         docs = await coll.find(query).sort([("verification_status", -1), ("trust_score", -1)]).skip((page - 1) * page_size).to_list(page_size)
     top_n = await get_setting("match_top_n") if use_match and page == 1 else 0

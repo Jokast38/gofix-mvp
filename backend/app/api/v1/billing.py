@@ -167,7 +167,7 @@ async def simulate(gid: str, body: SimulateIn, user: User = Depends(get_current_
 @router.api_route("/billing/callback/{provider}", methods=["GET", "POST"], include_in_schema=True)
 async def callback(provider: str, request: Request):
     """Gateway return/notification URL. Parameters are never trusted: the status is re-checked with the gateway."""
-    hit(f"pay-callback:{client_ip(request)}", 60, 600)
+    await hit(f"pay-callback:{client_ip(request)}", 60, 600)
     adapter = await _adapter()
     if provider != adapter.name:
         raise HTTPException(404, "not_found")

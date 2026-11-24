@@ -13,10 +13,10 @@ from app.core.logging import get_logger
 from app.core.ratelimit import hit
 from app.data.messages import lang_of
 from app.models.user import User
-from app.services import intent as intent_svc
+from app.services import geo, intent as intent_svc
 from app.services.access_policy import apply_policy, resolve_access
 from app.services.config_store import get_setting
-from app.services.matching import MatchContext, get_matching_service, recent_exposure, save_match_result
+from app.services.matching import MatchContext, get_matching_service, hydrate, ranked_light, save_match_result
 from app.services.visibility import PUBLIC_PROFILE
 
 router = APIRouter(prefix="/match", tags=["ai-match"])
@@ -41,6 +41,9 @@ class RecommendIn(BaseModel):
     slot: Optional[Literal["morning", "afternoon", "evening"]] = None
     urgency: Literal["normal", "high"] = "normal"
     limit: int = Field(default=5, ge=3, le=5)
+    radius_km: Optional[int] = Field(default=None, ge=1, le=300)
+    lat: Optional[float] = Field(default=None, ge=-90, le=90)  # device position, for this search only (never stored)
+    lng: Optional[float] = Field(default=None, ge=-180, le=180)
 
 
 class FeedbackIn(BaseModel):
@@ -56,16 +59,28 @@ def _oid(v: str) -> ObjectId:
         raise HTTPException(404, "not_found")
 
 
+async def _origin(body: RecommendIn, ctx: MatchContext) -> tuple:
+    """Centre of the search: the device position (if in Algeria), else the chosen commune, else the wilaya capital."""
+    if body.lat is not None and body.lng is not None and geo.in_algeria(body.lat, body.lng):
+        return (body.lat, body.lng), "gps"
+    if ctx.wilaya:
+        found = await geo.zone_location([{"wilaya_code": ctx.wilaya, "commune_names": [ctx.commune] if ctx.commune else []}])
+        if found:
+            lng, lat = found[0]["coordinates"]
+            return (lat, lng), found[1]
+    return None, None
+
+
 @router.post("/parse")
 async def parse(body: ParseIn, request: Request):
-    hit(f"match-parse:{client_ip(request)}", 60, 60)
+    await hit(f"match-parse:{client_ip(request)}", 60, 60)
     return await intent_svc.parse(body.text, body.kind)
 
 
 @router.post("/recommend")
 async def recommend(body: RecommendIn, request: Request, user: User | None = Depends(get_optional_user)):
     """Top 3–5 profiles + ≥2 readable reasons each, alternatives, and the MatchResult id for feedback/explanations."""
-    hit(f"match-rec:{client_ip(request)}", 60, 60)
+    await hit(f"match-rec:{client_ip(request)}", 60, 60)
     started = time.perf_counter()
     intent, fallback = None, False
     if body.text:
@@ -81,6 +96,8 @@ async def recommend(body: RecommendIn, request: Request, user: User | None = Dep
                        commune=body.commune or i.get("commune"), format=body.format or i.get("mode"),
                        weekday=body.weekday or (i.get("when") or {}).get("weekday"), slot=body.slot or (i.get("when") or {}).get("slot"),
                        urgency="high" if body.urgency == "high" or i.get("urgency") == "high" else "normal", lang=lang_of(request))
+    ctx.radius_km = body.radius_km
+    ctx.origin, origin_source = await _origin(body, ctx)
     missing = list(i.get("missing") or [])
     q: dict = dict(PUBLIC_PROFILE)
     if kind == "professional":
@@ -95,14 +112,13 @@ async def recommend(body: RecommendIn, request: Request, user: User | None = Dep
         coll = db.teacher_profiles
     if user:
         q["user_id"] = {"$ne": ObjectId(user.id)}
-    candidates = await coll.find(q).to_list(300)
     acc = await resolve_access(user, kind)
     ctx.hide_numbers = acc.blurred
-    ctx.exposure = await recent_exposure([c["_id"] for c in candidates])
     service = await get_matching_service()
-    ranked = await service.rank(candidates, ctx)
-    mr_id = await save_match_result(ranked, ctx, user_id=user.id if user else None, source="recommend", service=service,
-                                    started=started, candidate_count=len(candidates), intent=intent, top_n=body.limit + 3)
+    ranked, n_candidates = await ranked_light(coll, q, ctx, service)
+    shown = service.detail(await hydrate(coll, ranked[:body.limit + 3]), ctx)
+    mr_id = await save_match_result(shown, ctx, user_id=user.id if user else None, source="recommend", service=service,
+                                    started=started, candidate_count=n_candidates, intent=intent, top_n=body.limit + 3)
     if ranked and user:
         now = datetime.now(timezone.utc)
         await db.match_impressions.insert_many([{"user_id": ObjectId(user.id), "profile_id": p["_id"], "kind": kind, "position": n + 1,
@@ -112,24 +128,27 @@ async def recommend(body: RecommendIn, request: Request, user: User | None = Dep
         out = apply_policy(p, acc, kind)
         out["match"] = {**{k: p["_match"][k] for k in ("score", "reasons", "explanation")}, "top": n < body.limit, "rank": n + 1,
                         "match_result_id": str(mr_id)}
+        if ctx.origin:
+            out["distance_km"] = geo.distance_km(p, ctx.origin)
         return out
 
     from app.api.v1.marketplace import _enrich_pros, _enrich_teachers  # shared enrichment
     enrich = _enrich_pros if kind == "professional" else _enrich_teachers
-    items = await enrich([card(p, n) for n, p in enumerate(ranked[:body.limit])])
-    alternatives = await enrich([card(p, n) for n, p in enumerate(ranked[body.limit:body.limit + 3], start=body.limit)])
-    log.info("match_returned", extra={"ctx": {"match_result_id": str(mr_id), "formula": service.formula_version, "candidates": len(candidates),
+    items = await enrich([card(p, n) for n, p in enumerate(shown[:body.limit])])
+    alternatives = await enrich([card(p, n) for n, p in enumerate(shown[body.limit:], start=body.limit)])
+    log.info("match_returned", extra={"ctx": {"match_result_id": str(mr_id), "formula": service.formula_version, "candidates": n_candidates,
                                               "returned": len(items), "fallback_used": fallback,
                                               "latency_ms": round((time.perf_counter() - started) * 1000, 1)}})
     resolved = {"category_key": ctx.category_key, "subject_key": ctx.subject_key, "wilaya_code": ctx.wilaya}
     return {"intent": intent, "missing": [m for m in missing if not resolved.get(m)],
             "kind": kind, "formula_version": service.formula_version, "fallback_used": fallback, "match_result_id": str(mr_id),
-            "blurred": acc.blurred, "items": items, "alternatives": alternatives}
+            "blurred": acc.blurred, "items": items, "alternatives": alternatives,
+            "radius_km": ctx.radius_km, "origin_source": origin_source}
 
 
 @router.post("/feedback", status_code=201)
 async def feedback(body: FeedbackIn, request: Request, user: User | None = Depends(get_optional_user)):
-    hit(f"match-fb:{client_ip(request)}", 120, 60)
+    await hit(f"match-fb:{client_ip(request)}", 120, 60)
     mr = await db.match_results.find_one({"_id": _oid(body.match_result_id)}, {"results.profile_id": 1, "results.rank": 1})
     if not mr:
         raise HTTPException(404, "not_found")

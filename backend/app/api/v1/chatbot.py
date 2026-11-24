@@ -64,7 +64,7 @@ async def _rephrase(question: str, hits: list[dict], lang: str) -> str | None:
 async def ask(body: AskIn, request: Request, user: User | None = Depends(get_optional_user)):
     if not await is_enabled("chatbot"):
         raise HTTPException(403, "feature_disabled")
-    hit(f"chatbot:{client_ip(request)}", 30, 300)
+    await hit(f"chatbot:{client_ip(request)}", 30, 300)
     entries = await db.faq_entries.find({"active": True}).to_list(500)
     ranked = search(body.message, entries)
     min_conf = float(await get_setting("chatbot_min_confidence"))
@@ -96,7 +96,7 @@ async def faq_entry(faq_id: str, lang: Literal["fr", "ar", "en"] = "fr"):
 @router.post("/handoff", status_code=201)
 async def handoff(body: HandoffIn, request: Request, user: User | None = Depends(get_optional_user)):
     """« Parler à un conseiller » : creates a support ticket visible in the back-office."""
-    hit(f"handoff:{client_ip(request)}", 5, 3600)
+    await hit(f"handoff:{client_ip(request)}", 5, 3600)
     if not (body.email or body.phone or user):
         raise HTTPException(422, "contact_required")
     res = await db.support_tickets.insert_one({

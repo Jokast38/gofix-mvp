@@ -136,7 +136,7 @@ async def promos(placement: str = Query("home")):
 @router.get("/promos/{banner_id}/click")
 async def promo_click(banner_id: str, request: Request):
     """Counts the click server-side, then sends the visitor to the advertiser (link set by the super-admin only)."""
-    hit(f"promo-click:{client_ip(request)}", 60, 600)
+    await hit(f"promo-click:{client_ip(request)}", 60, 600)
     try:
         oid = ObjectId(banner_id)
     except InvalidId:
@@ -148,7 +148,7 @@ async def promo_click(banner_id: str, request: Request):
 
 @router.post("/promos/{banner_id}/click", status_code=204)
 async def promo_click_count(banner_id: str, request: Request):
-    hit(f"promo-click:{client_ip(request)}", 60, 600)
+    await hit(f"promo-click:{client_ip(request)}", 60, 600)
     try:
         await db.ad_banners.update_one({"_id": ObjectId(banner_id), "active": True}, {"$inc": {"clicks": 1}})
     except InvalidId:

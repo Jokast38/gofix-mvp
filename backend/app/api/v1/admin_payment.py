@@ -59,7 +59,7 @@ async def set_config(body: PaymentConfigIn, request: Request, admin: User = Depe
 
 @router.post("/payment-config/test")
 async def test_config(request: Request, admin: User = Depends(require_admin("super_admin"))):
-    hit(f"pay-test:{admin.id}", 10, 600)
+    await hit(f"pay-test:{admin.id}", 10, 600)
     cfg = await payment_config.effective()
     if cfg["provider"] != "satim":
         raise HTTPException(422, "satim_not_selected")

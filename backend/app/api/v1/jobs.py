@@ -134,7 +134,7 @@ async def _notify_other(job: dict, role: str, key: str, **values):
 
 @router.post("/jobs", status_code=201)
 async def propose(body: JobIn, user: User = Depends(get_current_user)):
-    hit(f"jobs:{user.id}", 30, 3600)
+    await hit(f"jobs:{user.id}", 30, 3600)
     me = ObjectId(user.id)
     conv = await db.conversations.find_one({"_id": _oid(body.conversation_id), "$or": [{"client_id": me}, {"provider_user_id": me}]})
     if not conv:

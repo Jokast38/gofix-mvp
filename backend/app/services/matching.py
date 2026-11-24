@@ -4,13 +4,15 @@ import hashlib
 import json
 import time
 from abc import ABC, abstractmethod
+from collections import OrderedDict
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta, timezone
 from zoneinfo import ZoneInfo
 
-from bson import ObjectId
+from bson import ObjectId, json_util
 
 from app.core.db import db
+from app.services import geo
 from app.services.config_store import get_setting
 
 TZ = ZoneInfo("Africa/Algiers")
@@ -26,7 +28,7 @@ TEMPLATES = {
            "responsive": "répond à {pct} % des demandes", "exact_category": "métier exact", "subject_level": "matière et niveau correspondants",
            "level_specialist": "spécialiste {grade}", "experience": "{years} ans d'expérience", "experienced": "expérimenté",
            "mode_match": "format souhaité disponible", "new_on_gofix": "nouveau sur GoFix", "active_profile": "profil actif sur GoFix",
-           "zone_covered": "intervient dans la zone recherchée"},
+           "zone_covered": "intervient dans la zone recherchée", "distance": "à {km} km"},
     "en": {"same_commune": "in your commune", "same_wilaya": "in your wilaya", "online": "online lessons",
            "available_today": "available today", "available_tomorrow": "available tomorrow", "available_week": "available this week",
            "available_on": "available on the requested day", "rating": "rated {avg}/5 ({count} reviews)", "highly_rated": "highly rated",
@@ -34,14 +36,14 @@ TEMPLATES = {
            "responsive": "answers {pct}% of requests", "exact_category": "exact trade", "subject_level": "matching subject and level",
            "level_specialist": "{grade} specialist", "experience": "{years} years of experience", "experienced": "experienced",
            "mode_match": "requested format available", "new_on_gofix": "new on GoFix", "active_profile": "active profile on GoFix",
-           "zone_covered": "works in the requested area"},
+           "zone_covered": "works in the requested area", "distance": "{km} km away"},
     "ar": {"same_commune": "في بلديتك", "same_wilaya": "في ولايتك", "online": "دروس عبر الإنترنت",
            "available_today": "متاح اليوم", "available_tomorrow": "متاح غدًا", "available_week": "متاح هذا الأسبوع",
            "available_on": "متاح في اليوم المطلوب", "rating": "تقييم {avg}/5 ({count} رأي)", "highly_rated": "تقييم ممتاز",
            "verified": "ملف موثّق", "trust": "ثقة {score}/100", "trusted": "ملف موثوق",
            "responsive": "يرد على {pct}٪ من الطلبات", "exact_category": "التخصص المطلوب", "subject_level": "المادة والمستوى المطلوبان",
            "level_specialist": "مختص في {grade}", "experience": "خبرة {years} سنوات", "experienced": "ذو خبرة", "mode_match": "الصيغة المطلوبة متاحة", "new_on_gofix": "جديد على GoFix",
-           "active_profile": "ملف نشط على GoFix", "zone_covered": "يعمل في المنطقة المطلوبة"},
+           "active_profile": "ملف نشط على GoFix", "zone_covered": "يعمل في المنطقة المطلوبة", "distance": "على بعد {km} كم"},
 }
 # Blurred viewers never get exact figures that the unlock matrix hides.
 HIDDEN = {"rating": "highly_rated", "trust": "trusted", "experience": "experienced"}
@@ -63,6 +65,60 @@ class MatchContext:
     lang: str = "fr"
     hide_numbers: bool = False
     exposure: dict = field(default_factory=dict)  # profile_id(str) -> recent top-5 impressions
+    origin: tuple | None = None  # (lat, lng) of the search: device position or centre of the chosen commune; never stored
+    radius_km: int | None = None
+
+
+RANK_FIELDS = {f: 1 for f in ("user_id", "suspended", "zones", "formats", "availability", "category_key", "subjects", "trust_score",
+                              "trust_public", "trust_status", "verification_status", "rating_avg", "rating_count", "response_rate",
+                              "experience_years", "location")}
+
+
+async def hydrate(coll, ranked: list[dict]) -> list[dict]:
+    """Full profiles of the ranked candidates that are actually shown, in rank order, with their `_match`.
+    A profile suspended since the ranking was cached is dropped here, so it never shows."""
+    ids = [p["_id"] for p in ranked]
+    full = {d["_id"]: d for d in await coll.find({"_id": {"$in": ids}, "suspended": {"$ne": True}}).to_list(len(ids) or 1)}
+    return [full[p["_id"]] | {"_match": dict(p["_match"])} for p in ranked if p["_id"] in full]
+
+
+# Everybody runs the same few searches ("plumber, Algiers"): the ranking of a search is kept a short while, so most
+# requests only load the profiles they show. Per process; a new or updated profile shows up after RANK_CACHE_S at most.
+RANK_CACHE_S = 45
+RANK_CACHE_MAX = 500
+_rank_cache: OrderedDict = OrderedDict()
+
+
+def clear_rank_cache() -> None:
+    _rank_cache.clear()
+
+
+async def ranked_light(coll, query: dict, ctx: "MatchContext", service, *, limit: int = 300, sort=None, exposure: bool = True) -> tuple[list[dict], int]:
+    """(ranking as light rows {_id, trust_score, _match: {score}}, number of candidates), cached RANK_CACHE_S."""
+    key = json_util.dumps([coll.name, query, sort, exposure, service.formula_version, ctx.kind, ctx.category_key, ctx.subject_key,
+                           ctx.level_key, ctx.grade, ctx.wilaya, ctx.commune, ctx.format, ctx.weekday, ctx.slot, ctx.urgency,
+                           ctx.origin, ctx.radius_km, ctx.hide_numbers], sort_keys=True)
+    now = time.monotonic()
+    hit = _rank_cache.get(key)
+    if hit and hit[0] > now:
+        _rank_cache.move_to_end(key)
+        ctx.exposure = hit[3]
+        return hit[1], hit[2]
+    cursor = coll.find(query, RANK_FIELDS)
+    if sort:
+        cursor = cursor.sort(*sort)
+    candidates = await cursor.to_list(limit)
+    ctx.exposure = await recent_exposure([c["_id"] for c in candidates]) if exposure else {}
+    ranked = await service.rank(candidates, ctx, detail_n=0)
+    light = [{"_id": p["_id"], "trust_score": p.get("trust_score"), "_match": {"score": p["_match"]["score"]}} for p in ranked]
+    _rank_cache[key] = (now + RANK_CACHE_S, light, len(candidates), ctx.exposure)
+    while len(_rank_cache) > RANK_CACHE_MAX:
+        _rank_cache.popitem(last=False)
+    return light, len(candidates)
+
+
+def distance_to(p: dict, ctx: "MatchContext") -> int | None:
+    return geo.distance_km(p, ctx.origin) if ctx.origin else None
 
 
 class MatchingService(ABC):
@@ -96,6 +152,10 @@ def hard_filter(p: dict, ctx: MatchContext) -> bool:
             return False
     if ctx.kind == "teacher" and ctx.format and ctx.format != "online" and ctx.format not in formats:
         return False
+    if ctx.radius_km and not (ctx.kind == "teacher" and ctx.format == "online"):
+        d = distance_to(p, ctx)
+        if d is not None and d > ctx.radius_km:
+            return False  # outside the requested radius (profiles without a base point are judged on their zones)
     slots = (p.get("availability") or {}).get("slots") or []
     if ctx.weekday and slots and not any(s.get("day") == ctx.weekday and (not ctx.slot or s.get("slot") == ctx.slot) for s in slots):
         return False  # declared availability excludes the requested day/slot
@@ -108,7 +168,7 @@ class RulesMatchingService(MatchingService):
         self.exposure_penalty = exposure_penalty
         self.formula_version = f"{FORMULA}-{hashlib.sha1(json.dumps(weights, sort_keys=True).encode()).hexdigest()[:8]}"
 
-    def score(self, p: dict, ctx: MatchContext) -> dict:
+    def score(self, p: dict, ctx: MatchContext, detail: bool = True) -> dict:
         comps, reasons = {}, []
         if ctx.kind == "professional" and ctx.category_key:
             comps["category"] = 1.0 if p.get("category_key") == ctx.category_key else 0.0
@@ -135,6 +195,12 @@ class RulesMatchingService(MatchingService):
                 reasons.append((self.w.get("proximity", 0) * 0.7, {"code": "online"}))
             else:
                 comps["proximity"] = 0.0
+        d = distance_to(p, ctx)
+        if d is not None and ctx.radius_km:
+            # 1 at the client's door, 0 at the edge of the radius; the better of zone and distance wins.
+            near = max(0.0, 1 - d / max(ctx.radius_km, 1))
+            comps["proximity"] = max(comps.get("proximity", 0.0), near)
+            reasons.append((self.w.get("proximity", 0) * (0.6 + 0.5 * near), {"code": "distance", "params": {"km": d}}))
         slots = (p.get("availability") or {}).get("slots") or []
         if ctx.weekday:
             on_day = any(s.get("day") == ctx.weekday for s in slots)
@@ -173,6 +239,8 @@ class RulesMatchingService(MatchingService):
         raw = sum(self.w[k] * v for k, v in used.items()) / total_w * 100
         exposure = min(self.exposure_penalty, ctx.exposure.get(str(p.get("_id")), 0) * 0.25)  # GF1-007 diversity
         score = round(max(0.0, raw - exposure), 1)
+        if not detail:  # ranking pass: reasons, explanation and components are only built for the profiles shown
+            return {"score": score}
         ordered, seen = [], set()
         for _, r in sorted(reasons, key=lambda x: -x[0]):
             if r["code"] not in seen:
@@ -191,11 +259,20 @@ class RulesMatchingService(MatchingService):
             components.append({"criterion": "recent_exposure_penalty", "weight": None, "value": round(exposure, 2), "contribution": -round(exposure, 1)})
         return {"score": score, "reasons": top, "explanation": explain(top, ctx), "components": components}
 
-    async def rank(self, candidates, ctx):
+    async def rank(self, candidates, ctx, detail_n: int = 8):
+        """Best first. Only the first `detail_n` get their reasons and explanation (call `detail` for others shown)."""
         kept = [p for p in candidates if hard_filter(p, ctx)]
         for p in kept:
-            p["_match"] = self.score(p, ctx)
-        return sorted(kept, key=lambda p: (-p["_match"]["score"], -(p.get("trust_score") or 0)))
+            p["_match"] = self.score(p, ctx, detail=False)
+        kept.sort(key=lambda p: (-p["_match"]["score"], -(p.get("trust_score") or 0)))
+        self.detail(kept[:detail_n], ctx)
+        return kept
+
+    def detail(self, items: list[dict], ctx: MatchContext) -> list[dict]:
+        for p in items:
+            if "reasons" not in p["_match"]:
+                p["_match"] = self.score(p, ctx)
+        return items
 
 
 def explain(reasons: list[dict], ctx: MatchContext) -> str:

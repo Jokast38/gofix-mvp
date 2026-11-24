@@ -75,7 +75,7 @@ async def update_me(body: ProfileUpdate, user: User = Depends(get_current_user))
 async def upload_photo(file: UploadFile = File(...), user: User = Depends(get_current_user)):
     """Optional profile photo for every account (clients included), re-encoded to WebP without metadata."""
     from app.api.v1.provider import read_image
-    hit(f"user-photo:{user.id}", 20, 3600)
+    await hit(f"user-photo:{user.id}", 20, 3600)
     keys = await read_image(file, "photo", user.id)
     old = [k for k in (user.photo_key, user.photo_thumb_key) if k]
     await db.users.update_one(_oid(user), {"$set": keys | {"updated_at": datetime.now(timezone.utc)}})

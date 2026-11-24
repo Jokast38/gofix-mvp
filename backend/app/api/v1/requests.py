@@ -5,6 +5,7 @@ from bson import ObjectId
 from bson.errors import InvalidId
 from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel, Field
+from pymongo import ReturnDocument
 
 from app.core.db import db
 from app.core.deps import client_ip, get_current_user
@@ -89,9 +90,22 @@ async def _deliver(profile: dict, kind: str) -> dict:
             "conversation_id": None, "seen_at": None, "responded_at": None}
 
 
+async def _next_ref(now: datetime) -> str:
+    """Readable reference, DEM-2026-000123 (one counter per year)."""
+    c = await db.counters.find_one_and_update({"_id": f"request-{now.year}"}, {"$inc": {"seq": 1}}, upsert=True,
+                                              return_document=ReturnDocument.AFTER)
+    return f"DEM-{now.year}-{c['seq']:06d}"
+
+
 @router.post("/requests", status_code=201)
 async def create_request(body: RequestIn, request: Request, user: User = Depends(get_current_user)):
-    hit(f"requests:{user.id}", 20, 3600)
+    # A double tap, or a retry after a network error, with the same Idempotency-Key returns the request already created.
+    idem = (request.headers.get("Idempotency-Key") or "")[:80] or None
+    if idem:
+        prev = await db.requests.find_one({"client_id": ObjectId(user.id), "idempotency_key": idem})
+        if prev:
+            return {"id": str(prev["_id"]), "ref": prev.get("ref"), "mode": prev["mode"], "recipients": len(prev["recipients"]), "replayed": True}
+    await hit(f"requests:{user.id}", 20, 3600)
     acc = await resolve_access(user, body.kind)
     if not acc.can_request:
         raise HTTPException(402, "plan_required")
@@ -130,7 +144,8 @@ async def create_request(body: RequestIn, request: Request, user: User = Depends
     doc = {"client_id": me, "client_name": user.full_name, "kind": body.kind, "mode": mode,
            "category_key": body.category_key, "subject_key": body.subject_key, "level_key": body.level_key,
            "wilaya_code": body.wilaya_code, "commune": body.commune, "format": body.format, "message": body.message.strip(),
-           "recipients": recipients, "status": "open", "created_at": now, "updated_at": now}
+           "recipients": recipients, "status": "open", "created_at": now, "updated_at": now, "ref": await _next_ref(now),
+           "idempotency_key": idem}
     rid = (await db.requests.insert_one(doc)).inserted_id
     await db.contact_events.insert_many([{"user_id": me, "profile_id": r["profile_id"], "source": "request", "created_at": now}
                                          for r in recipients])
@@ -139,7 +154,7 @@ async def create_request(body: RequestIn, request: Request, user: User = Depends
             await notify_key(r["provider_user_id"], "request_locked", "request_locked", "/pricing")
         else:
             await notify_key(r["provider_user_id"], "request", "request_new", "/dashboard", name=_short_name(user.full_name), message=body.message[:120])
-    return {"id": str(rid), "mode": mode, "recipients": len(recipients)}
+    return {"id": str(rid), "ref": doc["ref"], "mode": mode, "recipients": len(recipients)}
 
 
 def _client_view(r: dict) -> dict:
@@ -226,7 +241,7 @@ async def respond(rid: str, body: RespondIn, request: Request, user: User = Depe
 
 @router.post("/reports", status_code=201)
 async def report(body: ReportIn, request: Request, user: User = Depends(get_current_user)):
-    hit(f"reports:{user.id}", 10, 3600)
+    await hit(f"reports:{user.id}", 10, 3600)
     await db.reports.insert_one({"reporter_id": ObjectId(user.id), "target_type": body.target_type, "target_id": body.target_id,
                                  "reason": body.reason, "details": body.details.strip(), "status": "open", "ip": client_ip(request),
                                  "created_at": _now()})

@@ -105,7 +105,7 @@ async def issue_tokens(user: User) -> dict:
 @router.post("/register", response_model=TokenPair, status_code=201)
 async def register(body: RegisterIn, request: Request):
     ip = client_ip(request)
-    hit(f"register:{ip}", 10, 3600)
+    await hit(f"register:{ip}", 10, 3600)
     if not (body.accept_terms and body.accept_privacy):
         raise HTTPException(422, "consent_required")
     email = body.email.lower()
@@ -139,7 +139,7 @@ async def register(body: RegisterIn, request: Request):
 @router.post("/login", response_model=TokenPair)
 async def login(body: LoginIn, request: Request):
     ip = client_ip(request)
-    hit(f"login:{ip}", 30, 600)
+    await hit(f"login:{ip}", 30, 600)
     ident = body.identifier.strip().lower()
     try:
         query = {"email": ident} if "@" in ident else {"phone": normalize_dz_phone(ident)}
@@ -205,8 +205,8 @@ async def me(user: User = Depends(get_current_user)):
 async def otp_request(body: OtpRequestIn, request: Request):
     if not await is_enabled("auth_phone_otp"):
         raise HTTPException(403, "feature_disabled")
-    hit(f"otp:{body.phone}", 3, 600)
-    hit(f"otp-ip:{client_ip(request)}", 10, 3600)
+    await hit(f"otp:{body.phone}", 3, 600)
+    await hit(f"otp-ip:{client_ip(request)}", 10, 3600)
     code = f"{secrets.randbelow(1_000_000):06d}"
     ttl = int(await get_setting("otp_ttl_seconds"))
     now = datetime.now(timezone.utc)
@@ -242,8 +242,8 @@ async def otp_verify(body: OtpVerifyIn, request: Request):
 
 @router.post("/password/forgot", status_code=202)
 async def forgot(body: ForgotIn, request: Request):
-    hit(f"forgot:{client_ip(request)}", 5, 3600)
-    hit(f"forgot-mail:{body.email.lower()}", 3, 3600)  # no mail-bombing of one address from many IPs
+    await hit(f"forgot:{client_ip(request)}", 5, 3600)
+    await hit(f"forgot-mail:{body.email.lower()}", 3, 3600)  # no mail-bombing of one address from many IPs
     doc = await db.users.find_one({"email": body.email.lower(), "status": "active"})
     if doc:
         token = secrets.token_urlsafe(32)

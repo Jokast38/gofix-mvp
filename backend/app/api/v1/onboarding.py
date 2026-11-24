@@ -142,7 +142,7 @@ async def upload_cover(file: UploadFile = File(...), user: User = Depends(get_cu
 @router.post("/documents", status_code=201)
 async def upload_document(doc_type: DocType = Form(...), file: UploadFile = File(...), user: User = Depends(get_current_user)):
     """Stored in the PRIVATE area (never served publicly); only admins can open it, and every access is audited."""
-    hit(f"docs:{user.id}", 20, 3600)
+    await hit(f"docs:{user.id}", 20, 3600)
     doc = await read_document(file, doc_type, user.id)
     return doc | {"uploaded_at": doc["uploaded_at"].isoformat()}
 
@@ -150,7 +150,7 @@ async def upload_document(doc_type: DocType = Form(...), file: UploadFile = File
 @router.post("/category-requests", status_code=201)
 async def category_request(body: CategoryRequestIn, user: User = Depends(get_current_user)):
     """« Autre » : the trade is not in the taxonomy -> request sent to the admin (no free-text trade on profiles)."""
-    hit(f"catreq:{user.id}", 5, 86400)
+    await hit(f"catreq:{user.id}", 5, 86400)
     if not await db.taxonomy_families.find_one({"key": body.family_key}):
         raise HTTPException(404, "not_found")
     res = await db.category_requests.insert_one({"user_id": ObjectId(user.id), "family_key": body.family_key, "name": body.name.strip(),

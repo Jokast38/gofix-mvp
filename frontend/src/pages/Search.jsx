@@ -14,6 +14,7 @@ import { useWilayas } from "@/hooks/usePublic";
 import { useI18n, useLocalized } from "@/i18n";
 import { marketplaceService } from "@/services/marketplaceService";
 import { ui } from "@/lib/ui";
+import { MatchCta } from "@/pages/Match";
 import { BannerSlot } from "@/components/promo/BannerSlot";
 
 export function Filters({ params, set, extra }) {
@@ -123,6 +124,7 @@ export default function Search() {
   return (
     <div className={`${ui.container} py-6 sm:py-10`} data-testid="search-page">
       <PageHeader eyebrow={t("appHome.services")} title={cat ? loc(cat) : t("catalog.prosTitle")} subtitle={data ? t("catalog.results", { n: data.total }) : ""} />
+      <MatchCta className="mb-4" />
       <Filters params={params} set={set} extra={
         <select value={params.category_key || ""} onChange={(e) => set({ category_key: e.target.value })} className={`${ui.input} min-h-[44px] appearance-none sm:w-48`} data-testid="catalog-category-select">
           <option value="">{t("catalog.allCategories")}</option>

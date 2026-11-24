@@ -26,6 +26,7 @@ class Settings:
         self.email_provider = e.get("EMAIL_PROVIDER", "console")
         self.payment_provider = e.get("PAYMENT_PROVIDER", "mock")
         self.llm_provider = e.get("LLM_PROVIDER", "none")
+        self.redis_url = e.get("REDIS_URL", "").strip()  # shared rate limits when several workers run
 
 
 settings = Settings()

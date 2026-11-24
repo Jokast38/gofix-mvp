@@ -1,8 +1,10 @@
-"""In-process periodic jobs (single backend worker): subscription expiry, renewal reminders, stale orders."""
+"""Periodic jobs: subscription expiry, renewal reminders, stale orders. Every worker runs this loop, but only the one
+holding the "scheduler" lease does the work, so a reminder is never sent twice."""
 import asyncio
 import math
 from datetime import datetime, timedelta, timezone
 
+from app.core import lease
 from app.core.db import db
 from app.core.logging import get_logger
 from app.services.audit import audit
@@ -42,9 +44,10 @@ async def run_once(now: datetime | None = None) -> dict:
 async def loop():
     while True:
         try:
-            out = await run_once()
-            if any(out.values()):
-                log.info("scheduler_run", extra={"ctx": out})
+            if await lease.acquire("scheduler", INTERVAL_S * 2):
+                out = await run_once()
+                if any(out.values()):
+                    log.info("scheduler_run", extra={"ctx": out})
         except Exception:
             log.exception("scheduler_failed")
         await asyncio.sleep(INTERVAL_S)

@@ -3,11 +3,11 @@ import { Pressable, TextInput, View } from "react-native";
 import { router } from "expo-router";
 import { Image } from "expo-image";
 import { useQuery } from "@tanstack/react-query";
-import { Bell, BookOpen, Cake, Camera, Car, ChefHat, Droplets, Globe, Lock, LogIn, Mic, Package, Rocket, Scissors, Search, ShoppingBasket, Target, Wrench, Zap } from "lucide-react-native";
+import { Bell, BookOpen, Cake, Camera, Car, ChefHat, Droplets, Globe, Lock, LogIn, Mic, Package, Rocket, Scissors, Search, ShoppingBasket, Sparkles, Target, Wrench, Zap } from "lucide-react-native";
 import { catalogService, socialService } from "@/api/services";
 import { Upcoming } from "@/components/catalog";
 import { EduCta } from "@/components/edu";
-import { isProvider, useAuth } from "@/hooks/auth";
+import { isProvider, useAuth, useConfig } from "@/hooks/auth";
 import { useI18n, useLocalized } from "@/i18n";
 import { alpha, BRAND, neonFor, useTheme } from "@/theme";
 import { Card, IconBtn, Row, Screen, Section, Txt, useToast } from "@/ui";
@@ -41,6 +41,7 @@ export default function Home() {
   const { t } = useI18n();
   const toast = useToast();
   const { user } = useAuth();
+  const { flag } = useConfig();
   const [q, setQ] = useState("");
   const services = useQuery({ queryKey: ["home-cats", "services"], queryFn: () => catalogService.categories({ home_section: "services" }), staleTime: 300_000 });
   const academy = useQuery({ queryKey: ["home-cats", "academy"], queryFn: () => catalogService.categories({ home_section: "academy" }), staleTime: 300_000 });
@@ -88,7 +89,16 @@ export default function Home() {
         </View>
       </Section>
 
-      <EduCta style={{ marginTop: 22 }} />
+      {flag("ai_match") && (
+        <Card glow onPress={() => router.push("/match")} testID="match-cta" style={{ marginTop: 22, flexDirection: "row", gap: 12, alignItems: "center" }}>
+          <View style={{ width: 46, height: 46, borderRadius: 12, backgroundColor: alpha(BRAND.pink, 0.15), alignItems: "center", justifyContent: "center" }}><Sparkles size={24} color={BRAND.pink} /></View>
+          <View style={{ flex: 1 }}>
+            <Txt weight={800}>{t("aimatch.cta.title")}</Txt>
+            <Txt variant="tiny" muted>{t("aimatch.cta.text")}</Txt>
+          </View>
+        </Card>
+      )}
+      <EduCta style={{ marginTop: 12 }} />
       <Highlights />
 
       <Card glow style={{ marginTop: 22, flexDirection: "row", gap: 12, alignItems: "center" }} onPress={() => router.push(provider ? "/dashboard" : "/onboarding")} testID="talent-banner">

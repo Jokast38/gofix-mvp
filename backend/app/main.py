@@ -94,8 +94,9 @@ async def seed_admin():
                                                                      "admin_role": "super_admin", "status": "active"}})
 
 
-@app.on_event("startup")
-async def startup():
+async def initialize():
+    """Configuration checks, indexes, defaults, data backfills, admin account. Idempotent. With several workers,
+    start.sh runs it once (python -m app.prestart) before they start, so they never race on it."""
     errors, warnings = production_problems()
     for w in warnings:
         log.warning("production_config", extra={"ctx": {"warning": w}})
@@ -112,6 +113,12 @@ async def startup():
         if pay["provider"] != "satim" or not payment_config.satim_complete(pay):
             log.warning("production_config", extra={"ctx": {"warning": "online payment not configured: super-admin → back-office → Moyen de paiement"}})
     await seed_admin()
+
+
+@app.on_event("startup")
+async def startup():
+    if os.environ.get("GOFIX_PRESTARTED") != "1":
+        await initialize()
     if settings.app_env != "test":
         app.state.scheduler = asyncio.create_task(scheduler.loop())
     log.info("startup_complete", extra={"ctx": {"env": settings.app_env}})

@@ -7,15 +7,15 @@ COPY requirements.prod.txt .
 RUN pip install --no-cache-dir -r requirements.prod.txt
 
 COPY app ./app
-COPY server.py .
+COPY server.py start.sh ./
 
 RUN useradd -r -u 10001 gofix && mkdir -p /data/storage && chown -R gofix /data/storage /srv/backend
 USER gofix
 
 EXPOSE 8001
 HEALTHCHECK --interval=30s --timeout=5s --retries=3 CMD python -c "import urllib.request;urllib.request.urlopen('http://127.0.0.1:8001/api/health')"
-# Single worker: the in-process rate limiter assumes one process (switch to Redis before scaling out).
-CMD ["uvicorn", "server:app", "--host", "0.0.0.0", "--port", "8001", "--proxy-headers", "--forwarded-allow-ips", "*"]
+# WEB_CONCURRENCY workers (2 by default) when REDIS_URL is set, otherwise a single one.
+CMD ["sh", "start.sh"]
 
 # Test image (not deployed): docker compose --profile test run --rm tests
 FROM runtime AS test

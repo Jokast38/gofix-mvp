@@ -3,6 +3,9 @@ services:
     # MONGO_VERSION=4.4 in .env on a server whose CPU has no AVX (MongoDB 5+ requires AVX).
     image: mongo:${MONGO_VERSION:-7}
     restart: unless-stopped
+    # By default MongoDB keeps ~half of the RAM for its cache (≈3.5 GB on the 8 GB VPS): cap it to leave room for the
+    # other services (and the future vision container). Raise MONGO_CACHE_GB in .env when the data grows.
+    command: ["--wiredTigerCacheSizeGB", "${MONGO_CACHE_GB:-1.5}"]
     environment:
       # Set MONGO_ROOT_USER/MONGO_ROOT_PASSWORD in .env (production) to enable authentication on a NEW volume,
       # and put the same credentials in MONGO_URL. Empty = no auth (local development).
@@ -27,11 +30,27 @@ services:
     environment:
       MONGO_URL: ${MONGO_URL:-mongodb://mongo:27017}
       STORAGE_LOCAL_ROOT: /data/storage
+      # Several workers use both vCPUs; they share their rate limits through Redis.
+      REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
+      WEB_CONCURRENCY: ${WEB_CONCURRENCY:-2}
     volumes:
       - storage_data:/data/storage
     depends_on:
       mongo:
         condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  redis:
+    # Shared rate-limit counters only (no persistence, 64 MB at most). Not exposed outside the Docker network.
+    image: redis:7.2-alpine
+    restart: unless-stopped
+    command: ["redis-server", "--save", "", "--appendonly", "no", "--maxmemory", "64mb", "--maxmemory-policy", "volatile-ttl"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
 
   tests:
     profiles: ["test"]

@@ -21,7 +21,7 @@ async def wilayas():
 @router.get("/geo/locate")
 async def locate(lat: float, lng: float, request: Request):
     """Suggests the wilaya of a position (nearest wilaya capital). The position is neither stored nor logged."""
-    hit(f"geo-locate:{client_ip(request)}", 30, 600)
+    await hit(f"geo-locate:{client_ip(request)}", 30, 600)
     if not in_algeria(lat, lng):
         raise HTTPException(404, "outside_algeria")
     code, km = min(((c, _km((lat, lng), p)) for c, p in WILAYA_CAPITALS.items()), key=lambda x: x[1])

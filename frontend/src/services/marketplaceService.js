@@ -47,7 +47,8 @@ export const providerService = {
 };
 
 export const requestService = {
-  create: (body) => post("/requests", body),
+  // key: Idempotency-Key, so a double tap or a retry never creates the request twice.
+  create: (body, key) => api.post("/requests", body, key ? { headers: { "Idempotency-Key": key } } : undefined).then((r) => r.data),
   mine: () => get("/requests/mine"),
   inbox: () => get("/requests/inbox"),
   respond: (id, action, reply = "") => post(`/requests/${id}/respond`, { action, reply }),

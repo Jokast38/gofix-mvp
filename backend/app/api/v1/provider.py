@@ -192,7 +192,7 @@ async def delete_media(media: Literal["photo", "cover"], user: User = Depends(ge
 
 @router.post("/provider/documents", status_code=201)
 async def upload_document(request: Request, doc_type: DocType = Form(...), file: UploadFile = File(...), user: User = Depends(get_current_user)):
-    hit(f"docs:{user.id}", 20, 3600)
+    await hit(f"docs:{user.id}", 20, 3600)
     kind, p = await my_profile(user)
     doc = await read_document(file, doc_type, user.id)
     docs = [d for d in p.get("documents") or [] if not (isinstance(d, str) and d == doc_type)]
@@ -208,7 +208,7 @@ class ContestIn(BaseModel):
 
 @router.post("/provider/trust/contest", status_code=201)
 async def contest(body: ContestIn, request: Request, user: User = Depends(get_current_user)):
-    hit(f"contest:{user.id}", 5, 86400)
+    await hit(f"contest:{user.id}", 5, 86400)
     kind, p = await my_profile(user)
     doc = {"profile_id": p["_id"], "kind": kind, "user_id": ObjectId(user.id), "display_name": p["display_name"],
            "event_id": ObjectId(body.event_id) if body.event_id and ObjectId.is_valid(body.event_id) else None,

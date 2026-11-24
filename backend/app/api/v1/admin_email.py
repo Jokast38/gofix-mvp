@@ -73,7 +73,7 @@ async def set_config(body: EmailConfigIn, request: Request, admin: User = Depend
 @router.post("/email-config/test")
 async def test_config(body: TestIn, request: Request, admin: User = Depends(require_admin("super_admin"))):
     """Sends a real test e-mail with the saved configuration and reports the SMTP answer."""
-    hit(f"mail-test:{admin.id}", 10, 600)
+    await hit(f"mail-test:{admin.id}", 10, 600)
     to = body.to.strip().lower()
     if not EMAIL_RE.fullmatch(to):
         raise HTTPException(422, "email_invalid")

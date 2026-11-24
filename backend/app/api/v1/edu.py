@@ -83,7 +83,7 @@ class StartIn(BaseModel):
 @router.post("/edu/attempts", status_code=201)
 async def start(body: StartIn, request: Request, user: User | None = Depends(get_optional_user)):
     await _enabled()
-    hit(f"edu-start:{user.id if user else client_ip(request)}", 60 if user else 20, 3600)
+    await hit(f"edu-start:{user.id if user else client_ip(request)}", 60 if user else 20, 3600)
     items = await db.edu_items.find({"test_key": body.test_key, **edu.ACTIVE}).sort("position", 1).to_list(100)
     if not items:
         raise HTTPException(404, "test_not_found")

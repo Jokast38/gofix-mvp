@@ -20,6 +20,7 @@ const Onboarding = lazy(() => import("@/pages/onboarding/Onboarding"));
 const ChooseKind = lazy(() => import("@/pages/onboarding/Onboarding").then((m) => ({ default: m.ChooseKind })));
 const Search = lazy(() => import("@/pages/Search"));
 const Academy = lazy(() => import("@/pages/Academy"));
+const Match = lazy(() => import("@/pages/Match"));
 const EduHome = lazy(() => import("@/pages/Edu"));
 const EduTest = lazy(() => import("@/pages/Edu").then((m) => ({ default: m.EduTest })));
 const EduResult = lazy(() => import("@/pages/Edu").then((m) => ({ default: m.EduResult })));
@@ -54,6 +55,7 @@ export default function App() {
             <Route path="/contact" element={<Contact />} />
             <Route path="/app" element={<AppLanding />} />
             <Route path="/search" element={<Search />} />
+            <Route path="/match" element={<Match />} />
             <Route path="/academy" element={<Academy />} />
             <Route path="/academy/tests" element={<EduHome />} />
             <Route path="/academy/tests/result/:id" element={<ProtectedRoute><EduResult /></ProtectedRoute>} />

@@ -5,6 +5,12 @@ const algiers = (d) => new Date(new Date(d).getTime() + OFFSET_MS);
 
 // Isolated left-to-right (U+2066 … U+2069) so "2 500 DA" is not reordered into "DA 500 2" inside Arabic text.
 export const formatDA = (n) => (n == null ? null : `\u2066${String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, " ")} DA\u2069`);
+// Amount in centimes (quotes): "4 500 DA", "4 801,25 DA".
+export const formatMinor = (m) => {
+  if (m == null) return null;
+  const da = Math.floor(m / 100), cents = Math.round(m % 100);
+  return `⁦${String(da).replace(/\B(?=(\d{3})+(?!\d))/g, " ")}${cents ? `,${String(cents).padStart(2, "0")}` : ""} DA⁩`;
+};
 export const formatDate = (d) => { if (!d) return ""; const x = algiers(d); return `${pad(x.getUTCDate())}/${pad(x.getUTCMonth() + 1)}/${x.getUTCFullYear()}`; };
 export const formatTime = (d) => { if (!d) return ""; const x = algiers(d); return `${pad(x.getUTCHours())}:${pad(x.getUTCMinutes())}`; };
 export const formatDateTime = (d) => (d ? `${formatDate(d)} ${formatTime(d)}` : "");

@@ -2,10 +2,10 @@ import { useEffect, useState } from "react";
 import { View } from "react-native";
 import { Redirect, router } from "expo-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Check, Clock, IdCard, Inbox, LocateFixed, Lock, MessageCircle, RotateCcw, Rocket, ShieldCheck, X } from "lucide-react-native";
+import { Check, Clock, IdCard, Inbox, LocateFixed, Lock, MessageCircle, RotateCcw, Rocket, ShieldCheck, Sparkles, X } from "lucide-react-native";
 import { errorCode } from "@/api/client";
 import { catalogService, providerService, requestService } from "@/api/services";
-import { TrustBadge, TrustSubscores, Upcoming } from "@/components/catalog";
+import { TrustBadge, TrustSubscores } from "@/components/catalog";
 import { AvailabilityEditor, DocRow, MediaEditor, pickDocument, pickImage, ZonesEditor } from "@/components/editors";
 import { JobsList } from "@/components/JobsList";
 import { useConfig } from "@/hooks/auth";
@@ -13,7 +13,7 @@ import { useI18n, useLocalized } from "@/i18n";
 import { formatDate, formatDateTime } from "@/lib/format";
 import { getPosition } from "@/lib/location";
 import { alpha, BRAND, useTheme } from "@/theme";
-import { Btn, Card, Chip, Empty, Field, Input, Loading, Pill, Row, Screen, Section, TopBar, Txt, useToast } from "@/ui";
+import { Btn, Card, Chip, Empty, Field, Input, Loading, Pill, Row, Screen, TopBar, Txt, useToast } from "@/ui";
 import { TourTarget, useScreenTour } from "@/components/tour";
 
 const STATUS_COLOR = { sent: BRAND.violet, seen: BRAND.blue, accepted: BRAND.electric, refused: "#F87171" };
@@ -263,7 +263,15 @@ export default function Dashboard() {
           </View>
         </Card>
       )}
-      <Section title={t("upcoming.title")}><Upcoming keys={["pro_ai"]} /></Section>
+      {flag("pro_ai") && (
+        <Card glow onPress={() => router.push("/pro-ai")} testID="proai-cta" style={{ marginTop: 12, flexDirection: "row", gap: 12, alignItems: "center" }}>
+          <View style={{ width: 46, height: 46, borderRadius: 12, backgroundColor: alpha(BRAND.electric, 0.15), alignItems: "center", justifyContent: "center" }}><Sparkles size={24} color={BRAND.electric} /></View>
+          <View style={{ flex: 1 }}>
+            <Txt weight={800}>{t("proai.cta.title")}</Txt>
+            <Txt variant="tiny" muted>{t("proai.cta.text")}</Txt>
+          </View>
+        </Card>
+      )}
       {["verified", "unverified"].includes(profile.verification_status) && (
         <Btn variant="ghost" title={t("account.viewProfile")} onPress={() => router.push(`/${kind === "teacher" ? "teacher" : "pro"}/${profile.id}`)} style={{ marginTop: 12 }} />
       )}

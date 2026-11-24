@@ -30,7 +30,7 @@ async def ensure_defaults():
         await db.settings.update_one({"key": s["key"]}, {"$setOnInsert": s}, upsert=True)
     await db.settings.delete_many({"key": {"$in": OBSOLETE_SETTINGS}})
     # Placeholder flags (off, "non construit") until the feature was built: switch each one on once.
-    for key in ("edu_ai", "passport"):
+    for key in ("edu_ai", "passport", "pro_ai"):
         flag = next(f for f in DEFAULT_FLAGS if f["key"] == key)
         await db.feature_flags.update_one({"key": key, "description": {"$regex": "non construit"}},
                                           {"$set": {k: flag[k] for k in ("enabled", "mvp", "description")}})

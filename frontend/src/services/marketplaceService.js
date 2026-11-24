@@ -174,3 +174,36 @@ export const passportService = {
   view: (token) => get(`/passports/${token}`),
   verifySkill: (kind, pid, sid, verified) => api.patch(`/admin/passports/${kind}/${pid}/skills/${sid}`, { verified }).then((r) => r.data),
 };
+
+// GOFIX PRO AI (pro side). Nothing is sent to a client without an explicit "send" call.
+export const proAiService = {
+  leads: (status) => get("/pro/leads", status ? { status } : undefined),
+  lead: (id) => get(`/pro/leads/${id}`),
+  patchLead: (id, body) => api.patch(`/pro/leads/${id}`, body).then((r) => r.data),
+  quotes: (params) => get("/pro/quotes", params),
+  quote: (id) => get(`/pro/quotes/${id}`),
+  createQuote: (body, key) => api.post("/pro/quotes", body, { headers: { "Idempotency-Key": key } }).then((r) => r.data),
+  updateQuote: (id, body) => api.put(`/pro/quotes/${id}`, body).then((r) => r.data),
+  deleteQuote: (id) => api.delete(`/pro/quotes/${id}`),
+  sendQuote: (id, message = "") => post(`/pro/quotes/${id}/send`, { message }),
+  followups: () => get("/pro/followups"),
+  scheduleFollowup: (body) => post("/pro/followups", body),
+  cancelFollowup: (id) => api.delete(`/pro/followups/${id}`),
+  sendFollowup: (body) => post("/pro/followups/send", body),
+  appointments: (start, days) => get("/pro/appointments", { start, days }),
+  createAppointment: (body) => post("/pro/appointments", body),
+  dashboard: (period) => get("/pro/dashboard", { period }),
+  draft: (body) => post("/pro/assistant/draft", body),
+  settings: () => get("/pro/settings"),
+  saveSettings: (body) => api.patch("/pro/settings", body).then((r) => r.data),
+  exportData: () => get("/pro/export"),
+  deleteData: () => api.delete("/pro/data").then((r) => r.data),
+};
+
+// A quote as received by the client.
+export const quoteService = {
+  view: (id) => get(`/quotes/${id}`),
+  accept: (id) => post(`/quotes/${id}/accept`),
+  reject: (id, reason = "") => post(`/quotes/${id}/reject`, { reason }),
+  muteFollowups: (cid, muted) => post(`/conversations/${cid}/followups-mute`, { muted }),
+};

@@ -90,6 +90,26 @@ MESSAGES = {
         "fr": ("Nouvelle demande en attente", "Vous avez reçu une demande. Votre accès gratuit est épuisé : abonnez-vous pour la consulter."),
         "en": ("New request waiting", "You have received a request. Your free access has run out: subscribe to read it."),
     },
+    "quote_received": {
+        "fr": ("Nouveau devis", "{name} vous a envoyé un devis de {total}. Consultez-le et répondez dans GoFix."),
+        "en": ("New quote", "{name} sent you a quote of {total}. View it and answer in GoFix."),
+    },
+    "quote_accepted": {
+        "fr": ("Devis accepté 🎉", "{name} a accepté votre devis {ref} ({total}). Proposez-lui un rendez-vous."),
+        "en": ("Quote accepted 🎉", "{name} accepted your quote {ref} ({total}). Propose an appointment."),
+    },
+    "quote_rejected": {
+        "fr": ("Devis refusé", "{name} a refusé votre devis {ref} ({total})."),
+        "en": ("Quote declined", "{name} declined your quote {ref} ({total})."),
+    },
+    "quote_expired": {
+        "fr": ("Devis expiré", "Votre devis {ref} est arrivé à échéance sans réponse. Vous pouvez relancer le client ou en refaire un."),
+        "en": ("Quote expired", "Your quote {ref} expired without an answer. You can follow up or make a new one."),
+    },
+    "followup_due": {
+        "fr": ("Relance prévue", "C'est le moment de relancer votre client. {note}"),
+        "en": ("Follow-up due", "Time to follow up with your client. {note}"),
+    },
     "request_new": {
         "fr": ("Nouvelle demande", "{name} : {message}"),
         "en": ("New request", "{name}: {message}"),

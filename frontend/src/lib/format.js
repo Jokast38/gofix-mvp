@@ -15,6 +15,9 @@ export const dayKey = (d) => dayKeyFmt.format(d ? new Date(d) : new Date());
 export const daysAgo = (d) => Math.round((new Date(dayKey()) - new Date(dayKey(d))) / 86_400_000);
 
 export const formatDA =(n) => (n == null ? null : `${numberFmt.format(n).replace(/\u202f/g, " ")} DA`);
+const centsFmt = new Intl.NumberFormat("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+// Amount in centimes (quotes): "4 500 DA", "4 801,25 DA".
+export const formatMinor = (m) => (m == null ? null : `${(m % 100 ? centsFmt : numberFmt).format(m / 100).replace(/ /g, " ")} DA`);
 export const formatDate = (d) => (d ? dateFmt.format(new Date(d)) : "");
 export const formatDateTime = (d) => (d ? dateTimeFmt.format(new Date(d)) : "");
 

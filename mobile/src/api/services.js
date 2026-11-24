@@ -174,3 +174,36 @@ export const passportService = {
   history: () => get("/me/passport/history"),
   view: (token) => get(`/passports/${token}`),
 };
+
+// GOFIX PRO AI (pro side). Nothing is sent to a client without an explicit "send" call.
+export const proAiService = {
+  leads: (status) => get("/pro/leads", { status }),
+  lead: (id) => get(`/pro/leads/${id}`),
+  patchLead: (id, body) => patch(`/pro/leads/${id}`, body),
+  quotes: (params) => get("/pro/quotes", params),
+  quote: (id) => get(`/pro/quotes/${id}`),
+  createQuote: async (body, key) => (await api.post("/pro/quotes", body, { headers: { "Idempotency-Key": key } })).data,
+  updateQuote: async (id, body) => (await api.put(`/pro/quotes/${id}`, body)).data,
+  deleteQuote: (id) => api.delete(`/pro/quotes/${id}`),
+  sendQuote: (id, message = "") => post(`/pro/quotes/${id}/send`, { message }),
+  followups: () => get("/pro/followups"),
+  scheduleFollowup: (body) => post("/pro/followups", body),
+  cancelFollowup: (id) => api.delete(`/pro/followups/${id}`),
+  sendFollowup: (body) => post("/pro/followups/send", body),
+  appointments: (start, days) => get("/pro/appointments", { start, days }),
+  createAppointment: (body) => post("/pro/appointments", body),
+  dashboard: (period) => get("/pro/dashboard", { period }),
+  draft: (body) => post("/pro/assistant/draft", body),
+  settings: () => get("/pro/settings"),
+  saveSettings: (body) => patch("/pro/settings", body),
+  exportData: () => get("/pro/export"),
+  deleteData: async () => (await api.delete("/pro/data")).data,
+};
+
+// A quote as received by the client.
+export const quoteService = {
+  view: (id) => get(`/quotes/${id}`),
+  accept: (id) => post(`/quotes/${id}/accept`),
+  reject: (id, reason = "") => post(`/quotes/${id}/reject`, { reason }),
+  muteFollowups: (cid, muted) => post(`/conversations/${cid}/followups-mute`, { muted }),
+};

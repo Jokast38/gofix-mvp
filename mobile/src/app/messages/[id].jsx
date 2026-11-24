@@ -3,7 +3,7 @@ import { KeyboardAvoidingView, Platform, Pressable, ScrollView, TextInput, View 
 import { router, useLocalSearchParams } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft, ArrowRight, CalendarPlus, Check, CheckCheck, Clock, Flag, Send, UserRound } from "lucide-react-native";
+import { ArrowLeft, ArrowRight, CalendarPlus, Check, CheckCheck, Clock, FileText, Flag, Send, UserRound } from "lucide-react-native";
 import { errorCode } from "@/api/client";
 import { jobService, socialService } from "@/api/services";
 import { JobCard, ProposeJobSheet, ReportSheet } from "@/components/actions";
@@ -83,6 +83,13 @@ export default function Thread() {
                   <View style={{ maxWidth: "82%", paddingHorizontal: 14, paddingVertical: 8, borderRadius: 18, backgroundColor: m.mine ? BRAND.electric : c.cardAlt, opacity: m.pending ? 0.7 : 1,
                     ...(m.mine ? { borderBottomRightRadius: last ? 6 : 18 } : { borderBottomLeftRadius: last ? 6 : 18 }) }}>
                     <Txt auto color={m.mine ? BRAND.night : c.text}>{m.body}</Txt>
+                    {m.quote_id ? (
+                      <Pressable onPress={() => router.push(`/quotes/${m.quote_id}`)} accessibilityRole="button" testID="message-quote"
+                        style={{ flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 6, minHeight: 40, marginTop: 8, borderRadius: 999,
+                          backgroundColor: m.mine ? "rgba(7,9,17,0.15)" : c.bg }}>
+                        <FileText size={15} color={m.mine ? BRAND.night : c.text} /><Txt variant="small" weight={700} color={m.mine ? BRAND.night : c.text}>{t("proai.client.open")}</Txt>
+                      </Pressable>
+                    ) : null}
                     <View style={{ flexDirection: "row", justifyContent: "flex-end", alignItems: "center", gap: 4, marginTop: 2 }}>
                       <Txt variant="tiny" color={m.mine ? "rgba(7,9,17,0.7)" : c.muted}>{formatTime(m.created_at)}</Txt>
                       {m.mine && (m.pending ? <Clock size={11} color="rgba(7,9,17,0.7)" /> : m.read_at ? <CheckCheck size={13} color="rgba(7,9,17,0.8)" /> : <Check size={13} color="rgba(7,9,17,0.8)" />)}

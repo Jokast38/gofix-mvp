@@ -217,26 +217,35 @@ async def respond(rid: str, body: RespondIn, request: Request, user: User = Depe
         raise HTTPException(409, "already_responded")
     if r["status"] == "closed":
         raise HTTPException(409, "request_closed")
+    if body.action == "accept":
+        conv_id = await accept_request(r, rec, me, body.reply)
+        return {"status": "accepted", "conversation_id": str(conv_id)}
     now = _now()
-    upd = {"recipients.$[r].status": "accepted" if body.action == "accept" else "refused", "recipients.$[r].responded_at": now, "updated_at": now}
-    conv_id = None
-    if body.action == "accept":
-        existing = await db.conversations.find_one({"client_id": r["client_id"], "profile_id": rec["profile_id"]})
-        conv_id = existing["_id"] if existing else (await db.conversations.insert_one({
-            "client_id": r["client_id"], "provider_user_id": me, "profile_id": rec["profile_id"], "kind": r["kind"],
-            "provider_display_name": rec["display_name"], "request_id": r["_id"], "created_at": now, "updated_at": now,
-            "last_message": None})).inserted_id
-        for sender, text in ((r["client_id"], r["message"]), (me, body.reply.strip() or message("request_default_reply", await user_lang(r["client_id"]))[1])):
-            await db.messages.insert_one({"conversation_id": conv_id, "sender_id": sender, "body": text, "created_at": now, "read_at": None})
-        await db.conversations.update_one({"_id": conv_id}, {"$set": {"updated_at": now, "last_message": {"body": text[:120], "sender_id": me, "at": now}}})
-        upd["recipients.$[r].conversation_id"] = conv_id
-    await db.requests.update_one({"_id": r["_id"]}, {"$set": upd}, array_filters=[{"r.provider_user_id": me}])
-    if body.action == "accept":
-        await notify_key(r["client_id"], "request_accepted", "request_accepted", f"/messages/{conv_id}", name=rec["display_name"])
-    else:
-        await notify_key(r["client_id"], "request_refused", "request_refused", "/requests", channels=("inapp", "push"), name=rec["display_name"])
+    await db.requests.update_one({"_id": r["_id"]}, {"$set": {"recipients.$[r].status": "refused", "recipients.$[r].responded_at": now, "updated_at": now}},
+                                 array_filters=[{"r.provider_user_id": me}])
+    await notify_key(r["client_id"], "request_refused", "request_refused", "/requests", channels=("inapp", "push"), name=rec["display_name"])
     await trust.recompute(r["kind"], rec["profile_id"], "request_answered", "requests", {"request_id": str(r["_id"])})
-    return {"status": "accepted" if body.action == "accept" else "refused", "conversation_id": str(conv_id) if conv_id else None}
+    return {"status": "refused", "conversation_id": None}
+
+
+async def accept_request(r: dict, rec: dict, me: ObjectId, reply: str = "") -> ObjectId:
+    """Accept a request for this provider: open (or reuse) the conversation with the client. Also used by PRO AI,
+    where sending a quote or proposing an appointment on a new request accepts it first."""
+    now = _now()
+    existing = await db.conversations.find_one({"client_id": r["client_id"], "profile_id": rec["profile_id"]})
+    conv_id = existing["_id"] if existing else (await db.conversations.insert_one({
+        "client_id": r["client_id"], "provider_user_id": me, "profile_id": rec["profile_id"], "kind": r["kind"],
+        "provider_display_name": rec["display_name"], "request_id": r["_id"], "created_at": now, "updated_at": now,
+        "last_message": None})).inserted_id
+    for sender, text in ((r["client_id"], r["message"]), (me, reply.strip() or message("request_default_reply", await user_lang(r["client_id"]))[1])):
+        await db.messages.insert_one({"conversation_id": conv_id, "sender_id": sender, "body": text, "created_at": now, "read_at": None})
+    await db.conversations.update_one({"_id": conv_id}, {"$set": {"updated_at": now, "last_message": {"body": text[:120], "sender_id": me, "at": now}}})
+    await db.requests.update_one({"_id": r["_id"]}, {"$set": {"recipients.$[r].status": "accepted", "recipients.$[r].responded_at": now,
+                                                              "recipients.$[r].conversation_id": conv_id, "updated_at": now}},
+                                 array_filters=[{"r.provider_user_id": me}])
+    await notify_key(r["client_id"], "request_accepted", "request_accepted", f"/messages/{conv_id}", name=rec["display_name"])
+    await trust.recompute(r["kind"], rec["profile_id"], "request_answered", "requests", {"request_id": str(r["_id"])})
+    return conv_id
 
 
 @router.post("/reports", status_code=201)

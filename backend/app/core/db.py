@@ -68,6 +68,16 @@ async def init_indexes():
     await db.requests.create_index([("client_id", ASCENDING), ("idempotency_key", ASCENDING)], unique=True,
                                    partialFilterExpression={"idempotency_key": {"$type": "string"}})
     await db.reviews.create_index([("profile_id", ASCENDING), ("created_at", DESCENDING)])
+    # PRO AI
+    await db.quotes.create_index([("provider_user_id", ASCENDING), ("status", ASCENDING), ("created_at", DESCENDING)])
+    await db.quotes.create_index([("provider_user_id", ASCENDING), ("request_id", ASCENDING)])
+    await db.quotes.create_index([("status", ASCENDING), ("expires_at", ASCENDING)])
+    await db.quotes.create_index("client_id")
+    await db.quotes.create_index([("provider_user_id", ASCENDING), ("idempotency_key", ASCENDING)], unique=True,
+                                 partialFilterExpression={"idempotency_key": {"$type": "string"}})
+    await db.pro_leads.create_index([("provider_user_id", ASCENDING), ("request_id", ASCENDING)], unique=True)
+    await db.pro_followups.create_index([("provider_user_id", ASCENDING), ("status", ASCENDING), ("due_at", ASCENDING)])
+    await db.pro_followups.create_index([("status", ASCENDING), ("reminded", ASCENDING), ("due_at", ASCENDING)])
     await db.reviews.create_index([("kind", ASCENDING), ("created_at", DESCENDING)])  # Fixeur du mois
     await db.ad_banners.create_index([("active", ASCENDING), ("placements", ASCENDING), ("order", ASCENDING)])
     await db.reports.create_index([("status", ASCENDING), ("created_at", DESCENDING)])

@@ -1,7 +1,7 @@
 import { Fragment, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft, CalendarPlus, Check, CheckCheck, Clock, Flag, MessageCircle, MoreVertical, Search, Send, UserRound } from "lucide-react";
+import { ArrowLeft, CalendarPlus, Check, CheckCheck, Clock, FileText, Flag, MessageCircle, MoreVertical, Search, Send, UserRound } from "lucide-react";
 import { JobCard, ProposeJobDialog } from "@/components/jobs/Jobs";
 import { toast } from "sonner";
 import { Avatar } from "@/components/catalog/Cards";
@@ -118,6 +118,11 @@ function Bubble({ m, first, last }) {
       <div className={`max-w-[82%] sm:max-w-[70%] px-3.5 py-2 text-[15px] leading-snug shadow-sm ${shape} ${mine ? "gf-gradient-bg text-[#070911]" : "bg-secondary"} ${m.pending ? "opacity-70" : ""}`}
         data-testid={mine ? "message-mine" : "message-other"}>
         <p dir="auto" className="whitespace-pre-line break-words [overflow-wrap:anywhere] text-start">{m.body}</p>
+        {m.quote_id && (
+          <Link to={`/quotes/${m.quote_id}`} className={`mt-2 flex items-center justify-center gap-1.5 rounded-full px-3 min-h-[40px] text-sm font-bold ${mine ? "bg-[#070911]/15" : "bg-background"}`} data-testid="message-quote">
+            <FileText size={15} aria-hidden="true" />{t("proai.client.open")}
+          </Link>
+        )}
         <p className={`mt-0.5 flex items-center justify-end gap-1 text-[10px] ${mine ? "text-[#070911]/70" : "text-muted-foreground"}`}>
           {formatTime(m.created_at)}
           {mine && (m.pending ? <Clock size={11} aria-label={t("messages.sending")} /> : m.read_at

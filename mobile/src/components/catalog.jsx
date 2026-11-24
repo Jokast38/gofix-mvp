@@ -215,7 +215,6 @@ export function IntentChips({ intent, kind }) {
 
 export const UPCOMING = [
   { key: "voice", icon: Mic, color: BRAND.orange }, { key: "vision", icon: Camera, color: BRAND.pink },
-  { key: "pro_ai", icon: Sparkles, color: BRAND.electric },
 ];
 
 /** Roadmap innovations: shown as "coming soon" only (feature flags off, no behaviour). */

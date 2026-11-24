@@ -23,6 +23,10 @@ const Academy = lazy(() => import("@/pages/Academy"));
 const Match = lazy(() => import("@/pages/Match"));
 const MyPassport = lazy(() => import("@/pages/Passport"));
 const PublicPassport = lazy(() => import("@/pages/Passport").then((m) => ({ default: m.PublicPassport })));
+const ProAi = lazy(() => import("@/pages/ProAi"));
+const ProAiLead = lazy(() => import("@/pages/ProAi").then((m) => ({ default: m.LeadPage })));
+const ProAiQuote = lazy(() => import("@/pages/ProAi").then((m) => ({ default: m.QuoteEditorPage })));
+const ClientQuote = lazy(() => import("@/pages/ProAi").then((m) => ({ default: m.ClientQuote })));
 const EduHome = lazy(() => import("@/pages/Edu"));
 const EduTest = lazy(() => import("@/pages/Edu").then((m) => ({ default: m.EduTest })));
 const EduResult = lazy(() => import("@/pages/Edu").then((m) => ({ default: m.EduResult })));
@@ -60,6 +64,11 @@ export default function App() {
             <Route path="/match" element={<Match />} />
             <Route path="/p/:token" element={<PublicPassport />} />
             <Route path="/account/passport" element={<ProtectedRoute><MyPassport /></ProtectedRoute>} />
+            <Route path="/pro-ai" element={<ProtectedRoute><ProAi /></ProtectedRoute>} />
+            <Route path="/pro-ai/leads/:id" element={<ProtectedRoute><ProAiLead /></ProtectedRoute>} />
+            <Route path="/pro-ai/leads/:leadId/quote" element={<ProtectedRoute><ProAiQuote /></ProtectedRoute>} />
+            <Route path="/pro-ai/quotes/:id" element={<ProtectedRoute><ProAiQuote /></ProtectedRoute>} />
+            <Route path="/quotes/:id" element={<ProtectedRoute><ClientQuote /></ProtectedRoute>} />
             <Route path="/academy" element={<Academy />} />
             <Route path="/academy/tests" element={<EduHome />} />
             <Route path="/academy/tests/result/:id" element={<ProtectedRoute><EduResult /></ProtectedRoute>} />

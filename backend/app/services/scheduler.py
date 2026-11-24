@@ -37,8 +37,10 @@ async def run_once(now: datetime | None = None) -> dict:
     res = await db.payment_orders.update_many({"status": "pending", "created_at": {"$lt": now - timedelta(minutes=timeout)}},
                                               {"$set": {"status": "expired", "updated_at": now}})
     from app.api.v1.jobs import auto_complete_due, remind_upcoming
+    from app.api.v1.pro_ai import expire_quotes, remind_followups
     return {"expired": expired, "reminded": reminded, "orders_expired": res.modified_count,
-            "jobs_auto_completed": await auto_complete_due(now), "jobs_reminded": await remind_upcoming(now)}
+            "jobs_auto_completed": await auto_complete_due(now), "jobs_reminded": await remind_upcoming(now),
+            "quotes_expired": await expire_quotes(now), "followups_reminded": await remind_followups(now)}
 
 
 async def loop():

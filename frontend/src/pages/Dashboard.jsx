@@ -16,8 +16,8 @@ import { marketplaceService, providerService, requestService } from "@/services/
 import { StatusPill } from "./Requests";
 import { JobsList } from "./Jobs";
 import { TrustBadge, TrustSubscores } from "@/components/trust/Trust";
-import { UpcomingTeaser } from "@/components/home/Upcoming";
 import { PassportCta } from "@/pages/Passport";
+import { ProAiCta } from "@/pages/ProAi";
 
 function AccessBanner({ access }) {
   const { t } = useI18n();
@@ -384,7 +384,7 @@ export default function Dashboard() {
         <TabsContent value="trust" className="mt-5"><TrustTab trust={trust} /></TabsContent>
       </Tabs>
       <div className="mt-6"><PassportCta /></div>
-      <div className="mt-6"><UpcomingTeaser keys={["pro_ai"]} /></div>
+      <div className="mt-6"><ProAiCta /></div>
       {["verified", "unverified"].includes(profile.verification_status) && (
         <div className="mt-6 text-center">
           <Link to={`/${kind === "teacher" ? "teacher" : "pro"}/${profile.id}`} className="inline-flex items-center min-h-[44px] px-3 text-sm underline" data-testid="dashboard-view-public">{t("account.viewProfile")}</Link>

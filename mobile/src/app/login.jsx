@@ -62,7 +62,7 @@ export default function Login() {
       {tab === "password" ? (
         <>
           <Field label={t("auth.identifier")}>
-            <Input value={f.identifier} onChangeText={(v) => setF({ ...f, identifier: v })} autoCapitalize="none" autoComplete="username" keyboardType="email-address"
+            <Input value={f.identifier} onChangeText={(v) => setF({ ...f, identifier: v })} autoCapitalize="none" autoCorrect={false} autoComplete="username" keyboardType="email-address"
               placeholder={t("auth.identifierPh")} ltr testID="login-identifier" />
           </Field>
           <Field label={t("auth.password")}>

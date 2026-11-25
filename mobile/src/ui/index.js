@@ -148,8 +148,11 @@ export function Field({ label, hint, error, children, style }) {
 export function Input({ multiline, style, ltr, ...rest }) {
   const { c } = useTheme();
   const { rtl } = useI18n();
+  // Password fields (also while "show password" is on): Android keyboards otherwise capitalise the first letter or autocorrect it.
+  const secret = rest.secureTextEntry !== undefined || /password/.test(rest.autoComplete || "");
   return (
     <TextInput placeholderTextColor={c.muted} multiline={multiline}
+      {...(secret && { autoCapitalize: "none", autoCorrect: false, spellCheck: false })}
       style={[{ minHeight: multiline ? 110 : TAP, borderWidth: 1, borderColor: c.input, borderRadius: 12, paddingHorizontal: 14,
         paddingVertical: multiline ? 12 : 0, color: c.text, fontSize: 16, backgroundColor: alpha(c.bg, 0.6), textAlignVertical: multiline ? "top" : "center",
         textAlign: ltr ? "left" : rtl ? "right" : "left", writingDirection: ltr ? "ltr" : rtl ? "rtl" : "ltr" }, style]} {...rest} />

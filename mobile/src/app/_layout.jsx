@@ -24,7 +24,7 @@ const queryClient = new QueryClient({
 function usePushNavigation() {
   const qc = useQueryClient();
   useEffect(() => {
-    if (Platform.OS === "web") return undefined;
+    if (Platform.OS === "web" || !Notifications) return undefined;
     const open = (response) => {
       const link = response?.notification?.request?.content?.data?.link;
       if (response) setTimeout(() => router.push(appRoute(link)), 300);

@@ -3,21 +3,31 @@
 import { Linking, Platform } from "react-native";
 import Constants from "expo-constants";
 import * as Device from "expo-device";
-import * as Notifications from "expo-notifications";
 import { userService } from "@/api/services";
 import { secure } from "@/api/storage";
 
 const TOKEN_KEY = "gofix_push_token";
 const ASKED_KEY = "gofix_push_asked";
 
-if (Platform.OS !== "web") {
-  Notifications.setNotificationHandler({
-    handleNotification: async () => ({ shouldShowBanner: true, shouldShowList: true, shouldPlaySound: true, shouldSetBadge: false }),
-  });
+// Loaded lazily and guarded: Expo Go on Android has no remote push (the module only logs errors there, and after a
+// reload it can throw "ExpoContext ... is closed" at import time). Without it the app runs normally, minus push.
+function loadNotifications() {
+  if (Platform.OS === "web") return null;
+  if (Platform.OS === "android" && Constants.executionEnvironment === "storeClient") return null;
+  try {
+    const mod = require("expo-notifications");
+    mod.setNotificationHandler({
+      handleNotification: async () => ({ shouldShowBanner: true, shouldShowList: true, shouldPlaySound: true, shouldSetBadge: false }),
+    });
+    return mod;
+  } catch {
+    return null;
+  }
 }
+const Notifications = loadNotifications();
 
-/** Push needs a real phone (not the web preview, not a simulator). */
-export const pushSupported = () => Platform.OS !== "web" && Device.isDevice;
+/** Push needs a real phone (not the web preview, not a simulator) and a build that includes push. */
+export const pushSupported = () => Boolean(Notifications) && Device.isDevice;
 
 export async function pushStatus() {
   if (!pushSupported()) return "unsupported";

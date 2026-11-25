@@ -18,7 +18,9 @@
         "CFBundleAllowMixedLocalizations": true,
         "NSPhotoLibraryUsageDescription": "GoFix utilise vos photos pour votre photo de profil, votre image de couverture et vos justificatifs.",
         "NSCameraUsageDescription": "GoFix utilise l'appareil photo pour votre photo de profil et vos justificatifs.",
-        "NSLocationWhenInUseUsageDescription": "GoFix utilise votre position uniquement quand vous le demandez : pour trouver les professionnels les plus proches, proposer votre wilaya ou, si vous êtes professionnel, placer votre point de départ."
+        "NSLocationWhenInUseUsageDescription": "GoFix utilise votre position uniquement quand vous le demandez : pour trouver les professionnels les plus proches, proposer votre wilaya ou, si vous êtes professionnel, placer votre point de départ.",
+        "NSSpeechRecognitionUsageDescription": "GoFix transforme votre voix en texte pour comprendre votre demande. Vous vérifiez le texte avant toute recherche.",
+        "NSMicrophoneUsageDescription": "GoFix utilise le micro uniquement quand vous dictez une demande. Aucun enregistrement n'est conservé."
       }
     },
     "android": {
@@ -46,6 +48,11 @@
       "blockedPermissions": [
         "android.permission.ACCESS_FINE_LOCATION",
         "android.permission.ACCESS_BACKGROUND_LOCATION"
+      ],
+      "permissions": [
+        "android.permission.RECORD_AUDIO",
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_FINE_LOCATION"
       ]
     },
     "web": {
@@ -95,12 +102,24 @@
         {
           "microphonePermission": "GoFix utilise le micro uniquement quand vous dictez une demande. Aucun enregistrement n'est conservé.",
           "speechRecognitionPermission": "GoFix transforme votre voix en texte pour comprendre votre demande. Vous vérifiez le texte avant toute recherche.",
-          "androidSpeechServicePackages": ["com.google.android.googlequicksearchbox", "com.google.android.tts"]
+          "androidSpeechServicePackages": [
+            "com.google.android.googlequicksearchbox",
+            "com.google.android.tts"
+          ]
         }
       ]
     ],
     "extra": {
-      "apiUrl": "http://localhost"
-    }
+      "apiUrl": "http://localhost",
+      "router": {
+        "asyncRoutes": {
+          "web": true
+        }
+      },
+      "eas": {
+        "projectId": "88956b82-a843-4e88-9627-381195db47f3"
+      }
+    },
+    "owner": "jokast38"
   }
 }
